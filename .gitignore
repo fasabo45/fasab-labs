@@ -1,0 +1,14 @@
+# Ignore everything by default
+*
+
+# Except project files
+!dnb_generator.html
+!AGENTS.md
+!checkpoint.bat
+!checkpoints/
+!checkpoints/*
+!.gitignore
+
+# Ignore system files even if in checkpoints
+**/.DS_Store
+**/Thumbs.db
