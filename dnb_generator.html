@@ -263,6 +263,56 @@
             letter-spacing: 1px;
         }
 
+        /* Panel On/Off Toggle */
+        .panel-toggle {
+            position: relative;
+            width: 36px;
+            height: 18px;
+            background: var(--bg-inset);
+            border-radius: 9px;
+            cursor: pointer;
+            border: 1px solid var(--bg-grid);
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .panel-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 12px;
+            height: 12px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .panel-toggle.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .panel-toggle.active::after {
+            left: calc(100% - 14px);
+            background: white;
+        }
+
+        .panel-toggle:hover {
+            border-color: var(--accent-primary);
+        }
+
+        /* Panel disabled state */
+        .draggable-panel.disabled .panel-body {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .draggable-panel.disabled .panel-header-title {
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+
         .drag-grip {
             color: var(--text-muted);
             font-size: 1rem;
@@ -1246,6 +1296,7 @@
                     <div class="panel-header" draggable="true">
                         <div class="panel-header-left">
                             <button class="collapse-btn" title="Collapse/Expand">▼</button>
+                            <div class="panel-toggle active" title="Toggle On/Off"></div>
                             <span class="panel-header-title">🎚️ Global FX</span>
                         </div>
                         <span class="drag-grip">⋮⋮</span>
@@ -1317,6 +1368,7 @@
                     <div class="panel-header" draggable="true">
                         <div class="panel-header-left">
                             <button class="collapse-btn" title="Collapse/Expand">▼</button>
+                            <div class="panel-toggle active" title="Toggle On/Off"></div>
                             <span class="panel-header-title">🎸 Reese Bass</span>
                         </div>
                         <span class="drag-grip">⋮⋮</span>
@@ -1352,6 +1404,7 @@
                     <div class="panel-header" draggable="true">
                         <div class="panel-header-left">
                             <button class="collapse-btn" title="Collapse/Expand">▼</button>
+                            <div class="panel-toggle active" title="Toggle On/Off"></div>
                             <span class="panel-header-title">🤖 French Electro</span>
                         </div>
                         <span class="drag-grip">⋮⋮</span>
@@ -1542,6 +1595,7 @@
                     <div class="panel-header" draggable="true">
                         <div class="panel-header-left">
                             <button class="collapse-btn" title="Collapse/Expand">▼</button>
+                            <div class="panel-toggle active" title="Toggle On/Off"></div>
                             <span class="panel-header-title">🎭 G-House / Malaa</span>
                         </div>
                         <span class="drag-grip">⋮⋮</span>
@@ -1716,9 +1770,10 @@
             
             let draggedPanel = null;
             
-            // Load saved order and collapsed states
+            // Load saved order, collapsed states, and toggle states
             loadPanelOrder();
             loadCollapsedStates();
+            loadToggleStates();
             
             // Setup collapse buttons
             rightColumn.querySelectorAll('.collapse-btn').forEach(btn => {
@@ -1727,6 +1782,17 @@
                     const panel = btn.closest('.draggable-panel');
                     panel.classList.toggle('collapsed');
                     saveCollapsedStates();
+                });
+            });
+            
+            // Setup on/off toggle switches
+            rightColumn.querySelectorAll('.panel-toggle').forEach(toggle => {
+                toggle.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const panel = toggle.closest('.draggable-panel');
+                    toggle.classList.toggle('active');
+                    panel.classList.toggle('disabled');
+                    saveToggleStates();
                 });
             });
             
@@ -1831,6 +1897,43 @@
                 });
             } catch (e) {
                 console.warn('Could not load collapsed states:', e);
+            }
+        }
+        
+        function saveToggleStates() {
+            const rightColumn = document.getElementById('rightColumn');
+            const states = {};
+            rightColumn.querySelectorAll('.draggable-panel').forEach(panel => {
+                const toggle = panel.querySelector('.panel-toggle');
+                states[panel.dataset.panelId] = toggle ? toggle.classList.contains('active') : true;
+            });
+            localStorage.setItem('synthstation-toggles', JSON.stringify(states));
+        }
+        
+        function loadToggleStates() {
+            const saved = localStorage.getItem('synthstation-toggles');
+            if (!saved) return;
+            
+            try {
+                const states = JSON.parse(saved);
+                const rightColumn = document.getElementById('rightColumn');
+                Object.keys(states).forEach(panelId => {
+                    const panel = rightColumn.querySelector(`[data-panel-id="${panelId}"]`);
+                    if (panel) {
+                        const toggle = panel.querySelector('.panel-toggle');
+                        if (toggle) {
+                            if (states[panelId]) {
+                                toggle.classList.add('active');
+                                panel.classList.remove('disabled');
+                            } else {
+                                toggle.classList.remove('active');
+                                panel.classList.add('disabled');
+                            }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.warn('Could not load toggle states:', e);
             }
         }
         
