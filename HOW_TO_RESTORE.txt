@@ -1,0 +1,81 @@
+╔══════════════════════════════════════════════════════════════════╗
+║         DnB GENERATOR - RESTORE INSTRUCTIONS                     ║
+║                   v1.0-stable                                    ║
+╚══════════════════════════════════════════════════════════════════╝
+
+If something breaks, here's how to get back to the working version!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ OPTION 1: EASIEST - Run the Restore Script
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Double-click: restore_stable.bat
+  2. Press any key when prompted
+  3. Done! Your current version is backed up and stable is restored.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ OPTION 2: Git Command
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Open Command Prompt or Terminal in C:\Users\sfasa and run:
+
+  git checkout v1.0-stable -- dnb_generator.html
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ OPTION 3: Manual File Copy
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Copy this file:
+    FROM: C:\Users\sfasa\checkpoints\STABLE_dnb_generator_20260201.html
+    TO:   C:\Users\sfasa\dnb_generator.html
+
+  Command:
+    copy checkpoints\STABLE_dnb_generator_20260201.html dnb_generator.html
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ WHAT'S IN THE STABLE VERSION (v1.0-stable)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✓ 12 Working Tracks:
+    - DnB: Kick, Snare, Hi-Hat, Bass, Atmos
+    - French Electro: FrenchLead, Vocoder, DiscoBass, Organ
+    - G-House: GHouseBass, VocalChops, DarkPad
+
+  ✓ Step Sequencer (16-step, fully visible)
+  ✓ All FX Panels (Reverb, Delay, Filter, etc.)
+  ✓ Pattern Presets (9 total)
+  ✓ BPM Range: 60-200
+  ✓ File Size: ~155KB
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ FILE LOCATIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Main App:        C:\Users\sfasa\dnb_generator.html
+  Stable Backup:   C:\Users\sfasa\checkpoints\STABLE_dnb_generator_20260201.html
+  Restore Script:  C:\Users\sfasa\restore_stable.bat
+  Desktop Icon:    C:\Users\sfasa\dnb_icon.ico
+  This File:       C:\Users\sfasa\HOW_TO_RESTORE.txt
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ CREATING NEW STABLE CHECKPOINTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  When you have a new working version you want to save:
+
+  1. Copy the file:
+     copy dnb_generator.html checkpoints\STABLE_dnb_generator_YYYYMMDD.html
+
+  2. Create a git tag:
+     git tag -a v1.X-stable -m "Description of this version"
+
+  3. Update this file with the new version info!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Created: February 1, 2026
+  Author: Brodie 🐶 (code-puppy)
+
+  Questions? Just ask your favorite code puppy!
+
+╚══════════════════════════════════════════════════════════════════╝

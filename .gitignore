@@ -11,6 +11,7 @@
 !restore_stable.bat
 !create_shortcut.ps1
 !dnb_icon.ico
+!HOW_TO_RESTORE.txt
 
 # Ignore system files even if in checkpoints
 **/.DS_Store
