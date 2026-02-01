@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔥 DnB + French Electro Generator - Neurofunk Station 🔥</title>
+    <title>◈ SYNTH STATION ◈ DnB + French Electro Generator</title>
     <style>
         * {
             margin: 0;
@@ -12,24 +12,52 @@
         }
 
         :root {
-            --bg-dark: #0a0a0f;
-            --bg-panel: #12121a;
-            --bg-grid: #1a1a25;
-            --neon-cyan: #00ffff;
-            --neon-purple: #ff00ff;
-            --neon-pink: #ff0080;
-            --neon-green: #00ff88;
-            --french-gold: #ffd700;
-            --french-blue: #4169e1;
-            --french-silver: #c0c0c0;
-            --robot-copper: #b87333;
-            --ghouse-red: #8b0000;
-            --ghouse-burgundy: #722f37;
-            --ghouse-dark: #2d0000;
-            --text-dim: #666;
-            --text-bright: #fff;
-            --accent-glow: rgba(0, 255, 255, 0.3);
-            --gold-glow: rgba(255, 215, 0, 0.3);
+            /* === RETRO SPACE AGE PALETTE === */
+            /* Warm backgrounds - like vintage synth panels */
+            --bg-dark: #1C1915;
+            --bg-panel: #2A2520;
+            --bg-grid: #3A3530;
+            --bg-inset: #151310;
+            
+            /* Primary accents - burnt orange & amber */
+            --accent-primary: #FF6B35;
+            --accent-secondary: #F7C548;
+            --accent-warm: #E85D75;
+            --accent-cool: #00A896;
+            
+            /* Legacy mappings for compatibility */
+            --neon-cyan: var(--accent-primary);
+            --neon-purple: var(--accent-warm);
+            --neon-pink: var(--accent-warm);
+            --neon-green: var(--accent-cool);
+            
+            /* Track colors - warm & distinguishable */
+            --track-kick: #FF6B35;
+            --track-snare: #E85D75;
+            --track-hat: #F7C548;
+            --track-bass: #00A896;
+            --track-atmos: #8B8680;
+            
+            /* French Electro colors */
+            --french-gold: #FFD93D;
+            --french-blue: #6B5B95;
+            --french-silver: #A8A39D;
+            --robot-copper: #C17F59;
+            
+            /* G-House colors */
+            --ghouse-red: #C1292E;
+            --ghouse-burgundy: #8B4049;
+            --ghouse-dark: #3D2A2A;
+            
+            /* Text */
+            --text-dim: #8B8680;
+            --text-bright: #F5F0E6;
+            --text-muted: #5C5850;
+            
+            /* Glows - warm tones */
+            --accent-glow: rgba(255, 107, 53, 0.3);
+            --gold-glow: rgba(247, 197, 72, 0.3);
+            --warm-glow: rgba(232, 93, 117, 0.25);
         }
 
         body {
@@ -40,7 +68,7 @@
             overflow-x: hidden;
         }
 
-        /* Background Grid Animation */
+        /* Background Grid Animation - Retro graph paper style */
         .bg-grid {
             position: fixed;
             top: 0;
@@ -48,9 +76,9 @@
             width: 100%;
             height: 100%;
             background-image: 
-                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
+                linear-gradient(rgba(255, 107, 53, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 107, 53, 0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
             pointer-events: none;
             z-index: 0;
         }
@@ -63,29 +91,33 @@
             padding: 20px;
         }
 
-        /* Header */
+        /* Header - Retro Space Age */
         .header {
             text-align: center;
-            padding: 20px 0;
-            border-bottom: 2px solid var(--neon-cyan);
+            padding: 25px 0;
+            border-bottom: 3px solid var(--accent-primary);
             margin-bottom: 20px;
-            text-shadow: 0 0 20px var(--neon-cyan);
+            background: linear-gradient(180deg, rgba(255, 107, 53, 0.08) 0%, transparent 100%);
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink));
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary), var(--accent-warm));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            letter-spacing: 4px;
+            letter-spacing: 6px;
             text-transform: uppercase;
+            font-weight: 700;
+            text-shadow: none;
         }
 
         .header p {
             color: var(--text-dim);
-            margin-top: 10px;
-            font-size: 0.9rem;
+            margin-top: 12px;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         /* Main Layout */
@@ -102,33 +134,37 @@
             }
         }
 
-        /* Panels */
+        /* Panels - Vintage equipment style */
         .panel {
             background: var(--bg-panel);
-            border: 1px solid rgba(0, 255, 255, 0.2);
-            border-radius: 10px;
+            border: 2px solid var(--bg-grid);
+            border-radius: 8px;
             padding: 20px;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
 
         .panel-title {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--neon-cyan);
+            letter-spacing: 3px;
+            color: var(--accent-secondary);
             margin-bottom: 15px;
-            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+            border-bottom: 2px solid var(--bg-grid);
             padding-bottom: 10px;
+            font-weight: 600;
         }
 
-        /* Visualizer */
+        /* Visualizer - Oscilloscope style */
         .visualizer-container {
             height: 150px;
-            background: var(--bg-dark);
-            border-radius: 5px;
+            background: var(--bg-inset);
+            border-radius: 6px;
             overflow: hidden;
             margin-bottom: 20px;
-            border: 1px solid rgba(0, 255, 255, 0.2);
+            border: 2px solid var(--bg-grid);
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
         }
 
         #visualizer {
@@ -158,35 +194,60 @@
         }
 
         .btn-play {
-            background: linear-gradient(135deg, var(--neon-green), #00cc6a);
-            color: #000;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+            background: linear-gradient(180deg, #00B87A 0%, #00896A 100%);
+            color: #0A0A0A;
+            box-shadow: 
+                0 4px 0 #006B4F,
+                0 6px 12px rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
         }
 
         .btn-play:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 6px 0 #006B4F,
+                0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-play:active {
+            transform: translateY(2px);
+            box-shadow: 
+                0 2px 0 #006B4F,
+                0 3px 8px rgba(0, 0, 0, 0.3);
         }
 
         .btn-stop {
-            background: linear-gradient(135deg, var(--neon-pink), #cc0066);
+            background: linear-gradient(180deg, var(--accent-warm) 0%, #C04058 100%);
             color: #fff;
-            box-shadow: 0 0 20px rgba(255, 0, 128, 0.4);
+            box-shadow: 
+                0 4px 0 #9A3345,
+                0 6px 12px rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
         }
 
         .btn-stop:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(255, 0, 128, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 6px 0 #9A3345,
+                0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-stop:active {
+            transform: translateY(2px);
+            box-shadow: 
+                0 2px 0 #9A3345,
+                0 3px 8px rgba(0, 0, 0, 0.3);
         }
 
         .btn-tap {
             background: var(--bg-grid);
-            color: var(--neon-cyan);
-            border: 1px solid var(--neon-cyan);
+            color: var(--accent-primary);
+            border: 2px solid var(--accent-primary);
+            border-radius: 6px;
         }
 
         .btn-tap:hover {
-            background: rgba(0, 255, 255, 0.1);
+            background: rgba(255, 107, 53, 0.15);
         }
 
         .btn.active {
@@ -196,10 +257,15 @@
         .bpm-display {
             font-size: 2rem;
             font-weight: bold;
-            color: var(--neon-cyan);
-            text-shadow: 0 0 10px var(--neon-cyan);
+            color: var(--accent-secondary);
+            text-shadow: 0 0 8px var(--gold-glow);
             min-width: 100px;
             text-align: center;
+            font-family: 'Courier New', monospace;
+            background: var(--bg-inset);
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: 2px solid var(--bg-grid);
         }
 
         .bpm-label {
@@ -225,38 +291,42 @@
 
         input[type="range"] {
             flex: 1;
-            height: 6px;
-            background: var(--bg-dark);
-            border-radius: 3px;
+            height: 8px;
+            background: var(--bg-inset);
+            border-radius: 4px;
             outline: none;
             -webkit-appearance: none;
+            border: 1px solid var(--bg-grid);
         }
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
-            background: var(--neon-cyan);
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(180deg, var(--accent-primary) 0%, #D45A2E 100%);
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 0 10px var(--neon-cyan);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--bg-dark);
         }
 
         input[type="range"]::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
-            background: var(--neon-cyan);
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(180deg, var(--accent-primary) 0%, #D45A2E 100%);
             border-radius: 50%;
             cursor: pointer;
-            border: none;
-            box-shadow: 0 0 10px var(--neon-cyan);
+            border: 2px solid var(--bg-dark);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .value-display {
-            font-size: 0.8rem;
-            color: var(--neon-cyan);
-            min-width: 40px;
+            font-size: 0.75rem;
+            color: var(--accent-secondary);
+            min-width: 45px;
             text-align: right;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
         }
 
         /* Sequencer */
@@ -282,54 +352,70 @@
         }
 
         .track-icon {
-            width: 20px;
-            height: 20px;
-            border-radius: 3px;
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
+            font-weight: bold;
+            color: var(--bg-dark);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        .track-kick .track-icon { background: var(--neon-pink); }
-        .track-snare .track-icon { background: var(--neon-purple); }
-        .track-hat .track-icon { background: var(--neon-cyan); }
-        .track-bass .track-icon { background: var(--neon-green); }
-        .track-atmos .track-icon { background: #888; }
+        .track-kick .track-icon { background: var(--track-kick); }
+        .track-snare .track-icon { background: var(--track-snare); }
+        .track-hat .track-icon, .track-hihat .track-icon { background: var(--track-hat); }
+        .track-bass .track-icon { background: var(--track-bass); }
+        .track-atmos .track-icon { background: var(--track-atmos); color: var(--text-bright); }
+        .track-frenchlead .track-icon { background: var(--french-gold); }
+        .track-vocoder .track-icon { background: var(--robot-copper); }
+        .track-discobass .track-icon { background: var(--french-blue); color: var(--text-bright); }
+        .track-organ .track-icon { background: var(--french-silver); }
+        .track-ghousebass .track-icon { background: var(--ghouse-red); color: var(--text-bright); }
+        .track-vocalchops .track-icon { background: var(--ghouse-burgundy); color: var(--text-bright); }
+        .track-darkpad .track-icon { background: var(--ghouse-dark); color: var(--text-bright); }
 
         .step-grid {
             display: flex;
-            gap: 3px;
+            gap: 4px;
             flex: 1;
         }
 
         .step {
             flex: 1;
-            height: 35px;
-            background: var(--bg-dark);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
+            height: 32px;
+            background: var(--bg-inset);
+            border: 2px solid var(--bg-grid);
+            border-radius: 4px;
             cursor: pointer;
             transition: all 0.1s;
             position: relative;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .step:hover {
-            border-color: rgba(255, 255, 255, 0.3);
+            border-color: var(--accent-primary);
+            background: var(--bg-grid);
         }
 
         .step.active {
-            background: var(--neon-cyan);
-            box-shadow: 0 0 10px var(--neon-cyan);
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            box-shadow: 
+                0 0 8px var(--accent-glow),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .step.current {
-            border-color: var(--neon-pink);
-            box-shadow: 0 0 15px var(--neon-pink);
+            border-color: var(--accent-secondary);
+            box-shadow: 0 0 12px var(--gold-glow);
         }
 
         .step.active.current {
-            background: var(--neon-pink);
+            background: var(--accent-secondary);
+            border-color: var(--accent-secondary);
         }
 
         /* Track Controls */
@@ -339,37 +425,46 @@
         }
 
         .btn-small {
-            padding: 5px 10px;
-            font-size: 0.65rem;
+            padding: 6px 10px;
+            font-size: 0.6rem;
             border: none;
-            border-radius: 3px;
+            border-radius: 4px;
             cursor: pointer;
             text-transform: uppercase;
-            transition: all 0.2s;
+            transition: all 0.15s;
+            font-weight: bold;
         }
 
         .btn-mute {
-            background: var(--bg-dark);
+            background: var(--bg-inset);
             color: var(--text-dim);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid var(--bg-grid);
+        }
+
+        .btn-mute:hover {
+            border-color: var(--accent-warm);
         }
 
         .btn-mute.active {
-            background: var(--neon-pink);
-            color: #fff;
-            border-color: var(--neon-pink);
+            background: var(--accent-warm);
+            color: var(--bg-dark);
+            border-color: var(--accent-warm);
         }
 
         .btn-solo {
-            background: var(--bg-dark);
+            background: var(--bg-inset);
             color: var(--text-dim);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid var(--bg-grid);
+        }
+
+        .btn-solo:hover {
+            border-color: var(--accent-secondary);
         }
 
         .btn-solo.active {
-            background: var(--neon-cyan);
-            color: #000;
-            border-color: var(--neon-cyan);
+            background: var(--accent-secondary);
+            color: var(--bg-dark);
+            border-color: var(--accent-secondary);
         }
 
         /* FX Panel */
@@ -378,9 +473,10 @@
         }
 
         .fx-title {
-            font-size: 0.75rem;
-            color: var(--neon-purple);
+            font-size: 0.7rem;
+            color: var(--accent-warm);
             text-transform: uppercase;
+            letter-spacing: 1px;
             letter-spacing: 1px;
             margin-bottom: 10px;
         }
@@ -697,14 +793,14 @@
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
         }
 
-        /* Start Overlay */
+        /* Start Overlay - Retro Launch Screen */
         .start-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(10, 10, 15, 0.95);
+            background: radial-gradient(ellipse at center, var(--bg-panel) 0%, var(--bg-dark) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -717,29 +813,41 @@
         }
 
         .start-btn {
-            padding: 30px 60px;
-            font-size: 1.5rem;
-            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
-            color: #000;
+            padding: 28px 56px;
+            font-size: 1.3rem;
+            background: linear-gradient(180deg, var(--accent-primary) 0%, #D45A2E 100%);
+            color: var(--bg-dark);
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 4px;
             font-weight: bold;
-            box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
-            transition: all 0.3s;
+            box-shadow: 
+                0 6px 0 #A33D1A,
+                0 8px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.2s;
         }
 
         .start-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 80px rgba(0, 255, 255, 0.8);
+            transform: translateY(-4px);
+            box-shadow: 
+                0 10px 0 #A33D1A,
+                0 14px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .start-btn:active {
+            transform: translateY(2px);
+            box-shadow: 
+                0 3px 0 #A33D1A,
+                0 5px 10px rgba(0, 0, 0, 0.3);
         }
 
         .start-text {
-            margin-top: 20px;
+            margin-top: 25px;
             color: var(--text-dim);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
         }
 
         /* Section indicator */
@@ -750,39 +858,47 @@
         }
 
         .section-btn {
-            padding: 8px 16px;
-            background: var(--bg-dark);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 16px;
+            background: var(--bg-grid);
+            border: 2px solid var(--bg-inset);
             color: var(--text-dim);
             cursor: pointer;
-            border-radius: 3px;
-            font-size: 0.7rem;
+            border-radius: 6px;
+            font-size: 0.65rem;
             text-transform: uppercase;
-            transition: all 0.2s;
+            letter-spacing: 1px;
+            transition: all 0.15s;
+            font-weight: 600;
+        }
+
+        .section-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
         }
 
         .section-btn.active {
-            background: var(--neon-purple);
-            color: #fff;
-            border-color: var(--neon-purple);
-            box-shadow: 0 0 15px rgba(255, 0, 255, 0.4);
+            background: var(--accent-primary);
+            color: var(--bg-dark);
+            border-color: var(--accent-primary);
+            box-shadow: 0 2px 8px var(--accent-glow);
         }
 
         /* Level meters */
         .level-meter {
-            width: 5px;
-            height: 35px;
-            background: var(--bg-dark);
+            width: 6px;
+            height: 32px;
+            background: var(--bg-inset);
             border-radius: 3px;
             overflow: hidden;
             position: relative;
+            border: 1px solid var(--bg-grid);
         }
 
         .level-fill {
             position: absolute;
             bottom: 0;
             width: 100%;
-            background: linear-gradient(to top, var(--neon-green), var(--neon-cyan), var(--neon-pink));
+            background: linear-gradient(to top, var(--accent-cool), var(--accent-secondary), var(--accent-primary));
             transition: height 0.05s;
         }
     </style>
@@ -797,8 +913,8 @@
 
     <div class="container">
         <header class="header">
-            <h1>⚡ Neurofunk Station ⚡</h1>
-            <p>Drum & Bass + French Electro Synthesis Engine // Daft Punk × Justice × DnB</p>
+            <h1>◈ SYNTH STATION ◈</h1>
+            <p>Drum & Bass • French Electro • G-House — Analog-Style Beat Laboratory</p>
         </header>
 
         <div class="visualizer-container">
