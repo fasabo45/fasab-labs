@@ -625,6 +625,44 @@
             font-weight: bold;
         }
 
+        /* Instrument Select Dropdowns */
+        .instrument-select {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+            background: var(--bg-inset);
+            border: 2px solid var(--bg-grid);
+            border-radius: 6px;
+            color: var(--text-primary);
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .instrument-select:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .instrument-select:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        .instrument-select option {
+            background: var(--bg-panel);
+            color: var(--text-primary);
+            padding: 8px;
+        }
+
+        .instrument-info {
+            margin-top: 15px;
+            padding: 10px;
+            background: var(--bg-inset);
+            border-radius: 6px;
+            text-align: center;
+            color: var(--text-dim);
+        }
+
         /* Sequencer */
         .sequencer {
             margin-top: 20px;
@@ -1360,6 +1398,59 @@
                     </div>
                 </div>
 
+                <!-- Draggable Panel: Instruments 🎹 -->
+                <div class="draggable-panel" data-panel-id="instruments">
+                    <div class="panel-header" draggable="true">
+                        <div class="panel-header-left">
+                            <button class="collapse-btn" title="Collapse/Expand">▼</button>
+                            <div class="panel-toggle active" title="Toggle On/Off"></div>
+                            <span class="panel-header-title">🎹 Instruments</span>
+                        </div>
+                        <span class="drag-grip">⋮⋮</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="panel">
+                            <div class="fx-section">
+                                <div class="fx-title">Lead Sound</div>
+                                <div class="control-group">
+                                    <select id="leadInstrument" class="instrument-select">
+                                        <option value="synth">🎛️ Synth Lead</option>
+                                        <option value="supersaw">⚡ Supersaw</option>
+                                        <option value="square">⬜ Square Wave</option>
+                                        <option value="piano">🎹 Piano</option>
+                                        <option value="epiano">🎹 Electric Piano</option>
+                                        <option value="organ">🎵 Organ</option>
+                                        <option value="bell">🔔 Bell</option>
+                                        <option value="marimba">🥢 Marimba</option>
+                                        <option value="pluck">🪕 Pluck</option>
+                                        <option value="strings">🎻 Strings</option>
+                                        <option value="pad">☁️ Soft Pad</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="fx-section">
+                                <div class="fx-title">Chord Sound</div>
+                                <div class="control-group">
+                                    <select id="chordInstrument" class="instrument-select">
+                                        <option value="piano" selected>🎹 Piano</option>
+                                        <option value="epiano">🎹 Electric Piano</option>
+                                        <option value="organ">🎵 Organ</option>
+                                        <option value="synth">🎛️ Synth Lead</option>
+                                        <option value="supersaw">⚡ Supersaw</option>
+                                        <option value="square">⬜ Square Wave</option>
+                                        <option value="strings">🎻 Strings</option>
+                                        <option value="pad">☁️ Soft Pad</option>
+                                        <option value="bell">🔔 Bell</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="instrument-info" id="instrumentInfo">
+                                <small>💡 Instruments use wavetable synthesis with ADSR envelopes</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Draggable Panel: Reese Bass -->
                 <div class="draggable-panel" data-panel-id="reesebass">
                     <div class="panel-header" draggable="true">
@@ -2084,6 +2175,170 @@
                     subEnhanceFreq: 40
                 };
 
+                // ============================================
+                // INSTRUMENT / WAVETABLE SYSTEM 🎹
+                // ============================================
+                this.selectedInstruments = {
+                    lead: 'synth',
+                    chords: 'piano'
+                };
+
+                // Instrument definitions with synthesis parameters
+                this.instruments = {
+                    // === KEYBOARD / PIANO ===
+                    piano: {
+                        name: 'Acoustic Piano',
+                        icon: '🎹',
+                        oscillators: [
+                            { type: 'triangle', detune: 0, gain: 0.5 },      // Fundamental
+                            { type: 'sine', detune: 1200, gain: 0.25 },      // 2nd harmonic
+                            { type: 'sine', detune: 1902, gain: 0.1 },       // 3rd harmonic
+                            { type: 'sine', detune: 2400, gain: 0.05 }       // 4th harmonic (octave+5th)
+                        ],
+                        envelope: { attack: 0.005, decay: 0.3, sustain: 0.4, release: 0.8 },
+                        filter: { type: 'lowpass', frequency: 4000, Q: 0.5, envAmount: 2000 },
+                        volume: 0.6
+                    },
+                    epiano: {
+                        name: 'Electric Piano',
+                        icon: '🎹',
+                        oscillators: [
+                            { type: 'sine', detune: 0, gain: 0.6 },
+                            { type: 'triangle', detune: 7, gain: 0.3 },       // Slight detune
+                            { type: 'sine', detune: 1200, gain: 0.15 }        // Bell-like overtone
+                        ],
+                        envelope: { attack: 0.001, decay: 0.2, sustain: 0.3, release: 0.5 },
+                        filter: { type: 'lowpass', frequency: 3500, Q: 1, envAmount: 1500 },
+                        volume: 0.5
+                    },
+                    // === SYNTHS ===
+                    synth: {
+                        name: 'Synth Lead',
+                        icon: '🎛️',
+                        oscillators: [
+                            { type: 'sawtooth', detune: 0, gain: 0.4 },
+                            { type: 'sawtooth', detune: 7, gain: 0.4 }        // Detuned for thickness
+                        ],
+                        envelope: { attack: 0.01, decay: 0.15, sustain: 0.6, release: 0.3 },
+                        filter: { type: 'lowpass', frequency: 3000, Q: 2, envAmount: 2000 },
+                        volume: 0.4
+                    },
+                    supersaw: {
+                        name: 'Supersaw',
+                        icon: '⚡',
+                        oscillators: [
+                            { type: 'sawtooth', detune: -12, gain: 0.2 },
+                            { type: 'sawtooth', detune: -7, gain: 0.25 },
+                            { type: 'sawtooth', detune: 0, gain: 0.3 },
+                            { type: 'sawtooth', detune: 7, gain: 0.25 },
+                            { type: 'sawtooth', detune: 12, gain: 0.2 }
+                        ],
+                        envelope: { attack: 0.02, decay: 0.1, sustain: 0.7, release: 0.4 },
+                        filter: { type: 'lowpass', frequency: 5000, Q: 1, envAmount: 3000 },
+                        volume: 0.35
+                    },
+                    square: {
+                        name: 'Square Wave',
+                        icon: '⬜',
+                        oscillators: [
+                            { type: 'square', detune: 0, gain: 0.5 },
+                            { type: 'square', detune: 5, gain: 0.3 }
+                        ],
+                        envelope: { attack: 0.01, decay: 0.1, sustain: 0.5, release: 0.2 },
+                        filter: { type: 'lowpass', frequency: 2500, Q: 2, envAmount: 1500 },
+                        volume: 0.35
+                    },
+                    // === ORGAN ===
+                    organ: {
+                        name: 'Organ',
+                        icon: '🎵',
+                        oscillators: [
+                            { type: 'sine', detune: -1200, gain: 0.2 },       // Sub octave
+                            { type: 'sine', detune: 0, gain: 0.4 },           // Fundamental
+                            { type: 'sine', detune: 1200, gain: 0.25 },       // 2nd
+                            { type: 'sine', detune: 1902, gain: 0.1 },        // 3rd
+                            { type: 'sine', detune: 2400, gain: 0.05 }        // 4th
+                        ],
+                        envelope: { attack: 0.01, decay: 0.01, sustain: 0.9, release: 0.1 },
+                        filter: { type: 'lowpass', frequency: 6000, Q: 0.5, envAmount: 0 },
+                        volume: 0.4
+                    },
+                    // === STRINGS / PADS ===
+                    strings: {
+                        name: 'Strings',
+                        icon: '🎻',
+                        oscillators: [
+                            { type: 'sawtooth', detune: -5, gain: 0.3 },
+                            { type: 'sawtooth', detune: 5, gain: 0.3 },
+                            { type: 'sawtooth', detune: -12, gain: 0.2 },
+                            { type: 'sawtooth', detune: 12, gain: 0.2 }
+                        ],
+                        envelope: { attack: 0.15, decay: 0.2, sustain: 0.8, release: 0.6 },
+                        filter: { type: 'lowpass', frequency: 3000, Q: 0.5, envAmount: 1000 },
+                        volume: 0.35
+                    },
+                    pad: {
+                        name: 'Soft Pad',
+                        icon: '☁️',
+                        oscillators: [
+                            { type: 'triangle', detune: -7, gain: 0.4 },
+                            { type: 'triangle', detune: 7, gain: 0.4 },
+                            { type: 'sine', detune: 0, gain: 0.3 }
+                        ],
+                        envelope: { attack: 0.3, decay: 0.2, sustain: 0.7, release: 1.0 },
+                        filter: { type: 'lowpass', frequency: 2000, Q: 0.5, envAmount: 500 },
+                        volume: 0.4
+                    },
+                    // === BELLS / MALLETS ===
+                    bell: {
+                        name: 'Bell',
+                        icon: '🔔',
+                        oscillators: [
+                            { type: 'sine', detune: 0, gain: 0.4 },
+                            { type: 'sine', detune: 1200, gain: 0.3 },
+                            { type: 'sine', detune: 2400, gain: 0.2 },
+                            { type: 'sine', detune: 3600, gain: 0.1 }
+                        ],
+                        envelope: { attack: 0.001, decay: 0.5, sustain: 0.1, release: 1.5 },
+                        filter: { type: 'highpass', frequency: 500, Q: 0.5, envAmount: 0 },
+                        volume: 0.4
+                    },
+                    marimba: {
+                        name: 'Marimba',
+                        icon: '🥢',
+                        oscillators: [
+                            { type: 'sine', detune: 0, gain: 0.6 },
+                            { type: 'triangle', detune: 1200, gain: 0.2 }
+                        ],
+                        envelope: { attack: 0.001, decay: 0.3, sustain: 0.05, release: 0.4 },
+                        filter: { type: 'lowpass', frequency: 5000, Q: 1, envAmount: 2000 },
+                        volume: 0.5
+                    },
+                    // === BASS ===
+                    bass: {
+                        name: 'Synth Bass',
+                        icon: '🎸',
+                        oscillators: [
+                            { type: 'sawtooth', detune: 0, gain: 0.5 },
+                            { type: 'square', detune: -1200, gain: 0.3 }      // Sub octave
+                        ],
+                        envelope: { attack: 0.01, decay: 0.2, sustain: 0.5, release: 0.2 },
+                        filter: { type: 'lowpass', frequency: 800, Q: 3, envAmount: 1500 },
+                        volume: 0.6
+                    },
+                    pluck: {
+                        name: 'Pluck',
+                        icon: '🪕',
+                        oscillators: [
+                            { type: 'triangle', detune: 0, gain: 0.5 },
+                            { type: 'sawtooth', detune: 0, gain: 0.2 }
+                        ],
+                        envelope: { attack: 0.001, decay: 0.15, sustain: 0.1, release: 0.3 },
+                        filter: { type: 'lowpass', frequency: 2000, Q: 2, envAmount: 3000 },
+                        volume: 0.5
+                    }
+                };
+
                 // Audio nodes
                 this.masterGain = null;
                 this.compressor = null;
@@ -2789,61 +3044,98 @@
                 mid.stop(time + 0.3);
             }
             
-            // Clean synth lead
-            playLead(time, step) {
-                const notes = [60, 63, 67, 72, 67, 63, 60, 58, 60, 63, 67, 70, 67, 63, 60, 55];
-                const note = notes[step % 16];
-                const freq = 440 * Math.pow(2, (note - 69) / 12);
+            // ============================================
+            // WAVETABLE INSTRUMENT ENGINE 🎹
+            // ============================================
+            
+            playInstrument(instrumentName, note, time, outputGain, duration = 0.5) {
+                const inst = this.instruments[instrumentName];
+                if (!inst) {
+                    console.warn(`Instrument '${instrumentName}' not found`);
+                    return;
+                }
                 
-                const osc = this.ctx.createOscillator();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(freq, time);
+                const freq = 440 * Math.pow(2, (note - 69) / 12);
+                const { envelope, filter: filterDef, oscillators, volume } = inst;
+                
+                // Create oscillators based on instrument definition
+                const oscs = [];
+                const oscGains = [];
+                
+                oscillators.forEach(oscDef => {
+                    const osc = this.ctx.createOscillator();
+                    osc.type = oscDef.type;
+                    
+                    // Detune is in cents (100 cents = 1 semitone, 1200 = 1 octave)
+                    const detuneFreq = freq * Math.pow(2, oscDef.detune / 1200);
+                    osc.frequency.setValueAtTime(detuneFreq, time);
+                    
+                    const oscGain = this.ctx.createGain();
+                    oscGain.gain.value = oscDef.gain;
+                    
+                    osc.connect(oscGain);
+                    oscs.push(osc);
+                    oscGains.push(oscGain);
+                });
                 
                 // Filter with envelope
                 const filter = this.ctx.createBiquadFilter();
-                filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(3000, time);
-                filter.frequency.exponentialRampToValueAtTime(800, time + 0.2);
-                filter.Q.value = 2;
+                filter.type = filterDef.type;
+                filter.Q.value = filterDef.Q;
                 
-                // Envelope
+                // Filter envelope (starts high, decays down)
+                const filterStart = filterDef.frequency + filterDef.envAmount;
+                const filterEnd = filterDef.frequency;
+                filter.frequency.setValueAtTime(filterStart, time);
+                filter.frequency.exponentialRampToValueAtTime(
+                    Math.max(filterEnd, 20), 
+                    time + envelope.decay
+                );
+                
+                // ADSR Envelope
                 const env = this.ctx.createGain();
+                const peakTime = time + envelope.attack;
+                const decayEndTime = peakTime + envelope.decay;
+                const sustainLevel = envelope.sustain * volume;
+                const releaseStart = time + duration - envelope.release;
+                
                 env.gain.setValueAtTime(0, time);
-                env.gain.linearRampToValueAtTime(0.4, time + 0.01);
-                env.gain.exponentialRampToValueAtTime(0.2, time + 0.1);
-                env.gain.exponentialRampToValueAtTime(0.01, time + 0.3);
+                env.gain.linearRampToValueAtTime(volume, peakTime);           // Attack
+                env.gain.exponentialRampToValueAtTime(                         // Decay
+                    Math.max(sustainLevel, 0.001), 
+                    decayEndTime
+                );
+                env.gain.setValueAtTime(sustainLevel, releaseStart);           // Sustain
+                env.gain.exponentialRampToValueAtTime(0.001, time + duration); // Release
                 
-                osc.connect(filter);
+                // Connect all oscillators -> filter -> envelope -> output
+                oscGains.forEach(g => g.connect(filter));
                 filter.connect(env);
-                env.connect(this.trackGains[4]);
+                env.connect(outputGain);
                 
-                osc.start(time);
-                osc.stop(time + 0.35);
+                // Start and stop oscillators
+                oscs.forEach(osc => {
+                    osc.start(time);
+                    osc.stop(time + duration + 0.1);
+                });
+            }
+
+            // Lead synth using instrument system
+            playLead(time, step) {
+                const notes = [60, 63, 67, 72, 67, 63, 60, 58, 60, 63, 67, 70, 67, 63, 60, 55];
+                const note = notes[step % 16];
+                const instrument = this.selectedInstruments.lead || 'synth';
+                this.playInstrument(instrument, note, time, this.trackGains[4], 0.35);
             }
             
-            // Clean chord stabs
+            // Chord stabs using instrument system
             playChords(time, step) {
                 // Cm chord
                 const chordNotes = [48, 51, 55]; // C, Eb, G
+                const instrument = this.selectedInstruments.chords || 'piano';
                 
                 chordNotes.forEach(note => {
-                    const freq = 440 * Math.pow(2, (note - 69) / 12);
-                    
-                    const osc = this.ctx.createOscillator();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(freq, time);
-                    
-                    const env = this.ctx.createGain();
-                    env.gain.setValueAtTime(0, time);
-                    env.gain.linearRampToValueAtTime(0.15, time + 0.01);
-                    env.gain.exponentialRampToValueAtTime(0.08, time + 0.1);
-                    env.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
-                    
-                    osc.connect(env);
-                    env.connect(this.trackGains[5]);
-                    
-                    osc.start(time);
-                    osc.stop(time + 0.45);
+                    this.playInstrument(instrument, note, time, this.trackGains[5], 0.45);
                 });
             }
 
@@ -3059,6 +3351,19 @@
                 // Section buttons
                 document.querySelectorAll('.section-btn').forEach(btn => {
                     btn.addEventListener('click', () => this.loadPattern(btn.dataset.section));
+                });
+
+                // Instrument selectors 🎹
+                document.getElementById('leadInstrument').addEventListener('change', (e) => {
+                    this.selectedInstruments.lead = e.target.value;
+                    const inst = this.instruments[e.target.value];
+                    console.log(`🎹 Lead instrument: ${inst.name}`);
+                });
+                
+                document.getElementById('chordInstrument').addEventListener('change', (e) => {
+                    this.selectedInstruments.chords = e.target.value;
+                    const inst = this.instruments[e.target.value];
+                    console.log(`🎹 Chord instrument: ${inst.name}`);
                 });
 
                 // FX controls - DISABLED for zero latency!
