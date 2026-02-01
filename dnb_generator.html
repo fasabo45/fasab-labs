@@ -11,57 +11,99 @@
             box-sizing: border-box;
         }
 
-        :root {
-            /* === RETRO CREAM PALETTE === */
-            /* Light cream backgrounds - like vintage equipment */
+        /* === THEME SYSTEM === */
+        :root, [data-theme="light"] {
+            /* CREAM LIGHT THEME */
             --bg-dark: #F5F0E8;
             --bg-panel: #EBE6DC;
             --bg-grid: #E0DAD0;
             --bg-inset: #D5CFC5;
             --bg-deep: #2A2520;
             
-            /* Primary accents - bold on cream */
             --accent-primary: #E85A30;
             --accent-secondary: #D4A03C;
             --accent-warm: #C94D6D;
             --accent-cool: #008578;
             
-            /* Legacy mappings for compatibility */
             --neon-cyan: var(--accent-primary);
             --neon-purple: var(--accent-warm);
             --neon-pink: var(--accent-warm);
             --neon-green: var(--accent-cool);
             
-            /* Track colors - bold on light bg */
             --track-kick: #E85A30;
             --track-snare: #C94D6D;
             --track-hat: #D4A03C;
             --track-bass: #008578;
             --track-atmos: #7A756D;
             
-            /* French Electro colors */
             --french-gold: #C9940A;
             --french-blue: #5B4B85;
             --french-silver: #8A857D;
             --robot-copper: #A66B45;
             
-            /* G-House colors */
             --ghouse-red: #A32228;
             --ghouse-burgundy: #6B3039;
             --ghouse-dark: #4D3A3A;
             
-            /* Text - dark on light */
             --text-dim: #6B665E;
             --text-bright: #2A2520;
             --text-muted: #9A958D;
             --text-light: #F5F0E8;
             
-            /* Shadows & accents for light mode */
             --shadow-soft: rgba(42, 37, 32, 0.1);
             --shadow-medium: rgba(42, 37, 32, 0.15);
             --accent-glow: rgba(232, 90, 48, 0.25);
             --gold-glow: rgba(212, 160, 60, 0.3);
             --warm-glow: rgba(201, 77, 109, 0.2);
+            
+            --grid-line: rgba(42, 37, 32, 0.06);
+        }
+
+        [data-theme="dark"] {
+            /* RETRO SPACE AGE DARK THEME */
+            --bg-dark: #1C1915;
+            --bg-panel: #2A2520;
+            --bg-grid: #3A3530;
+            --bg-inset: #151310;
+            --bg-deep: #0A0908;
+            
+            --accent-primary: #FF6B35;
+            --accent-secondary: #F7C548;
+            --accent-warm: #E85D75;
+            --accent-cool: #00A896;
+            
+            --neon-cyan: var(--accent-primary);
+            --neon-purple: var(--accent-warm);
+            --neon-pink: var(--accent-warm);
+            --neon-green: var(--accent-cool);
+            
+            --track-kick: #FF6B35;
+            --track-snare: #E85D75;
+            --track-hat: #F7C548;
+            --track-bass: #00A896;
+            --track-atmos: #8B8680;
+            
+            --french-gold: #FFD93D;
+            --french-blue: #6B5B95;
+            --french-silver: #A8A39D;
+            --robot-copper: #C17F59;
+            
+            --ghouse-red: #C1292E;
+            --ghouse-burgundy: #8B4049;
+            --ghouse-dark: #3D2A2A;
+            
+            --text-dim: #8B8680;
+            --text-bright: #F5F0E6;
+            --text-muted: #5C5850;
+            --text-light: #F5F0E6;
+            
+            --shadow-soft: rgba(0, 0, 0, 0.3);
+            --shadow-medium: rgba(0, 0, 0, 0.4);
+            --accent-glow: rgba(255, 107, 53, 0.3);
+            --gold-glow: rgba(247, 197, 72, 0.3);
+            --warm-glow: rgba(232, 93, 117, 0.25);
+            
+            --grid-line: rgba(255, 107, 53, 0.04);
         }
 
         body {
@@ -70,9 +112,16 @@
             color: var(--text-bright);
             min-height: 100vh;
             overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Background Grid Animation - Subtle graph paper */
+        /* Smooth theme transitions */
+        .panel, .header, .step, .btn, .section-btn, .theme-toggle,
+        .visualizer-container, .bpm-display, input[type="range"] {
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Background Grid Animation */
         .bg-grid {
             position: fixed;
             top: 0;
@@ -80,11 +129,74 @@
             width: 100%;
             height: 100%;
             background-image: 
-                linear-gradient(rgba(42, 37, 32, 0.06) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(42, 37, 32, 0.06) 1px, transparent 1px);
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
             background-size: 32px 32px;
             pointer-events: none;
             z-index: 0;
+        }
+
+        /* Theme Toggle Switch */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-panel);
+            padding: 8px 14px;
+            border-radius: 25px;
+            border: 2px solid var(--bg-grid);
+            box-shadow: 0 2px 10px var(--shadow-medium);
+        }
+
+        .theme-toggle-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        .theme-toggle-label.active {
+            color: var(--accent-primary);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: var(--bg-inset);
+            border-radius: 13px;
+            cursor: pointer;
+            border: 2px solid var(--bg-grid);
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .toggle-knob {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(180deg, var(--accent-primary) 0%, #C04A25 100%);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px var(--shadow-medium);
+        }
+
+        [data-theme="dark"] .toggle-knob {
+            left: calc(100% - 22px);
+        }
+
+        .toggle-icon {
+            font-size: 0.85rem;
         }
 
         .container {
@@ -913,6 +1025,17 @@
 <body>
     <div class="bg-grid"></div>
     
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" id="themeToggle">
+        <span class="toggle-icon">☀️</span>
+        <span class="theme-toggle-label active" data-theme-label="light">Light</span>
+        <div class="toggle-switch" id="toggleSwitch">
+            <div class="toggle-knob"></div>
+        </div>
+        <span class="theme-toggle-label" data-theme-label="dark">Dark</span>
+        <span class="toggle-icon">🌙</span>
+    </div>
+    
     <div class="start-overlay" id="startOverlay">
         <button class="start-btn" id="startBtn">🔊 Initialize Audio Engine</button>
         <p class="start-text">Click to start the DnB Generator (Web Audio API requires user interaction)</p>
@@ -1365,6 +1488,41 @@
     <div class="status" id="status">⏹ Stopped</div>
 
     <script>
+        // ============================================
+        // THEME TOGGLE SYSTEM
+        // ============================================
+        
+        (function initTheme() {
+            // Check for saved theme preference or default to light
+            const savedTheme = localStorage.getItem('synthstation-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeLabels(savedTheme);
+        })();
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('synthstation-theme', newTheme);
+            updateThemeLabels(newTheme);
+        }
+
+        function updateThemeLabels(theme) {
+            document.querySelectorAll('.theme-toggle-label').forEach(label => {
+                const labelTheme = label.getAttribute('data-theme-label');
+                label.classList.toggle('active', labelTheme === theme);
+            });
+        }
+
+        // Initialize toggle click handler after DOM loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleSwitch = document.getElementById('toggleSwitch');
+            if (toggleSwitch) {
+                toggleSwitch.addEventListener('click', toggleTheme);
+            }
+        });
+
         // ============================================
         // DnB GENERATOR - Web Audio API Implementation
         // ============================================
