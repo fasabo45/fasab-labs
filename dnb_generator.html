@@ -4055,14 +4055,17 @@
 
             setupSynthControls() {
                 // Wavetable position
-                document.getElementById('wavetablePos')?.addEventListener('input', (e) => {
-                    const pos = parseInt(e.target.value);
-                    this.fx.wavetablePosition = pos / 100;
-                    const waveNames = ['Sine', 'Saw', 'Square', 'Tri', 'Pulse'];
-                    const index = Math.floor((pos / 100) * (waveNames.length - 1));
-                    document.getElementById('wavetablePosDisplay').textContent = waveNames[index];
-                    this.drawWaveformPreview();
-                });
+                const wavetablePos = document.getElementById('wavetablePos');
+                if (wavetablePos) {
+                    wavetablePos.addEventListener('input', (e) => {
+                        const pos = parseInt(e.target.value);
+                        this.fx.wavetablePosition = pos / 100;
+                        const waveNames = ['Sine', 'Saw', 'Square', 'Tri', 'Pulse'];
+                        const index = Math.floor((pos / 100) * (waveNames.length - 1));
+                        document.getElementById('wavetablePosDisplay').textContent = waveNames[index];
+                        this.drawWaveformPreview();
+                    });
+                }
 
                 // Waveform buttons
                 document.querySelectorAll('.waveform-btn').forEach(btn => {
@@ -4075,41 +4078,71 @@
                 });
 
                 // FM controls
-                document.getElementById('fmRatio')?.addEventListener('input', (e) => {
-                    this.fx.fmRatio = parseFloat(e.target.value);
-                    document.getElementById('fmRatioDisplay').textContent = this.fx.fmRatio + ':1';
-                });
+                const fmRatio = document.getElementById('fmRatio');
+                if (fmRatio) {
+                    fmRatio.addEventListener('input', (e) => {
+                        this.fx.fmRatio = parseFloat(e.target.value);
+                        document.getElementById('fmRatioDisplay').textContent = this.fx.fmRatio + ':1';
+                    });
+                }
 
-                document.getElementById('fmDepth')?.addEventListener('input', (e) => {
-                    this.fx.fmDepth = parseInt(e.target.value);
-                    document.getElementById('fmDepthDisplay').textContent = this.fx.fmDepth;
-                });
+                const fmDepth = document.getElementById('fmDepth');
+                if (fmDepth) {
+                    fmDepth.addEventListener('input', (e) => {
+                        this.fx.fmDepth = parseInt(e.target.value);
+                        document.getElementById('fmDepthDisplay').textContent = this.fx.fmDepth;
+                    });
+                }
 
                 // Unison controls
-                document.getElementById('unisonVoices')?.addEventListener('input', (e) => {
-                    this.fx.unisonVoices = parseInt(e.target.value);
-                    document.getElementById('unisonVoicesDisplay').textContent = this.fx.unisonVoices;
-                });
+                const unisonVoices = document.getElementById('unisonVoices');
+                if (unisonVoices) {
+                    unisonVoices.addEventListener('input', (e) => {
+                        this.fx.unisonVoices = parseInt(e.target.value);
+                        document.getElementById('unisonVoicesDisplay').textContent = this.fx.unisonVoices;
+                    });
+                }
 
-                document.getElementById('unisonDetune')?.addEventListener('input', (e) => {
-                    this.fx.unisonDetune = parseInt(e.target.value);
-                    document.getElementById('unisonDetuneDisplay').textContent = this.fx.unisonDetune + 'ct';
-                });
+                const unisonDetune = document.getElementById('unisonDetune');
+                if (unisonDetune) {
+                    unisonDetune.addEventListener('input', (e) => {
+                        this.fx.unisonDetune = parseInt(e.target.value);
+                        document.getElementById('unisonDetuneDisplay').textContent = this.fx.unisonDetune + 'ct';
+                    });
+                }
 
                 // New track buttons
-                document.getElementById('addWavetableTrack')?.addEventListener('click', () => this.addTrack('wavetable'));
-                document.getElementById('addFMTrack')?.addEventListener('click', () => this.addTrack('fm'));
-                document.getElementById('addSuperSaw')?.addEventListener('click', () => this.addTrack('supersaw'));
-                document.getElementById('addNoise')?.addEventListener('click', () => this.addTrack('noise'));
+                const addWavetableTrack = document.getElementById('addWavetableTrack');
+                if (addWavetableTrack) addWavetableTrack.addEventListener('click', () => this.addTrack('wavetable'));
+                
+                const addFMTrack = document.getElementById('addFMTrack');
+                if (addFMTrack) addFMTrack.addEventListener('click', () => this.addTrack('fm'));
+                
+                const addSuperSaw = document.getElementById('addSuperSaw');
+                if (addSuperSaw) addSuperSaw.addEventListener('click', () => this.addTrack('supersaw'));
+                
+                const addNoise = document.getElementById('addNoise');
+                if (addNoise) addNoise.addEventListener('click', () => this.addTrack('noise'));
 
                 // Import/Export
-                document.getElementById('exportPattern')?.addEventListener('click', () => this.exportPattern());
-                document.getElementById('importPattern')?.addEventListener('click', () => {
-                    document.getElementById('importFile').click();
-                });
-                document.getElementById('importFile')?.addEventListener('change', (e) => this.importPattern(e));
-                document.getElementById('exportMIDI')?.addEventListener('click', () => this.exportMIDI());
-                document.getElementById('randomizeAll')?.addEventListener('click', () => this.randomizeAll());
+                const exportPattern = document.getElementById('exportPattern');
+                if (exportPattern) exportPattern.addEventListener('click', () => this.exportPattern());
+                
+                const importPattern = document.getElementById('importPattern');
+                if (importPattern) {
+                    importPattern.addEventListener('click', () => {
+                        document.getElementById('importFile').click();
+                    });
+                }
+                
+                const importFile = document.getElementById('importFile');
+                if (importFile) importFile.addEventListener('change', (e) => this.importPattern(e));
+                
+                const exportMIDI = document.getElementById('exportMIDI');
+                if (exportMIDI) exportMIDI.addEventListener('click', () => this.exportMIDI());
+                
+                const randomizeAll = document.getElementById('randomizeAll');
+                if (randomizeAll) randomizeAll.addEventListener('click', () => this.randomizeAll());
             }
 
             drawWaveformPreview() {
