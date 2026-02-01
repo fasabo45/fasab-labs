@@ -2577,15 +2577,15 @@
                 loadSampleBank(this.ctx);
                 
                 // ============================================
-                // CLEAN AUDIO CHAIN - NO FX, NO LATENCY! 🐶
-                // track → gain → panner → compressor → master → out
+                // FULL FX AUDIO CHAIN 🎛️
+                // track → gain → panner → masterFilter → FX chain → compressor → master → out
                 // ============================================
                 
                 // Master gain
                 this.masterGain = this.ctx.createGain();
                 this.masterGain.gain.value = 0.8;
                 
-                // Light compression for glue
+                // Master compressor for glue
                 this.compressor = this.ctx.createDynamicsCompressor();
                 this.compressor.threshold.value = -6;
                 this.compressor.knee.value = 3;
@@ -2593,11 +2593,39 @@
                 this.compressor.attack.value = 0.003;
                 this.compressor.release.value = 0.1;
                 
+                // Master filter (for filter sweeps)
+                this.masterFilter = this.ctx.createBiquadFilter();
+                this.masterFilter.type = 'lowpass';
+                this.masterFilter.frequency.value = 20000;
+                this.masterFilter.Q.value = 1;
+                
+                // Distortion
+                this.distortionNode = this.ctx.createWaveShaper();
+                this.updateDistortion();
+                
                 // Analyser for visualizer
                 this.analyser = this.ctx.createAnalyser();
                 this.analyser.fftSize = 2048;
                 
-                // Create per-track nodes - DIRECT CONNECTION, NO FX!
+                // Create reverb (convolution simulation with delay network)
+                this.reverbNode = this.createReverb();
+                
+                // Create delay
+                this.delayNode = this.createDelay();
+                
+                // Create French Electro FX
+                this.sidechainNode = this.createSidechain();
+                this.phaserNode = this.createPhaser();
+                this.flangerNode = this.createFlanger();
+                this.bitcrusherNode = this.createBitcrusher();
+                this.chorusNode = this.createChorus();
+                this.organDistNode = this.createOrganDistortion();
+                
+                // Create G-House FX
+                this.undergroundFilter = this.createUndergroundFilter();
+                this.subEnhancer = this.createSubEnhancer();
+                
+                // Create per-track nodes with FX sends
                 this.tracks.forEach((track, i) => {
                     const gain = this.ctx.createGain();
                     gain.gain.value = track.volume;
@@ -2605,15 +2633,45 @@
                     const panner = this.ctx.createStereoPanner();
                     panner.pan.value = track.pan;
                     
-                    // Simple chain: gain → panner → compressor
+                    // Main chain: gain → panner → masterFilter
                     gain.connect(panner);
-                    panner.connect(this.compressor);
+                    panner.connect(this.masterFilter);
+                    
+                    // FX sends (parallel)
+                    const reverbSend = this.ctx.createGain();
+                    reverbSend.gain.value = this.fx.reverbMix * 0.3;
+                    panner.connect(reverbSend);
+                    reverbSend.connect(this.reverbNode);
+                    
+                    const delaySend = this.ctx.createGain();
+                    delaySend.gain.value = this.fx.delayMix * 0.3;
+                    panner.connect(delaySend);
+                    delaySend.connect(this.delayNode);
                     
                     this.trackGains.push(gain);
                     this.trackPanners.push(panner);
+                    track.reverbSend = reverbSend;
+                    track.delaySend = delaySend;
                 });
                 
-                // Simple master chain: compressor → master → analyser → output
+                // Connect master chain with French Electro + G-House FX
+                // masterFilter → phaser → flanger → bitcrusher → distortion → chorus
+                // → undergroundFilter → subEnhancer → sidechain → compressor
+                this.masterFilter.connect(this.phaserNode);
+                this.phaserNode.connect(this.flangerNode);
+                this.flangerNode.connect(this.bitcrusherNode);
+                this.bitcrusherNode.connect(this.distortionNode);
+                this.distortionNode.connect(this.chorusNode);
+                this.chorusNode.connect(this.undergroundFilter);
+                this.undergroundFilter.connect(this.subEnhancer);
+                this.subEnhancer.connect(this.sidechainNode);
+                this.sidechainNode.connect(this.compressor);
+                
+                // Parallel FX returns
+                this.reverbNode.connect(this.compressor);
+                this.delayNode.connect(this.compressor);
+                
+                // Master output chain
                 this.compressor.connect(this.masterGain);
                 this.masterGain.connect(this.analyser);
                 this.analyser.connect(this.ctx.destination);
@@ -3540,8 +3598,8 @@
                     console.log(`🎹 Chord instrument: ${inst.name}`);
                 });
 
-                // FX controls - DISABLED for zero latency!
-                // this.setupFXControls();
+                // FX controls 🎛️
+                this.setupFXControls();
 
                 // Pattern manager
                 document.getElementById('savePattern').addEventListener('click', () => this.savePattern());
