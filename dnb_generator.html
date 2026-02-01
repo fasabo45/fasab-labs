@@ -1261,10 +1261,6 @@
             <button class="section-btn" data-section="breakdown">Breakdown</button>
             <button class="section-btn" data-section="build">Build</button>
             <button class="section-btn" data-section="outro">Outro</button>
-            <button class="section-btn" data-section="daftPunk" style="border-color: var(--french-gold); color: var(--french-gold);">🎹 Daft</button>
-            <button class="section-btn" data-section="justice" style="border-color: var(--french-blue); color: var(--french-blue);">⛪ Justice</button>
-            <button class="section-btn" data-section="robotRock" style="border-color: var(--robot-copper); color: var(--robot-copper);">🤖 Rock</button>
-            <button class="section-btn" data-section="malaa" style="border-color: var(--ghouse-red); color: var(--ghouse-red);">🎭 Malaa</button>
         </div>
 
         <div class="main-grid">
@@ -2028,21 +2024,14 @@
                 this.lookahead = 25;
                 this.timerID = null;
                 
-                // Track states - DnB + French Electro + G-House
+                // Track states - Clean & Simple
                 this.tracks = [
                     { name: 'Kick', icon: 'K', color: 'var(--neon-pink)', steps: new Array(16).fill(false), volume: 0.9, pan: 0, muted: false, solo: false },
                     { name: 'Snare', icon: 'S', color: 'var(--neon-purple)', steps: new Array(16).fill(false), volume: 0.8, pan: 0, muted: false, solo: false },
                     { name: 'Hi-Hat', icon: 'H', color: 'var(--neon-cyan)', steps: new Array(16).fill(false), volume: 0.6, pan: 0.2, muted: false, solo: false },
-                    { name: 'Bass', icon: 'B', color: 'var(--neon-green)', steps: new Array(16).fill(false), volume: 0.7, pan: -0.1, muted: false, solo: false },
-                    { name: 'Atmos', icon: 'A', color: '#888', steps: new Array(16).fill(false), volume: 0.4, pan: 0, muted: false, solo: false },
-                    { name: 'FrenchLead', icon: 'F', color: 'var(--french-gold)', steps: new Array(16).fill(false), volume: 0.5, pan: 0, muted: false, solo: false, arpEnabled: true, arpPattern: 'up' },
-                    { name: 'Vocoder', icon: 'V', color: 'var(--robot-copper)', steps: new Array(16).fill(false), volume: 0.6, pan: 0, muted: false, solo: false },
-                    { name: 'DiscoBass', icon: 'D', color: 'var(--french-blue)', steps: new Array(16).fill(false), volume: 0.7, pan: 0, muted: false, solo: false, pluckStyle: 'fast' },
-                    { name: 'Organ', icon: 'O', color: 'var(--french-silver)', steps: new Array(16).fill(false), volume: 0.5, pan: 0, muted: false, solo: false },
-                    // G-House tracks
-                    { name: 'GHouseBass', icon: 'G', color: 'var(--ghouse-red)', steps: new Array(16).fill(false), volume: 0.8, pan: 0, muted: false, solo: false },
-                    { name: 'VocalChops', icon: 'C', color: 'var(--ghouse-burgundy)', steps: new Array(16).fill(false), volume: 0.6, pan: 0, muted: false, solo: false, currentVocal: 'hey' },
-                    { name: 'DarkPad', icon: 'P', color: '#722f37', steps: new Array(16).fill(false), volume: 0.4, pan: 0, muted: false, solo: false }
+                    { name: 'Bass', icon: 'B', color: 'var(--neon-green)', steps: new Array(16).fill(false), volume: 0.8, pan: 0, muted: false, solo: false },
+                    { name: 'Lead', icon: 'L', color: 'var(--french-gold)', steps: new Array(16).fill(false), volume: 0.5, pan: 0, muted: false, solo: false },
+                    { name: 'Chords', icon: 'C', color: 'var(--french-blue)', steps: new Array(16).fill(false), volume: 0.4, pan: 0, muted: false, solo: false }
                 ];
 
                 // FX parameters - DnB + French Electro
@@ -2139,11 +2128,7 @@
                     drop: this.createDropPattern(),
                     breakdown: this.createBreakdownPattern(),
                     build: this.createBuildPattern(),
-                    outro: this.createOutroPattern(),
-                    daftPunk: this.createDaftPunkPattern(),
-                    justice: this.createJusticePattern(),
-                    robotRock: this.createRobotRockPattern(),
-                    malaa: this.createMalaaPattern()
+                    outro: this.createOutroPattern()
                 };
                 
                 this.currentSection = 'demo';
@@ -2792,118 +2777,118 @@
                 noise.stop(time + (open ? 0.3 : 0.1));
             }
 
-            playBass(time, note = 36) {
+            // Clean, punchy sub bass
+            playBass(time, step) {
+                // Simple note pattern based on step
+                const notes = [36, 36, 38, 36, 36, 36, 41, 36, 36, 36, 38, 36, 43, 41, 38, 36];
+                const note = notes[step % 16];
                 const freq = 440 * Math.pow(2, (note - 69) / 12);
                 
-                // Dual sawtooth for Reese bass
-                const osc1 = this.ctx.createOscillator();
-                const osc2 = this.ctx.createOscillator();
-                const osc3 = this.ctx.createOscillator();
+                // Pure sine sub
+                const sub = this.ctx.createOscillator();
+                sub.type = 'sine';
+                sub.frequency.setValueAtTime(freq, time);
                 
-                osc1.type = 'sawtooth';
-                osc2.type = 'sawtooth';
-                osc3.type = 'square';
+                // Triangle for mid presence
+                const mid = this.ctx.createOscillator();
+                mid.type = 'triangle';
+                mid.frequency.setValueAtTime(freq * 2, time);
                 
-                osc1.frequency.value = freq;
-                osc2.frequency.value = freq * 1.01; // Detune
-                osc3.frequency.value = freq * 0.5; // Sub
+                // Sub gain
+                const subGain = this.ctx.createGain();
+                subGain.gain.value = 0.8;
                 
-                // LFO for wobble
-                const lfo = this.ctx.createOscillator();
-                lfo.type = 'sawtooth';
-                lfo.frequency.value = this.fx.wobbleRate;
+                // Mid gain (quieter)
+                const midGain = this.ctx.createGain();
+                midGain.gain.value = 0.2;
                 
-                const lfoGain = this.ctx.createGain();
-                lfoGain.gain.value = this.fx.wobbleDepth * 2000;
+                // Master envelope - punchy!
+                const env = this.ctx.createGain();
+                env.gain.setValueAtTime(0, time);
+                env.gain.linearRampToValueAtTime(1, time + 0.005); // Fast attack
+                env.gain.setValueAtTime(1, time + 0.05);
+                env.gain.exponentialRampToValueAtTime(0.6, time + 0.1);
+                env.gain.exponentialRampToValueAtTime(0.01, time + 0.25);
                 
-                // Filter
+                // Low pass to keep it clean
                 const filter = this.ctx.createBiquadFilter();
                 filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(200, time);
-                filter.Q.value = 3 + this.fx.filterRes;
+                filter.frequency.value = 200;
+                filter.Q.value = 1;
                 
-                // LFO to filter
-                lfo.connect(lfoGain);
-                lfoGain.connect(filter.frequency);
+                // Connect
+                sub.connect(subGain);
+                mid.connect(midGain);
+                subGain.connect(filter);
+                midGain.connect(env);
+                filter.connect(env);
+                env.connect(this.trackGains[3]);
                 
-                // Filter envelope
-                const filterEnv = this.ctx.createGain();
-                filterEnv.gain.setValueAtTime(1, time);
-                filterEnv.gain.exponentialRampToValueAtTime(0.3, time + 0.1);
+                sub.start(time);
+                mid.start(time);
+                sub.stop(time + 0.3);
+                mid.stop(time + 0.3);
+            }
+            
+            // Clean synth lead
+            playLead(time, step) {
+                const notes = [60, 63, 67, 72, 67, 63, 60, 58, 60, 63, 67, 70, 67, 63, 60, 55];
+                const note = notes[step % 16];
+                const freq = 440 * Math.pow(2, (note - 69) / 12);
                 
-                // Distortion
-                const dist = this.ctx.createWaveShaper();
-                const distAmount = this.fx.bassDistortion;
-                const samples = 44100;
-                const curve = new Float32Array(samples);
-                for (let i = 0; i < samples; i++) {
-                    const x = (i * 2) / samples - 1;
-                    curve[i] = x * (1 + distAmount) / (1 + distAmount * Math.abs(x));
-                }
-                dist.curve = curve;
-                dist.oversample = '4x';
+                const osc = this.ctx.createOscillator();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(freq, time);
+                
+                // Filter with envelope
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(3000, time);
+                filter.frequency.exponentialRampToValueAtTime(800, time + 0.2);
+                filter.Q.value = 2;
                 
                 // Envelope
-                const gain = this.ctx.createGain();
-                gain.gain.setValueAtTime(0, time);
-                gain.gain.linearRampToValueAtTime(1, time + 0.01);
-                gain.gain.exponentialRampToValueAtTime(0.7, time + 0.1);
-                gain.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
+                const env = this.ctx.createGain();
+                env.gain.setValueAtTime(0, time);
+                env.gain.linearRampToValueAtTime(0.4, time + 0.01);
+                env.gain.exponentialRampToValueAtTime(0.2, time + 0.1);
+                env.gain.exponentialRampToValueAtTime(0.01, time + 0.3);
                 
-                // Mix oscillators
-                const mix = this.ctx.createGain();
-                mix.gain.value = 0.3;
+                osc.connect(filter);
+                filter.connect(env);
+                env.connect(this.trackGains[4]);
                 
-                osc1.connect(filter);
-                osc2.connect(filter);
-                osc3.connect(filter);
-                filter.connect(dist);
-                dist.connect(gain);
-                gain.connect(this.trackGains[3]);
-                
-                osc1.start(time);
-                osc2.start(time);
-                osc3.start(time);
-                lfo.start(time);
-                
-                osc1.stop(time + 0.5);
-                osc2.stop(time + 0.5);
-                osc3.stop(time + 0.5);
-                lfo.stop(time + 0.5);
+                osc.start(time);
+                osc.stop(time + 0.35);
             }
-
-            playAtmosphere(time) {
-                const chord = [48, 55, 60, 64]; // C minor 7
+            
+            // Clean chord stabs
+            playChords(time, step) {
+                // Cm chord
+                const chordNotes = [48, 51, 55]; // C, Eb, G
                 
-                chord.forEach((note, i) => {
+                chordNotes.forEach(note => {
                     const freq = 440 * Math.pow(2, (note - 69) / 12);
+                    
                     const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    const filter = this.ctx.createBiquadFilter();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, time);
                     
-                    osc.type = 'sine';
-                    osc.frequency.value = freq;
+                    const env = this.ctx.createGain();
+                    env.gain.setValueAtTime(0, time);
+                    env.gain.linearRampToValueAtTime(0.15, time + 0.01);
+                    env.gain.exponentialRampToValueAtTime(0.08, time + 0.1);
+                    env.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
                     
-                    filter.type = 'lowpass';
-                    filter.frequency.value = 2000;
-                    filter.Q.value = 2;
+                    osc.connect(env);
+                    env.connect(this.trackGains[5]);
                     
-                    gain.gain.setValueAtTime(0, time);
-                    gain.gain.linearRampToValueAtTime(0.1, time + 0.5);
-                    gain.gain.exponentialRampToValueAtTime(0.01, time + 2);
-                    
-                    osc.connect(filter);
-                    filter.connect(gain);
-                    gain.connect(this.trackGains[4]);
-                    
-                    osc.start(time + i * 0.05);
-                    osc.stop(time + 2.5);
+                    osc.start(time);
+                    osc.stop(time + 0.45);
                 });
             }
 
-            // ============================================
-            // FRENCH ELECTRO SYNTHESIS METHODS
-            // ============================================
+// Old sound functions removed for cleaner codebase
 
             playFrenchLead(time, step) {
                 const track = this.tracks[5];
@@ -3404,15 +3389,9 @@
                         case 0: this.playKick(time); break;
                         case 1: this.playSnare(time); break;
                         case 2: this.playHiHat(time, step % 8 === 7); break;
-                        case 3: this.playBass(time, 36 + (step % 4 === 0 ? 0 : step % 4 === 2 ? 3 : 7)); break;
-                        case 4: if (step === 0) this.playAtmosphere(time); break;
-                        case 5: this.playFrenchLead(time, step); break;
-                        case 6: this.playVocoder(time, step); break;
-                        case 7: this.playDiscoBass(time, step); break;
-                        case 8: this.playOrgan(time, step); break;
-                        case 9: this.playGHouseBass(time, step); break;
-                        case 10: this.playVocalChops(time, step); break;
-                        case 11: if (step === 0) this.playDarkPad(time, step); break;
+                        case 3: this.playBass(time, step); break;
+                        case 4: this.playLead(time, step); break;
+                        case 5: this.playChords(time, step); break;
                     }
                 });
             }
@@ -3424,140 +3403,67 @@
             // 🔥 DEMO PATTERN - Showcases Cymatics Heater samples!
             createDemoPattern() {
                 return {
-                    // Punchy 4-on-the-floor with variation
-                    Kick:  [1,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0],
-                    // Fat snare + clap on 2 and 4
-                    Snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
-                    // Driving offbeat hi-hats
+                    Kick:   [1,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0],
+                    Snare:  [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
                     'Hi-Hat': [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,1],
-                    // Reese bass follows the kick
-                    Bass:  [1,0,0,0,1,0,0,1,1,0,0,0,1,0,1,0],
-                    // No atmos for cleaner sound
-                    Atmos: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    // Arpy French lead on upbeats
-                    FrenchLead: [0,0,1,0,0,0,1,0,0,0,1,0,0,1,0,0],
-                    // No vocoder
-                    Vocoder: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    // Disco bass groove
-                    DiscoBass: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    // No organ
-                    Organ: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    // G-House rolling bass
-                    GHouseBass: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    // Vocal chop accent
-                    VocalChops: [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
-                    // Dark pad for atmosphere
-                    DarkPad: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+                    Bass:   [1,0,0,0,1,0,0,1,1,0,0,0,1,0,1,0],
+                    Lead:   [0,0,1,0,0,0,1,0,0,0,1,0,0,1,0,0],
+                    Chords: [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]
                 };
             }
 
             createIntroPattern() {
                 return {
-                    Kick:  [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-                    Snare: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    Kick:   [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+                    Snare:  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                     'Hi-Hat': [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
-                    Bass:  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    Atmos: [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+                    Bass:   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    Lead:   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    Chords: [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
                 };
             }
 
             createDropPattern() {
                 return {
-                    Kick:  [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
-                    Snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                    Kick:   [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
+                    Snare:  [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
                     'Hi-Hat': [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                    Bass:  [1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1],
-                    Atmos: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+                    Bass:   [1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1],
+                    Lead:   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    Chords: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]
                 };
             }
 
             createBreakdownPattern() {
                 return {
-                    Kick:  [1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0],
-                    Snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                    Kick:   [1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0],
+                    Snare:  [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
                     'Hi-Hat': [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
-                    Bass:  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    Atmos: [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+                    Bass:   [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+                    Lead:   [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
+                    Chords: [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]
                 };
             }
 
             createBuildPattern() {
                 return {
-                    Kick:  [1,0,0,0,1,0,0,0,1,0,0,0,1,0,1,1],
-                    Snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                    Kick:   [1,0,0,0,1,0,0,0,1,0,0,0,1,0,1,1],
+                    Snare:  [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
                     'Hi-Hat': [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                    Bass:  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    Atmos: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+                    Bass:   [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+                    Lead:   [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
+                    Chords: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
                 };
             }
 
             createOutroPattern() {
                 return {
-                    Kick:  [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-                    Snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                    Kick:   [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+                    Snare:  [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
                     'Hi-Hat': [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
-                    Bass:  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    Atmos: [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-                };
-            }
-
-            createDaftPunkPattern() {
-                return {
-                    Kick:  [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
-                    Snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
-                    'Hi-Hat': [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                    Bass:  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    Atmos: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    FrenchLead: [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
-                    Vocoder: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    DiscoBass: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,1,1],
-                    Organ: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-                };
-            }
-
-            createJusticePattern() {
-                return {
-                    Kick:  [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,1],
-                    Snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
-                    'Hi-Hat': [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
-                    Bass:  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    Atmos: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    FrenchLead: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    Vocoder: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    DiscoBass: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    Organ: [1,0,0,0,1,0,0,0,1,0,0,0,1,1,1,1]
-                };
-            }
-
-            createRobotRockPattern() {
-                return {
-                    Kick:  [1,0,0,1,1,0,0,1,1,0,0,1,1,0,1,1],
-                    Snare: [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
-                    'Hi-Hat': [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-                    Bass:  [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
-                    Atmos: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    FrenchLead: [0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1],
-                    Vocoder: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
-                    DiscoBass: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    Organ: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-                };
-            }
-
-            createMalaaPattern() {
-                // G-House style: heavy four-on-the-floor, rolling bass, sparse vocal chops
-                return {
-                    Kick:  [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1],
-                    Snare: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], // No snare for G-House
-                    'Hi-Hat': [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0], // Minimal hats
-                    Bass:  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    Atmos: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    FrenchLead: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    Vocoder: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    DiscoBass: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    Organ: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                    GHouseBass: [1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1], // Rolling G-House bass
-                    VocalChops: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0], // Sparse vocals on beat 2
-                    DarkPad: [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0] // Dark atmosphere
+                    Bass:   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    Lead:   [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    Chords: [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
                 };
             }
 
@@ -3585,15 +3491,12 @@
                 
                 // Update status with pattern name
                 const patternNames = {
+                    demo: '🔥 Demo',
                     intro: 'Intro',
                     drop: 'Drop',
                     breakdown: 'Breakdown',
                     build: 'Build',
-                    outro: 'Outro',
-                    daftPunk: 'Daft Punk Style',
-                    justice: 'Justice Style',
-                    robotRock: 'Robot Rock',
-                    malaa: '🔥 MALAA / G-HOUSE'
+                    outro: 'Outro'
                 };
                 
                 if (this.isPlaying) {
