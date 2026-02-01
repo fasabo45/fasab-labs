@@ -1089,6 +1089,72 @@
             transform: scale(1.05);
         }
 
+        /* Chiptune / 8-bit Styles 🎮 */
+        .chiptune-panel {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.05), rgba(255, 0, 255, 0.05));
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            box-shadow: 
+                0 0 20px rgba(0, 255, 0, 0.1),
+                inset 0 0 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .chiptune-panel .fx-title {
+            font-family: 'Courier New', monospace;
+            text-shadow: 
+                0 0 5px currentColor,
+                0 0 10px currentColor;
+            letter-spacing: 2px;
+        }
+
+        .chip-btn {
+            background: linear-gradient(135deg, #00ff00, #00aa00);
+            color: #000;
+            border: 2px solid #00ff00;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 
+                0 0 10px rgba(0, 255, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transition: all 0.15s;
+        }
+
+        .chip-btn:hover {
+            box-shadow: 
+                0 0 20px rgba(0, 255, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .chip-btn.active {
+            background: linear-gradient(135deg, #ff00ff, #aa00aa);
+            border-color: #ff00ff;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+        }
+
+        /* Scanline effect for chiptune panel */
+        .chiptune-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1) 0px,
+                rgba(0, 0, 0, 0.1) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            pointer-events: none;
+            border-radius: inherit;
+        }
+
+        .chiptune-panel {
+            position: relative;
+        }
+
         /* Vocal word selector */
         .vocal-selector {
             display: flex;
@@ -1569,17 +1635,30 @@
                                 <div class="fx-title">Lead Sound</div>
                                 <div class="control-group">
                                     <select id="leadInstrument" class="instrument-select">
-                                        <option value="synth">🎛️ Synth Lead</option>
-                                        <option value="supersaw">⚡ Supersaw</option>
-                                        <option value="square">⬜ Square Wave</option>
-                                        <option value="piano">🎹 Piano</option>
-                                        <option value="epiano">🎹 Electric Piano</option>
-                                        <option value="organ">🎵 Organ</option>
-                                        <option value="bell">🔔 Bell</option>
-                                        <option value="marimba">🥢 Marimba</option>
-                                        <option value="pluck">🪕 Pluck</option>
-                                        <option value="strings">🎻 Strings</option>
-                                        <option value="pad">☁️ Soft Pad</option>
+                                        <optgroup label="🎛️ Synths">
+                                            <option value="synth">🎛️ Synth Lead</option>
+                                            <option value="supersaw">⚡ Supersaw</option>
+                                            <option value="square">⬜ Square Wave</option>
+                                        </optgroup>
+                                        <optgroup label="🎹 Keys">
+                                            <option value="piano">🎹 Piano</option>
+                                            <option value="epiano">🎹 Electric Piano</option>
+                                            <option value="organ">🎵 Organ</option>
+                                        </optgroup>
+                                        <optgroup label="🎮 Chiptune">
+                                            <option value="nes_square">🎮 NES Square</option>
+                                            <option value="gameboy">👾 Game Boy</option>
+                                            <option value="c64_sid">💾 C64 SID</option>
+                                            <option value="chip_lead">⭐ Chip Lead</option>
+                                            <option value="arp_blip">✨ Arp Blip</option>
+                                        </optgroup>
+                                        <optgroup label="🎻 Other">
+                                            <option value="bell">🔔 Bell</option>
+                                            <option value="marimba">🥢 Marimba</option>
+                                            <option value="pluck">🪕 Pluck</option>
+                                            <option value="strings">🎻 Strings</option>
+                                            <option value="pad">☁️ Soft Pad</option>
+                                        </optgroup>
                                     </select>
                                 </div>
                             </div>
@@ -1587,15 +1666,27 @@
                                 <div class="fx-title">Chord Sound</div>
                                 <div class="control-group">
                                     <select id="chordInstrument" class="instrument-select">
-                                        <option value="piano" selected>🎹 Piano</option>
-                                        <option value="epiano">🎹 Electric Piano</option>
-                                        <option value="organ">🎵 Organ</option>
-                                        <option value="synth">🎛️ Synth Lead</option>
-                                        <option value="supersaw">⚡ Supersaw</option>
-                                        <option value="square">⬜ Square Wave</option>
-                                        <option value="strings">🎻 Strings</option>
-                                        <option value="pad">☁️ Soft Pad</option>
-                                        <option value="bell">🔔 Bell</option>
+                                        <optgroup label="🎹 Keys">
+                                            <option value="piano" selected>🎹 Piano</option>
+                                            <option value="epiano">🎹 Electric Piano</option>
+                                            <option value="organ">🎵 Organ</option>
+                                        </optgroup>
+                                        <optgroup label="🎛️ Synths">
+                                            <option value="synth">🎛️ Synth Lead</option>
+                                            <option value="supersaw">⚡ Supersaw</option>
+                                            <option value="square">⬜ Square Wave</option>
+                                        </optgroup>
+                                        <optgroup label="🎮 Chiptune">
+                                            <option value="nes_square">🎮 NES Square</option>
+                                            <option value="gameboy">👾 Game Boy</option>
+                                            <option value="c64_sid">💾 C64 SID</option>
+                                            <option value="chip_bass">🕹️ Chip Bass</option>
+                                        </optgroup>
+                                        <optgroup label="🎻 Other">
+                                            <option value="strings">🎻 Strings</option>
+                                            <option value="pad">☁️ Soft Pad</option>
+                                            <option value="bell">🔔 Bell</option>
+                                        </optgroup>
                                     </select>
                                 </div>
                             </div>
@@ -1955,6 +2046,100 @@
                         <div class="pattern-manager" style="margin-top: 20px;">
                             <button class="btn ghouse-btn" id="presetMalaa" style="width: 100%;">🔥 MALAA / G-HOUSE</button>
                         </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Draggable Panel: Chiptune FX 🎮 -->
+                <div class="draggable-panel" data-panel-id="chiptune">
+                    <div class="panel-header" draggable="true">
+                        <div class="panel-header-left">
+                            <button class="collapse-btn" title="Collapse/Expand">▼</button>
+                            <div class="panel-toggle active" title="Toggle On/Off"></div>
+                            <span class="panel-header-title">🎮 Chiptune FX</span>
+                        </div>
+                        <span class="drag-grip">⋮⋮</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="panel chiptune-panel">
+                            
+                            <!-- Arpeggiator -->
+                            <div class="fx-section">
+                                <div class="fx-title" style="color: #00ff00;">⚡ Arpeggiator</div>
+                                <div class="control-group">
+                                    <span class="control-label">Enable</span>
+                                    <button class="btn btn-small chip-btn" id="arpEnableBtn">OFF</button>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">Rate</span>
+                                    <input type="range" id="arpRate" min="1" max="8" value="4">
+                                    <span class="value-display" id="arpRateDisplay">1/4</span>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">Pattern</span>
+                                    <select id="arpPattern" class="instrument-select" style="font-size: 0.75rem;">
+                                        <option value="up">↑ Up</option>
+                                        <option value="down">↓ Down</option>
+                                        <option value="updown">↑↓ Up-Down</option>
+                                        <option value="random">🎲 Random</option>
+                                    </select>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">Octaves</span>
+                                    <input type="range" id="arpOctaves" min="1" max="4" value="2">
+                                    <span class="value-display" id="arpOctavesDisplay">2</span>
+                                </div>
+                            </div>
+
+                            <!-- Chip Vibrato -->
+                            <div class="fx-section">
+                                <div class="fx-title" style="color: #ff00ff;">〰️ Chip Vibrato</div>
+                                <div class="control-group">
+                                    <span class="control-label">Rate</span>
+                                    <input type="range" id="chipVibratoRate" min="0" max="20" step="0.5" value="0">
+                                    <span class="value-display" id="chipVibratoRateDisplay">Off</span>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">Depth</span>
+                                    <input type="range" id="chipVibratoDepth" min="0" max="100" value="30">
+                                    <span class="value-display" id="chipVibratoDepthDisplay">30%</span>
+                                </div>
+                            </div>
+
+                            <!-- Retro Noise -->
+                            <div class="fx-section">
+                                <div class="fx-title" style="color: #ffff00;">📺 Retro Noise</div>
+                                <div class="control-group">
+                                    <span class="control-label">Amount</span>
+                                    <input type="range" id="chipNoiseAmount" min="0" max="100" value="0">
+                                    <span class="value-display" id="chipNoiseAmountDisplay">0%</span>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">Tone</span>
+                                    <input type="range" id="chipNoiseTone" min="100" max="8000" value="4000">
+                                    <span class="value-display" id="chipNoiseToneDisplay">4k</span>
+                                </div>
+                            </div>
+
+                            <!-- Chip Crusher -->
+                            <div class="fx-section">
+                                <div class="fx-title" style="color: #00ffff;">💎 Chip Crusher</div>
+                                <div class="control-group">
+                                    <span class="control-label">Bits</span>
+                                    <input type="range" id="chipCrushBits" min="1" max="16" value="8">
+                                    <span class="value-display" id="chipCrushBitsDisplay">8-bit</span>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">Rate</span>
+                                    <input type="range" id="chipCrushRate" min="4000" max="44100" step="1000" value="22050">
+                                    <span class="value-display" id="chipCrushRateDisplay">22k</span>
+                                </div>
+                            </div>
+
+                            <!-- Starjunk Preset -->
+                            <div class="pattern-manager" style="margin-top: 20px;">
+                                <button class="btn chip-btn" id="presetStarjunk" style="width: 100%; background: linear-gradient(135deg, #ff00ff, #00ffff); color: #000;">✨ STARJUNK 95</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2327,7 +2512,18 @@
                     undergroundSweep: 0,
                     undergroundRes: 2,
                     subEnhanceAmount: 0.4,
-                    subEnhanceFreq: 40
+                    subEnhanceFreq: 40,
+                    // Chiptune FX 🎮
+                    arpEnabled: false,
+                    arpRate: 4,           // 1/4 notes
+                    arpPattern: 'up',     // up, down, updown, random
+                    arpOctaves: 2,
+                    chipVibratoRate: 0,
+                    chipVibratoDepth: 0.3,
+                    chipNoiseAmount: 0,
+                    chipNoiseTone: 4000,
+                    chipCrushBits: 8,
+                    chipCrushRate: 22050
                 };
 
                 // ============================================
@@ -2508,6 +2704,75 @@
                         envelope: { attack: 0.001, decay: 0.15, sustain: 0.1, release: 0.3 },
                         filter: { type: 'lowpass', frequency: 2000, Q: 2, envAmount: 3000 },
                         volume: 0.5
+                    },
+                    // === CHIPTUNE / 8-BIT (Starjunk 95 style) 🎮 ===
+                    nes_square: {
+                        name: 'NES Square',
+                        icon: '🎮',
+                        oscillators: [
+                            { type: 'square', detune: 0, gain: 0.6 },
+                            { type: 'square', detune: 3, gain: 0.3 }          // Slight detune for thickness
+                        ],
+                        envelope: { attack: 0.001, decay: 0.1, sustain: 0.8, release: 0.05 },
+                        filter: { type: 'lowpass', frequency: 8000, Q: 0.5, envAmount: 0 },
+                        volume: 0.4
+                    },
+                    gameboy: {
+                        name: 'Game Boy',
+                        icon: '👾',
+                        oscillators: [
+                            { type: 'square', detune: 0, gain: 0.5 },
+                            { type: 'square', detune: -1200, gain: 0.25 }     // Sub octave
+                        ],
+                        envelope: { attack: 0.001, decay: 0.05, sustain: 0.9, release: 0.02 },
+                        filter: { type: 'lowpass', frequency: 6000, Q: 1, envAmount: 0 },
+                        volume: 0.4
+                    },
+                    c64_sid: {
+                        name: 'C64 SID',
+                        icon: '💾',
+                        oscillators: [
+                            { type: 'sawtooth', detune: 0, gain: 0.4 },
+                            { type: 'square', detune: 0, gain: 0.3 },
+                            { type: 'sawtooth', detune: 7, gain: 0.2 }        // PWM simulation
+                        ],
+                        envelope: { attack: 0.01, decay: 0.2, sustain: 0.6, release: 0.1 },
+                        filter: { type: 'lowpass', frequency: 2500, Q: 4, envAmount: 2000 },
+                        volume: 0.45
+                    },
+                    chip_lead: {
+                        name: 'Chip Lead',
+                        icon: '⭐',
+                        oscillators: [
+                            { type: 'square', detune: 0, gain: 0.5 },
+                            { type: 'sawtooth', detune: 1200, gain: 0.2 },    // Octave up sparkle
+                            { type: 'square', detune: 5, gain: 0.25 }
+                        ],
+                        envelope: { attack: 0.001, decay: 0.15, sustain: 0.7, release: 0.1 },
+                        filter: { type: 'lowpass', frequency: 4000, Q: 2, envAmount: 1500 },
+                        volume: 0.4
+                    },
+                    chip_bass: {
+                        name: 'Chip Bass',
+                        icon: '🕹️',
+                        oscillators: [
+                            { type: 'square', detune: 0, gain: 0.6 },
+                            { type: 'triangle', detune: -1200, gain: 0.4 }    // Triangle sub
+                        ],
+                        envelope: { attack: 0.001, decay: 0.1, sustain: 0.7, release: 0.05 },
+                        filter: { type: 'lowpass', frequency: 1200, Q: 2, envAmount: 800 },
+                        volume: 0.55
+                    },
+                    arp_blip: {
+                        name: 'Arp Blip',
+                        icon: '✨',
+                        oscillators: [
+                            { type: 'square', detune: 0, gain: 0.5 },
+                            { type: 'sine', detune: 1200, gain: 0.2 }
+                        ],
+                        envelope: { attack: 0.001, decay: 0.08, sustain: 0.1, release: 0.05 },
+                        filter: { type: 'lowpass', frequency: 5000, Q: 1, envAmount: 2000 },
+                        volume: 0.4
                     }
                 };
 
@@ -3949,6 +4214,183 @@
                     this.fx.subEnhanceFreq = parseInt(e.target.value);
                     document.getElementById('subEnhanceFreqDisplay').textContent = e.target.value + 'Hz';
                 });
+
+                // ============================================
+                // CHIPTUNE FX CONTROLS 🎮
+                // ============================================
+
+                // Arpeggiator
+                document.getElementById('arpEnableBtn').addEventListener('click', (e) => {
+                    this.fx.arpEnabled = !this.fx.arpEnabled;
+                    e.target.textContent = this.fx.arpEnabled ? 'ON' : 'OFF';
+                    e.target.classList.toggle('active', this.fx.arpEnabled);
+                });
+
+                document.getElementById('arpRate').addEventListener('input', (e) => {
+                    this.fx.arpRate = parseInt(e.target.value);
+                    document.getElementById('arpRateDisplay').textContent = '1/' + e.target.value;
+                });
+
+                document.getElementById('arpPattern').addEventListener('change', (e) => {
+                    this.fx.arpPattern = e.target.value;
+                });
+
+                document.getElementById('arpOctaves').addEventListener('input', (e) => {
+                    this.fx.arpOctaves = parseInt(e.target.value);
+                    document.getElementById('arpOctavesDisplay').textContent = e.target.value;
+                });
+
+                // Chip Vibrato
+                document.getElementById('chipVibratoRate').addEventListener('input', (e) => {
+                    this.fx.chipVibratoRate = parseFloat(e.target.value);
+                    document.getElementById('chipVibratoRateDisplay').textContent = 
+                        e.target.value == 0 ? 'Off' : e.target.value + 'Hz';
+                });
+
+                document.getElementById('chipVibratoDepth').addEventListener('input', (e) => {
+                    this.fx.chipVibratoDepth = e.target.value / 100;
+                    document.getElementById('chipVibratoDepthDisplay').textContent = e.target.value + '%';
+                });
+
+                // Retro Noise
+                document.getElementById('chipNoiseAmount').addEventListener('input', (e) => {
+                    this.fx.chipNoiseAmount = e.target.value / 100;
+                    document.getElementById('chipNoiseAmountDisplay').textContent = e.target.value + '%';
+                });
+
+                document.getElementById('chipNoiseTone').addEventListener('input', (e) => {
+                    this.fx.chipNoiseTone = parseInt(e.target.value);
+                    document.getElementById('chipNoiseToneDisplay').textContent = 
+                        e.target.value >= 1000 ? (e.target.value / 1000).toFixed(0) + 'k' : e.target.value;
+                });
+
+                // Chip Crusher
+                document.getElementById('chipCrushBits').addEventListener('input', (e) => {
+                    this.fx.chipCrushBits = parseInt(e.target.value);
+                    document.getElementById('chipCrushBitsDisplay').textContent = e.target.value + '-bit';
+                    // Update the main bitcrusher too
+                    this.fx.bitcrushBits = parseInt(e.target.value);
+                });
+
+                document.getElementById('chipCrushRate').addEventListener('input', (e) => {
+                    this.fx.chipCrushRate = parseInt(e.target.value);
+                    document.getElementById('chipCrushRateDisplay').textContent = 
+                        (e.target.value / 1000).toFixed(0) + 'k';
+                    // Update the main bitcrusher too
+                    this.fx.bitcrushRate = parseInt(e.target.value);
+                });
+
+                // Starjunk 95 Preset
+                document.getElementById('presetStarjunk').addEventListener('click', () => {
+                    this.loadStarjunkPreset();
+                });
+            }
+
+            // Starjunk 95 Preset 🎮✨
+            loadStarjunkPreset() {
+                // Set BPM to synthwave/chiptune tempo
+                this.bpm = 128;
+                document.getElementById('bpmDisplay').textContent = this.bpm;
+
+                // Enable chiptune FX
+                this.fx.arpEnabled = true;
+                this.fx.arpRate = 4;
+                this.fx.arpPattern = 'updown';
+                this.fx.arpOctaves = 2;
+                this.fx.chipVibratoRate = 6;
+                this.fx.chipVibratoDepth = 0.2;
+                this.fx.chipNoiseAmount = 0.05;
+                this.fx.chipNoiseTone = 6000;
+                this.fx.chipCrushBits = 8;
+                this.fx.chipCrushRate = 22050;
+
+                // Update bitcrusher to 8-bit
+                this.fx.bitcrushBits = 8;
+                this.fx.bitcrushRate = 22050;
+                this.fx.bitcrushMix = 0.4;
+
+                // Light reverb and delay
+                this.fx.reverbMix = 0.15;
+                this.fx.delayMix = 0.25;
+                this.fx.delayTime = 3/16;
+
+                // Set instruments to chiptune
+                this.selectedInstruments.lead = 'chip_lead';
+                this.selectedInstruments.chords = 'nes_square';
+                document.getElementById('leadInstrument').value = 'chip_lead';
+                document.getElementById('chordInstrument').value = 'nes_square';
+
+                // Update UI
+                document.getElementById('arpEnableBtn').textContent = 'ON';
+                document.getElementById('arpEnableBtn').classList.add('active');
+                document.getElementById('arpRate').value = 4;
+                document.getElementById('arpRateDisplay').textContent = '1/4';
+                document.getElementById('arpPattern').value = 'updown';
+                document.getElementById('arpOctaves').value = 2;
+                document.getElementById('arpOctavesDisplay').textContent = '2';
+                document.getElementById('chipVibratoRate').value = 6;
+                document.getElementById('chipVibratoRateDisplay').textContent = '6Hz';
+                document.getElementById('chipVibratoDepth').value = 20;
+                document.getElementById('chipVibratoDepthDisplay').textContent = '20%';
+                document.getElementById('chipNoiseAmount').value = 5;
+                document.getElementById('chipNoiseAmountDisplay').textContent = '5%';
+                document.getElementById('chipCrushBits').value = 8;
+                document.getElementById('chipCrushBitsDisplay').textContent = '8-bit';
+                document.getElementById('chipCrushRate').value = 22050;
+                document.getElementById('chipCrushRateDisplay').textContent = '22k';
+
+                // Load a chiptune-style pattern
+                this.loadChiptunePattern();
+
+                console.log('🎮✨ STARJUNK 95 PRESET LOADED!');
+            }
+
+            loadChiptunePattern() {
+                // Clear existing piano roll
+                this.pianoRoll.lead = this.createEmptyPianoRoll();
+                this.pianoRoll.chords = this.createEmptyPianoRoll();
+
+                // Chiptune arpeggio pattern for lead (C minor)
+                const chipLead = [
+                    { note: 60, steps: [0, 2, 4, 6, 8, 10, 12, 14] },  // C4
+                    { note: 63, steps: [1, 5, 9, 13] },                 // Eb4
+                    { note: 67, steps: [3, 7, 11, 15] }                 // G4
+                ];
+
+                chipLead.forEach(({ note, steps }) => {
+                    const noteIndex = note - this.pianoRollStartNote;
+                    if (noteIndex >= 0 && noteIndex < 24) {
+                        steps.forEach(step => {
+                            this.pianoRoll.lead[noteIndex][step] = true;
+                        });
+                    }
+                });
+
+                // Chiptune chord stabs
+                const chipChords = [
+                    { note: 48, steps: [0, 8] },   // C3
+                    { note: 51, steps: [0, 8] },   // Eb3
+                    { note: 55, steps: [0, 8] },   // G3
+                    { note: 60, steps: [4, 12] },  // C4
+                    { note: 63, steps: [4, 12] }   // Eb4
+                ];
+
+                chipChords.forEach(({ note, steps }) => {
+                    const noteIndex = note - this.pianoRollStartNote;
+                    if (noteIndex >= 0 && noteIndex < 24) {
+                        steps.forEach(step => {
+                            this.pianoRoll.chords[noteIndex][step] = true;
+                        });
+                    }
+                });
+
+                // Update drum pattern for chiptune feel
+                this.tracks[0].steps = [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]; // Kick on beats
+                this.tracks[1].steps = [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0]; // Snare on 2&4
+                this.tracks[2].steps = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]; // Constant hats
+
+                this.buildSequencer();
+                this.buildPianoRoll();
             }
 
             updateFXSends() {
