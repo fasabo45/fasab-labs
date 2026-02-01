@@ -199,49 +199,102 @@
             font-size: 0.85rem;
         }
 
-        /* Draggable Panels */
+        /* Draggable & Collapsible Panels */
         .draggable-panel {
             position: relative;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             min-width: 280px;
+            background: var(--bg-panel);
+            border: 2px solid var(--bg-grid);
+            border-radius: 12px;
+            overflow: hidden;
         }
 
         .draggable-panel .panel,
         .draggable-panel .bass-controls {
             margin-top: 0 !important;
-            height: 100%;
+            border: none;
+            border-radius: 0;
         }
 
-        .drag-handle {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 36px;
+        /* Panel Header - draggable area */
+        .panel-header {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background: var(--bg-grid);
             cursor: grab;
-            color: var(--text-muted);
-            font-size: 1.2rem;
-            letter-spacing: 2px;
-            z-index: 10;
-            border-radius: 12px 12px 0 0;
-            background: linear-gradient(180deg, var(--bg-grid) 0%, transparent 100%);
-            opacity: 0;
-            transition: opacity 0.2s ease;
+            user-select: none;
+            border-bottom: 1px solid var(--bg-inset);
         }
 
-        .draggable-panel:hover .drag-handle {
-            opacity: 1;
-        }
-
-        .drag-handle:active {
+        .panel-header:active {
             cursor: grabbing;
         }
 
+        .panel-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .collapse-btn {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .collapse-btn:hover {
+            background: var(--bg-inset);
+            color: var(--accent-primary);
+        }
+
+        .panel-header-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-bright);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .drag-grip {
+            color: var(--text-muted);
+            font-size: 1rem;
+            letter-spacing: 2px;
+            opacity: 0.5;
+            transition: opacity 0.2s ease;
+        }
+
+        .panel-header:hover .drag-grip {
+            opacity: 1;
+        }
+
+        /* Panel Body - collapsible content */
+        .panel-body {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+        }
+
+        .draggable-panel.collapsed .panel-body {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        .draggable-panel.collapsed .collapse-btn {
+            transform: rotate(-90deg);
+        }
+
+        /* Dragging states */
         .draggable-panel.dragging {
-            opacity: 0.6;
+            opacity: 0.7;
             transform: scale(1.02) rotate(0.5deg);
             z-index: 1000;
             box-shadow: 0 12px 40px var(--shadow-medium);
@@ -250,21 +303,6 @@
         .draggable-panel.drag-over {
             outline: 3px dashed var(--accent-primary);
             outline-offset: 4px;
-            transform: scale(0.98);
-        }
-
-        .draggable-panel.drag-over .panel,
-        .draggable-panel.drag-over .bass-controls {
-            opacity: 0.7;
-        }
-
-        .drop-indicator {
-            height: 4px;
-            background: var(--accent-primary);
-            border-radius: 2px;
-            margin: 8px 0;
-            opacity: 0;
-            transition: opacity 0.2s ease;
         }
 
         .drop-indicator.visible {
@@ -1204,10 +1242,16 @@
 
             <div class="right-column" id="rightColumn">
                 <!-- Draggable Panel: Global FX -->
-                <div class="draggable-panel" draggable="true" data-panel-id="globalfx">
-                    <div class="drag-handle">⋮⋮</div>
-                    <div class="panel">
-                        <div class="panel-title">🎚️ Global FX</div>
+                <div class="draggable-panel" data-panel-id="globalfx">
+                    <div class="panel-header" draggable="true">
+                        <div class="panel-header-left">
+                            <button class="collapse-btn" title="Collapse/Expand">▼</button>
+                            <span class="panel-header-title">🎚️ Global FX</span>
+                        </div>
+                        <span class="drag-grip">⋮⋮</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="panel">
                     
                     <div class="fx-section">
                         <div class="fx-title">Reverb</div>
@@ -1264,14 +1308,21 @@
                             <span class="value-display" id="distortionDriveDisplay">10%</span>
                         </div>
                     </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Draggable Panel: Reese Bass -->
-                <div class="draggable-panel" draggable="true" data-panel-id="reesebass">
-                    <div class="drag-handle">⋮⋮</div>
-                    <div class="bass-controls">
-                        <div class="bass-title">🎸 Reese Bass Controls</div>
+                <div class="draggable-panel" data-panel-id="reesebass">
+                    <div class="panel-header" draggable="true">
+                        <div class="panel-header-left">
+                            <button class="collapse-btn" title="Collapse/Expand">▼</button>
+                            <span class="panel-header-title">🎸 Reese Bass</span>
+                        </div>
+                        <span class="drag-grip">⋮⋮</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="bass-controls">
                     <div class="control-group">
                         <span class="control-label">Wobble Rate</span>
                         <input type="range" id="wobbleRate" min="0.5" max="20" step="0.5" value="4">
@@ -1292,14 +1343,21 @@
                         <input type="range" id="bassDistortion" min="0" max="100" value="30">
                         <span class="value-display" id="bassDistortionDisplay">30%</span>
                         </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Draggable Panel: French Electro -->
-                <div class="draggable-panel" draggable="true" data-panel-id="frenchelectro">
-                    <div class="drag-handle">⋮⋮</div>
-                    <div class="panel french-panel">
-                        <div class="panel-title french-title">🤖 French Electro Controls</div>
+                <div class="draggable-panel" data-panel-id="frenchelectro">
+                    <div class="panel-header" draggable="true">
+                        <div class="panel-header-left">
+                            <button class="collapse-btn" title="Collapse/Expand">▼</button>
+                            <span class="panel-header-title">🤖 French Electro</span>
+                        </div>
+                        <span class="drag-grip">⋮⋮</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="panel french-panel">
                     
                     <!-- Sidechain Section -->
                     <div class="fx-section">
@@ -1475,14 +1533,21 @@
                             <button class="btn btn-pattern" id="presetJustice" style="border-color: var(--french-blue); color: var(--french-blue);">⛪ Justice</button>
                             <button class="btn btn-pattern" id="presetRobotRock" style="border-color: var(--robot-copper); color: var(--robot-copper);">🤖 Robot Rock</button>
                         </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Draggable Panel: G-House -->
-                <div class="draggable-panel" draggable="true" data-panel-id="ghouse">
-                    <div class="drag-handle">⋮⋮</div>
-                    <div class="panel ghouse-panel">
-                        <div class="panel-title ghouse-title">🎭 G-HOUSE / MALAA</div>
+                <div class="draggable-panel" data-panel-id="ghouse">
+                    <div class="panel-header" draggable="true">
+                        <div class="panel-header-left">
+                            <button class="collapse-btn" title="Collapse/Expand">▼</button>
+                            <span class="panel-header-title">🎭 G-House / Malaa</span>
+                        </div>
+                        <span class="drag-grip">⋮⋮</span>
+                    </div>
+                    <div class="panel-body">
+                        <div class="panel ghouse-panel">
                     
                     <!-- G-House Bass Controls -->
                     <div class="fx-section">
@@ -1593,6 +1658,7 @@
                         <div class="pattern-manager" style="margin-top: 20px;">
                             <button class="btn ghouse-btn" id="presetMalaa" style="width: 100%;">🔥 MALAA / G-HOUSE</button>
                         </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1641,7 +1707,7 @@
         });
 
         // ============================================
-        // DRAGGABLE PANELS SYSTEM
+        // DRAGGABLE & COLLAPSIBLE PANELS SYSTEM
         // ============================================
         
         function initDraggablePanels() {
@@ -1650,12 +1716,31 @@
             
             let draggedPanel = null;
             
-            // Load saved order from localStorage
+            // Load saved order and collapsed states
             loadPanelOrder();
+            loadCollapsedStates();
             
-            function setupPanelListeners(panel) {
-                // Drag start
-                panel.addEventListener('dragstart', (e) => {
+            // Setup collapse buttons
+            rightColumn.querySelectorAll('.collapse-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const panel = btn.closest('.draggable-panel');
+                    panel.classList.toggle('collapsed');
+                    saveCollapsedStates();
+                });
+            });
+            
+            // Setup drag from headers only
+            rightColumn.querySelectorAll('.panel-header').forEach(header => {
+                const panel = header.closest('.draggable-panel');
+                
+                header.addEventListener('dragstart', (e) => {
+                    // Don't drag if clicking on collapse button
+                    if (e.target.classList.contains('collapse-btn')) {
+                        e.preventDefault();
+                        return;
+                    }
+                    
                     draggedPanel = panel;
                     panel.classList.add('dragging');
                     e.dataTransfer.effectAllowed = 'move';
@@ -1666,51 +1751,43 @@
                     }, 0);
                 });
                 
-                // Drag end
-                panel.addEventListener('dragend', () => {
+                header.addEventListener('dragend', () => {
                     panel.classList.remove('dragging');
                     panel.style.opacity = '1';
                     draggedPanel = null;
                     
-                    // Remove all indicators
                     rightColumn.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-                    
-                    // Save new order
                     savePanelOrder();
                 });
-                
-                // Drag over
+            });
+            
+            // Setup drop targets on panels
+            rightColumn.querySelectorAll('.draggable-panel').forEach(panel => {
                 panel.addEventListener('dragover', (e) => {
                     e.preventDefault();
                     e.dataTransfer.dropEffect = 'move';
                     
                     if (draggedPanel && draggedPanel !== panel) {
-                        // Remove existing indicators
                         rightColumn.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
                         panel.classList.add('drag-over');
                     }
                 });
                 
-                // Drag leave
                 panel.addEventListener('dragleave', (e) => {
-                    // Only remove if we're actually leaving the panel
                     if (!panel.contains(e.relatedTarget)) {
                         panel.classList.remove('drag-over');
                     }
                 });
                 
-                // Drop
                 panel.addEventListener('drop', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     
                     if (draggedPanel && draggedPanel !== panel) {
-                        // Get all panels and their positions
                         const panels = Array.from(rightColumn.querySelectorAll('.draggable-panel'));
                         const draggedIndex = panels.indexOf(draggedPanel);
                         const targetIndex = panels.indexOf(panel);
                         
-                        // Insert based on position
                         if (draggedIndex < targetIndex) {
                             rightColumn.insertBefore(draggedPanel, panel.nextSibling);
                         } else {
@@ -1720,22 +1797,41 @@
                     
                     panel.classList.remove('drag-over');
                 });
-            }
-            
-            // Setup listeners for all panels
-            rightColumn.querySelectorAll('.draggable-panel').forEach(setupPanelListeners);
-            
-            // Allow dropping on the column itself (for empty areas)
-            rightColumn.addEventListener('dragover', (e) => {
-                e.preventDefault();
             });
             
+            // Allow dropping on column itself
+            rightColumn.addEventListener('dragover', (e) => e.preventDefault());
             rightColumn.addEventListener('drop', (e) => {
                 e.preventDefault();
-                if (draggedPanel) {
-                    rightColumn.appendChild(draggedPanel);
-                }
+                if (draggedPanel) rightColumn.appendChild(draggedPanel);
             });
+        }
+        
+        function saveCollapsedStates() {
+            const rightColumn = document.getElementById('rightColumn');
+            const states = {};
+            rightColumn.querySelectorAll('.draggable-panel').forEach(panel => {
+                states[panel.dataset.panelId] = panel.classList.contains('collapsed');
+            });
+            localStorage.setItem('synthstation-collapsed', JSON.stringify(states));
+        }
+        
+        function loadCollapsedStates() {
+            const saved = localStorage.getItem('synthstation-collapsed');
+            if (!saved) return;
+            
+            try {
+                const states = JSON.parse(saved);
+                const rightColumn = document.getElementById('rightColumn');
+                Object.keys(states).forEach(panelId => {
+                    if (states[panelId]) {
+                        const panel = rightColumn.querySelector(`[data-panel-id="${panelId}"]`);
+                        if (panel) panel.classList.add('collapsed');
+                    }
+                });
+            } catch (e) {
+                console.warn('Could not load collapsed states:', e);
+            }
         }
         
         function savePanelOrder() {
