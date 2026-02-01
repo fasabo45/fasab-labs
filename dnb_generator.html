@@ -310,30 +310,37 @@
 
         /* Main Layout - Expanded workspace */
         .main-grid {
-            display: grid;
-            grid-template-columns: minmax(580px, 650px) 1fr;
+            display: flex;
+            flex-wrap: wrap;
             gap: 25px;
             margin-bottom: 20px;
         }
 
-        @media (max-width: 1400px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Left column - sequencer area */
+        /* Left column - sequencer area (fixed width) */
         .left-column {
-            min-width: 0; /* Prevent grid blowout */
+            flex: 0 0 620px;
+            max-width: 620px;
+            min-width: 0;
         }
 
         /* Right column - flexible grid for panels */
         .right-column {
+            flex: 1 1 600px;
+            min-width: 300px;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 15px;
             align-content: start;
-            min-width: 0; /* Prevent grid blowout */
+        }
+
+        @media (max-width: 1000px) {
+            .left-column {
+                flex: 1 1 100%;
+                max-width: 100%;
+            }
+            .right-column {
+                flex: 1 1 100%;
+            }
         }
 
         /* Panels - Clean cream cards */
