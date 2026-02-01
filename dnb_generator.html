@@ -311,15 +311,20 @@
         /* Main Layout - Expanded workspace */
         .main-grid {
             display: grid;
-            grid-template-columns: minmax(400px, 500px) 1fr;
+            grid-template-columns: minmax(580px, 650px) 1fr;
             gap: 25px;
             margin-bottom: 20px;
         }
 
-        @media (max-width: 1200px) {
+        @media (max-width: 1400px) {
             .main-grid {
                 grid-template-columns: 1fr;
             }
+        }
+
+        /* Left column - sequencer area */
+        .left-column {
+            min-width: 0; /* Prevent grid blowout */
         }
 
         /* Right column - flexible grid for panels */
@@ -328,6 +333,7 @@
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 15px;
             align-content: start;
+            min-width: 0; /* Prevent grid blowout */
         }
 
         /* Panels - Clean cream cards */
@@ -527,23 +533,27 @@
         /* Sequencer */
         .sequencer {
             margin-top: 20px;
+            overflow-x: auto;
         }
 
         .track-row {
             display: flex;
             align-items: center;
-            margin-bottom: 8px;
-            gap: 10px;
+            margin-bottom: 6px;
+            gap: 8px;
+            min-width: fit-content;
         }
 
         .track-label {
-            width: 80px;
-            font-size: 0.75rem;
+            width: 70px;
+            min-width: 70px;
+            font-size: 0.7rem;
             text-transform: uppercase;
             color: var(--text-dim);
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
+            flex-shrink: 0;
         }
 
         .track-icon {
@@ -574,16 +584,18 @@
 
         .step-grid {
             display: flex;
-            gap: 4px;
+            gap: 3px;
             flex: 1;
+            min-width: 0;
         }
 
         .step {
-            flex: 1;
-            height: 32px;
+            flex: 1 1 0;
+            min-width: 28px;
+            height: 28px;
             background: var(--bg-inset);
             border: 2px solid var(--bg-grid);
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
             transition: all 0.1s;
             position: relative;
@@ -1084,13 +1096,14 @@
 
         /* Level meters */
         .level-meter {
-            width: 6px;
-            height: 32px;
+            width: 5px;
+            height: 28px;
             background: var(--bg-deep);
             border-radius: 3px;
             overflow: hidden;
             position: relative;
-            border: 2px solid var(--bg-grid);
+            border: 1px solid var(--bg-grid);
+            flex-shrink: 0;
         }
 
         .level-fill {
