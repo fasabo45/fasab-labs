@@ -48,14 +48,18 @@ git commit -m "feat: add Malaa G-House bass and vocal chops
 ```
 
 ### Project Structure:
-- `dnb_generator.html` - Main application file (151KB)
+- `dnb_generator.html` - Main application file (~155KB)
 - `AGENTS.md` - This file (agent instructions)
+- `dnb_icon.ico` - Retro neon desktop icon
+- `restore_stable.bat` - Quick restore to stable version
+- `create_shortcut.ps1` - Desktop shortcut creator
+- `checkpoints/` - Archive folder for stable versions
 
 ### Current Status:
 - 12 total tracks (5 DnB + 4 French Electro + 3 G-House)
 - 9 pattern presets
 - BPM range: 60-200
-- File size: ~151KB
+- File size: ~155KB
 
 ### Notes:
 - Keep commits atomic (one logical change per commit)
@@ -63,7 +67,40 @@ git commit -m "feat: add Malaa G-House bass and vocal chops
 - Check `git log` to see history
 
 ---
+
+## 🏷️ Stable Version Archive
+
+### Current Stable Version: `v1.0-stable`
+- **Git Tag:** `v1.0-stable`
+- **Checkpoint:** `checkpoints/STABLE_dnb_generator_20260201.html`
+- **Features:** All 12 tracks working, step sequencer visible, all FX functional
+
+### How to Restore Stable Version:
+
+**Option 1: Run the restore script**
+```batch
+restore_stable.bat
+```
+
+**Option 2: Git checkout**
+```bash
+git checkout v1.0-stable -- dnb_generator.html
+```
+
+**Option 3: Manual copy**
+```batch
+copy checkpoints\STABLE_dnb_generator_20260201.html dnb_generator.html
+```
+
+### Creating New Stable Checkpoints:
+When a version is confirmed working, create a new stable checkpoint:
+```batch
+copy dnb_generator.html checkpoints\STABLE_dnb_generator_YYYYMMDD.html
+git tag -a v1.X-stable -m "Description of stable version"
+```
+
+---
 **Status:** ✅ Git is ACTIVE and configured
 **Repository:** Initialized with initial commit (ad655f9)
 **User:** Fasab <fasab@dnb-generator.com>
-**Last Updated:** Git installed and first commit made
+**Last Updated:** Feb 1, 2026 - v1.0-stable archived

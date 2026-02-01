@@ -8,6 +8,9 @@
 !checkpoints/
 !checkpoints/*
 !.gitignore
+!restore_stable.bat
+!create_shortcut.ps1
+!dnb_icon.ico
 
 # Ignore system files even if in checkpoints
 **/.DS_Store
