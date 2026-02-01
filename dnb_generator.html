@@ -2124,6 +2124,7 @@
                 // Pattern presets - DnB + French Electro
                 this.patterns = {
                     demo: this.createDemoPattern(),
+                    demoV1: this.createDemoPatternV1(),  // Old demo saved!
                     intro: this.createIntroPattern(),
                     drop: this.createDropPattern(),
                     breakdown: this.createBreakdownPattern(),
@@ -2899,7 +2900,21 @@
             // ============================================
 
             // 🔥 DEMO PATTERN - Showcases Cymatics Heater samples!
+            // 🔥 NEW DEMO - Punchy DnB groove!
             createDemoPattern() {
+                return {
+                    //       1 . . . 2 . . . 3 . . . 4 . . .
+                    Kick:     [1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0],
+                    Snare:    [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1],
+                    'Hi-Hat': [1,0,1,1,0,1,1,0,1,0,1,1,0,1,1,1],
+                    Bass:     [1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],
+                    Lead:     [0,0,1,0,0,0,0,1,0,0,1,0,0,0,0,0],
+                    Chords:   [1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0]
+                };
+            }
+
+            // Old demo pattern (saved)
+            createDemoPatternV1() {
                 return {
                     Kick:   [1,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0],
                     Snare:  [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
