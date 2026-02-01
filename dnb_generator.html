@@ -1255,8 +1255,9 @@
         </div>
 
         <div class="section-indicator">
+            <button class="section-btn active" data-section="demo" style="border-color: var(--accent-primary); color: var(--accent-primary);">🔥 Demo</button>
             <button class="section-btn" data-section="intro">Intro</button>
-            <button class="section-btn active" data-section="drop">Drop</button>
+            <button class="section-btn" data-section="drop">Drop</button>
             <button class="section-btn" data-section="breakdown">Breakdown</button>
             <button class="section-btn" data-section="build">Build</button>
             <button class="section-btn" data-section="outro">Outro</button>
@@ -2133,6 +2134,7 @@
                 
                 // Pattern presets - DnB + French Electro
                 this.patterns = {
+                    demo: this.createDemoPattern(),
                     intro: this.createIntroPattern(),
                     drop: this.createDropPattern(),
                     breakdown: this.createBreakdownPattern(),
@@ -2144,14 +2146,14 @@
                     malaa: this.createMalaaPattern()
                 };
                 
-                this.currentSection = 'drop';
+                this.currentSection = 'demo';
                 
                 this.init();
             }
 
             init() {
                 this.setupUI();
-                this.loadPattern('drop');
+                this.loadPattern('demo');
             }
 
             async initAudio() {
@@ -3418,6 +3420,36 @@
             // ============================================
             // PATTERN METHODS
             // ============================================
+
+            // 🔥 DEMO PATTERN - Showcases Cymatics Heater samples!
+            createDemoPattern() {
+                return {
+                    // Punchy 4-on-the-floor with variation
+                    Kick:  [1,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0],
+                    // Fat snare + clap on 2 and 4
+                    Snare: [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+                    // Driving offbeat hi-hats
+                    'Hi-Hat': [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,1],
+                    // Reese bass follows the kick
+                    Bass:  [1,0,0,0,1,0,0,1,1,0,0,0,1,0,1,0],
+                    // No atmos for cleaner sound
+                    Atmos: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    // Arpy French lead on upbeats
+                    FrenchLead: [0,0,1,0,0,0,1,0,0,0,1,0,0,1,0,0],
+                    // No vocoder
+                    Vocoder: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    // Disco bass groove
+                    DiscoBass: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    // No organ
+                    Organ: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    // G-House rolling bass
+                    GHouseBass: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                    // Vocal chop accent
+                    VocalChops: [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
+                    // Dark pad for atmosphere
+                    DarkPad: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+                };
+            }
 
             createIntroPattern() {
                 return {
