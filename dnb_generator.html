@@ -411,14 +411,14 @@
             min-width: 0;
         }
 
-        /* Right column - flexible grid for panels */
+        /* Right column - stacked panels */
         .right-column {
-            flex: 1 1 600px;
+            flex: 1 1 400px;
             min-width: 300px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            max-width: 450px;
+            display: flex;
+            flex-direction: column;
             gap: 15px;
-            align-content: start;
         }
 
         @media (max-width: 1000px) {
@@ -428,6 +428,7 @@
             }
             .right-column {
                 flex: 1 1 100%;
+                max-width: 100%;
             }
         }
 
