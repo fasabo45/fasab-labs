@@ -1721,7 +1721,56 @@
 
     <div class="status" id="status">⏹ Stopped</div>
 
+    <!-- External sample bank -->
+    <script src="samples.js"></script>
+    
     <script>
+        // ============================================
+        // SAMPLE LOADER
+        // ============================================
+        
+        const sampleBuffers = {};
+        let samplesLoaded = false;
+        
+        async function loadSampleBank(audioContext) {
+            if (typeof SAMPLE_BANK === 'undefined') {
+                console.warn('SAMPLE_BANK not found - using synthesized sounds');
+                return;
+            }
+            
+            console.log('🎧 Loading samples...');
+            const entries = Object.entries(SAMPLE_BANK);
+            
+            for (const [name, dataUri] of entries) {
+                try {
+                    const response = await fetch(dataUri);
+                    const arrayBuffer = await response.arrayBuffer();
+                    sampleBuffers[name] = await audioContext.decodeAudioData(arrayBuffer);
+                    console.log(`  ✓ ${name}`);
+                } catch (e) {
+                    console.error(`  ✗ ${name}:`, e.message);
+                }
+            }
+            
+            samplesLoaded = Object.keys(sampleBuffers).length > 0;
+            console.log(`🔥 Loaded ${Object.keys(sampleBuffers).length} samples!`);
+        }
+        
+        function playSample(ctx, bufferName, outputNode, time, volume = 1.0) {
+            if (!sampleBuffers[bufferName]) return null;
+            
+            const source = ctx.createBufferSource();
+            source.buffer = sampleBuffers[bufferName];
+            
+            const gainNode = ctx.createGain();
+            gainNode.gain.setValueAtTime(volume, time);
+            
+            source.connect(gainNode);
+            gainNode.connect(outputNode);
+            source.start(time);
+            
+            return source;
+        }
         // ============================================
         // THEME TOGGLE SYSTEM
         // ============================================
@@ -2109,6 +2158,9 @@
                 if (this.ctx) return;
                 
                 this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Load samples (non-blocking)
+                loadSampleBank(this.ctx);
                 
                 // Create master chain
                 this.masterGain = this.ctx.createGain();
@@ -2618,6 +2670,13 @@
             // ============================================
 
             playKick(time) {
+                // Try sample first
+                if (samplesLoaded && sampleBuffers.kick1) {
+                    playSample(this.ctx, 'kick1', this.trackGains[0], time, 1.0);
+                    return;
+                }
+                
+                // Fallback: synthesized kick
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
                 const filter = this.ctx.createBiquadFilter();
@@ -2641,7 +2700,17 @@
             }
 
             playSnare(time) {
-                // Tone component
+                // Try samples first
+                if (samplesLoaded && sampleBuffers.snare1) {
+                    playSample(this.ctx, 'snare1', this.trackGains[1], time, 0.85);
+                    // Layer with clap for punch
+                    if (sampleBuffers.clap1) {
+                        playSample(this.ctx, 'clap1', this.trackGains[1], time, 0.4);
+                    }
+                    return;
+                }
+                
+                // Fallback: synthesized snare
                 const osc = this.ctx.createOscillator();
                 const oscGain = this.ctx.createGain();
                 
@@ -2652,7 +2721,6 @@
                 oscGain.gain.setValueAtTime(0.5, time);
                 oscGain.gain.exponentialRampToValueAtTime(0.01, time + 0.2);
                 
-                // Noise component
                 const noiseBuffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.2, this.ctx.sampleRate);
                 const noiseData = noiseBuffer.getChannelData(0);
                 for (let i = 0; i < noiseData.length; i++) {
@@ -2684,6 +2752,16 @@
             }
 
             playHiHat(time, open = false) {
+                // Try samples first
+                if (samplesLoaded) {
+                    const sampleName = open ? 'hatOpen1' : 'hatClosed1';
+                    if (sampleBuffers[sampleName]) {
+                        playSample(this.ctx, sampleName, this.trackGains[2], time, 0.7);
+                        return;
+                    }
+                }
+                
+                // Fallback: synthesized hi-hat
                 const bufferSize = this.ctx.sampleRate * (open ? 0.3 : 0.05);
                 const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
                 const data = buffer.getChannelData(0);
