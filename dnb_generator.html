@@ -123,17 +123,138 @@
 
         /* Visualizer */
         .visualizer-container {
-            height: 150px;
+            height: 200px;
             background: var(--bg-dark);
-            border-radius: 5px;
+            border-radius: 10px;
             overflow: hidden;
             margin-bottom: 20px;
-            border: 1px solid rgba(0, 255, 255, 0.2);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .visualizer-tabs {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+
+        .viz-tab {
+            padding: 5px 12px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: var(--text-dim);
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+
+        .viz-tab.active {
+            background: var(--neon-cyan);
+            color: #000;
+            border-color: var(--neon-cyan);
+        }
+
+        .viz-tab:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
         }
 
         #visualizer {
             width: 100%;
             height: 100%;
+        }
+
+        /* Right Panel Tabs */
+        .right-tabs {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 0;
+            background: var(--bg-dark);
+            padding: 5px 5px 0 5px;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .right-tab {
+            padding: 10px 15px;
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-bottom: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+            flex: 1;
+            text-align: center;
+        }
+
+        .right-tab:hover {
+            background: rgba(0, 255, 255, 0.1);
+            color: var(--neon-cyan);
+        }
+
+        .right-tab.active {
+            background: var(--bg-panel);
+            color: var(--neon-cyan);
+            border-color: rgba(0, 255, 255, 0.4);
+            border-bottom: 1px solid var(--bg-panel);
+            margin-bottom: -1px;
+        }
+
+        .right-tab.french-tab.active {
+            color: var(--french-gold);
+            border-color: rgba(255, 215, 0, 0.4);
+        }
+
+        .right-tab.ghouse-tab.active {
+            color: var(--ghouse-red);
+            border-color: rgba(139, 0, 0, 0.4);
+        }
+
+        .right-content {
+            background: var(--bg-panel);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .right-panel-section {
+            display: none;
+        }
+
+        .right-panel-section.active {
+            display: block;
+        }
+
+        /* Compact FX Layout */
+        .fx-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .fx-section-compact {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 255, 0.1);
+        }
+
+        .fx-section-compact .fx-title {
+            font-size: 0.7rem;
+            margin-bottom: 10px;
+            color: var(--neon-cyan);
         }
 
         /* Transport Controls */
@@ -785,6 +906,41 @@
             background: linear-gradient(to top, var(--neon-green), var(--neon-cyan), var(--neon-pink));
             transition: height 0.05s;
         }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Waveform buttons */
+        .waveform-btn {
+            padding: 5px 10px;
+            background: var(--bg-dark);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: var(--text-dim);
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+        }
+
+        .waveform-btn:hover {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+        }
+
+        .waveform-btn.active {
+            background: var(--neon-cyan);
+            color: #000;
+            border-color: var(--neon-cyan);
+        }
     </style>
 </head>
 <body>
@@ -802,6 +958,11 @@
         </header>
 
         <div class="visualizer-container">
+            <div class="visualizer-tabs">
+                <button class="viz-tab active" data-viz="spectrum">Spectrum</button>
+                <button class="viz-tab" data-viz="oscilloscope">Oscillo</button>
+                <button class="viz-tab" data-viz="combined">Both</button>
+            </div>
             <canvas id="visualizer"></canvas>
         </div>
 
@@ -883,344 +1044,305 @@
             </div>
 
             <div class="right-column">
-                <div class="panel">
-                    <div class="panel-title">🎚️ Global FX</div>
-                    
-                    <div class="fx-section">
-                        <div class="fx-title">Reverb</div>
-                        <div class="control-group">
-                            <span class="control-label">Mix</span>
-                            <input type="range" id="reverbMix" min="0" max="100" value="25">
-                            <span class="value-display" id="reverbMixDisplay">25%</span>
-                        </div>
-                        <div class="control-group">
-                            <span class="control-label">Decay</span>
-                            <input type="range" id="reverbDecay" min="0.1" max="10" step="0.1" value="3">
-                            <span class="value-display" id="reverbDecayDisplay">3.0s</span>
-                        </div>
-                    </div>
-
-                    <div class="fx-section">
-                        <div class="fx-title">Delay</div>
-                        <div class="control-group">
-                            <span class="control-label">Mix</span>
-                            <input type="range" id="delayMix" min="0" max="100" value="20">
-                            <span class="value-display" id="delayMixDisplay">20%</span>
-                        </div>
-                        <div class="control-group">
-                            <span class="control-label">Time</span>
-                            <input type="range" id="delayTime" min="1" max="16" value="3">
-                            <span class="value-display" id="delayTimeDisplay">3/16</span>
-                        </div>
-                        <div class="control-group">
-                            <span class="control-label">Feedback</span>
-                            <input type="range" id="delayFeedback" min="0" max="90" value="40">
-                            <span class="value-display" id="delayFeedbackDisplay">40%</span>
-                        </div>
-                    </div>
-
-                    <div class="fx-section">
-                        <div class="fx-title">Master Filter</div>
-                        <div class="control-group">
-                            <span class="control-label">Cutoff</span>
-                            <input type="range" id="filterCutoff" min="20" max="20000" value="20000">
-                            <span class="value-display" id="filterCutoffDisplay">20k</span>
-                        </div>
-                        <div class="control-group">
-                            <span class="control-label">Resonance</span>
-                            <input type="range" id="filterRes" min="0" max="20" step="0.1" value="1">
-                            <span class="value-display" id="filterResDisplay">1.0</span>
-                        </div>
-                    </div>
-
-                    <div class="fx-section">
-                        <div class="fx-title">Distortion</div>
-                        <div class="control-group">
-                            <span class="control-label">Drive</span>
-                            <input type="range" id="distortionDrive" min="0" max="100" value="10">
-                            <span class="value-display" id="distortionDriveDisplay">10%</span>
-                        </div>
-                    </div>
+                <!-- Right Panel Tabs -->
+                <div class="right-tabs">
+                    <button class="right-tab active" data-right-tab="global">🎚️ Global</button>
+                    <button class="right-tab french-tab" data-right-tab="french">🤖 French</button>
+                    <button class="right-tab ghouse-tab" data-right-tab="ghouse">🎭 G-House</button>
+                    <button class="right-tab" data-right-tab="synth">🎹 Synth</button>
                 </div>
+                
+                <div class="right-content">
+                    <!-- Global FX Tab -->
+                    <div class="right-panel-section active" id="right-tab-global">
+                        <div class="fx-grid">
+                            <div class="fx-section-compact">
+                                <div class="fx-title">Reverb</div>
+                                <div class="control-group">
+                                    <span class="control-label">Mix</span>
+                                    <input type="range" id="reverbMix" min="0" max="100" value="25">
+                                    <span class="value-display" id="reverbMixDisplay">25%</span>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">Decay</span>
+                                    <input type="range" id="reverbDecay" min="0.1" max="10" step="0.1" value="3">
+                                    <span class="value-display" id="reverbDecayDisplay">3.0s</span>
+                                </div>
+                            </div>
 
-                <div class="bass-controls">
-                    <div class="bass-title">🎸 Reese Bass Controls</div>
-                    <div class="control-group">
-                        <span class="control-label">Wobble Rate</span>
-                        <input type="range" id="wobbleRate" min="0.5" max="20" step="0.5" value="4">
-                        <span class="value-display" id="wobbleRateDisplay">4Hz</span>
-                    </div>
-                    <div class="control-group">
-                        <span class="control-label">Wobble Depth</span>
-                        <input type="range" id="wobbleDepth" min="0" max="100" value="60">
-                        <span class="value-display" id="wobbleDepthDisplay">60%</span>
-                    </div>
-                    <div class="control-group">
-                        <span class="control-label">Filter Env</span>
-                        <input type="range" id="filterEnv" min="0" max="100" value="50">
-                        <span class="value-display" id="filterEnvDisplay">50%</span>
-                    </div>
-                    <div class="control-group">
-                        <span class="control-label">Distortion</span>
-                        <input type="range" id="bassDistortion" min="0" max="100" value="30">
-                        <span class="value-display" id="bassDistortionDisplay">30%</span>
-                    </div>
-                </div>
+                            <div class="fx-section-compact">
+                                <div class="fx-title">Delay</div>
+                                <div class="control-group">
+                                    <span class="control-label">Mix</span>
+                                    <input type="range" id="delayMix" min="0" max="100" value="20">
+                                    <span class="value-display" id="delayMixDisplay">20%</span>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">Time</span>
+                                    <input type="range" id="delayTime" min="1" max="16" value="3">
+                                    <span class="value-display" id="delayTimeDisplay">3/16</span>
+                                </div>
+                            </div>
 
-                <!-- French Electro Panel -->
-                <div class="panel french-panel" style="margin-top: 20px;">
-                    <div class="panel-title french-title">🤖 French Electro Controls</div>
-                    
-                    <!-- Sidechain Section -->
-                    <div class="fx-section">
-                        <div class="fx-title" style="color: var(--french-gold);">Sidechain Compressor (The Pump)</div>
-                        <div class="sidechain-meter" id="sidechainMeter">
-                            <div class="pump-bar" id="pump-0" style="height: 100%"></div>
-                            <div class="pump-bar" id="pump-1" style="height: 100%"></div>
-                            <div class="pump-bar" id="pump-2" style="height: 100%"></div>
-                            <div class="pump-bar" id="pump-3" style="height: 100%"></div>
-                            <div class="pump-bar" id="pump-4" style="height: 100%"></div>
-                            <div class="pump-bar" id="pump-5" style="height: 100%"></div>
-                            <div class="pump-bar" id="pump-6" style="height: 100%"></div>
-                            <div class="pump-bar" id="pump-7" style="height: 100%"></div>
-                            <div class="pump-bar" id="pump-8" style="height: 100%"></div>
-                            <div class="pump-bar" id="pump-9" style="height: 100%"></div>
-                            <div class="pump-bar" id="pump-10" style="height: 100%"></div>
-                            <div class="pump-bar" id="pump-11" style="height: 100%"></div>
-                            <div class="pump-bar" id="pump-12" style="height: 100%"></div>
-                            <div class="pump-bar" id="pump-13" style="height: 100%"></div>
-                            <div class="pump-bar" id="pump-14" style="height: 100%"></div>
-                            <div class="pump-bar" id="pump-15" style="height: 100%"></div>
-                        </div>
-                        <div class="control-group">
-                            <span class="control-label">Amount</span>
-                            <input type="range" id="sidechainAmount" min="0" max="100" value="70">
-                            <span class="value-display" id="sidechainAmountDisplay">70%</span>
-                        </div>
-                        <div class="control-group">
-                            <span class="control-label">Attack</span>
-                            <input type="range" id="sidechainAttack" min="1" max="50" value="5">
-                            <span class="value-display" id="sidechainAttackDisplay">5ms</span>
-                        </div>
-                        <div class="control-group">
-                            <span class="control-label">Release</span>
-                            <input type="range" id="sidechainRelease" min="10" max="500" value="150">
-                            <span class="value-display" id="sidechainReleaseDisplay">150ms</span>
-                        </div>
-                        <div class="control-group">
-                            <button class="btn btn-small" id="ghostKickBtn" style="background: var(--french-gold); color: #000;">Ghost Kick: ON</button>
-                        </div>
-                    </div>
+                            <div class="fx-section-compact">
+                                <div class="fx-title">Master Filter</div>
+                                <div class="control-group">
+                                    <span class="control-label">Cutoff</span>
+                                    <input type="range" id="filterCutoff" min="20" max="20000" value="20000">
+                                    <span class="value-display" id="filterCutoffDisplay">20k</span>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">Res</span>
+                                    <input type="range" id="filterRes" min="0" max="20" step="0.1" value="1">
+                                    <span class="value-display" id="filterResDisplay">1.0</span>
+                                </div>
+                            </div>
 
-                    <!-- FX Tabs -->
-                    <div class="fx-tabs">
-                        <div class="fx-tab active" data-tab="modulation">Modulation</div>
-                        <div class="fx-tab" data-tab="distortion">Distortion</div>
-                        <div class="fx-tab" data-tab="spatial">Spatial</div>
-                    </div>
+                            <div class="fx-section-compact">
+                                <div class="fx-title">Distortion</div>
+                                <div class="control-group">
+                                    <span class="control-label">Drive</span>
+                                    <input type="range" id="distortionDrive" min="0" max="100" value="10">
+                                    <span class="value-display" id="distortionDriveDisplay">10%</span>
+                                </div>
+                            </div>
+                        </div>
 
-                    <!-- Modulation Tab -->
-                    <div class="fx-panel-content active" id="tab-modulation">
-                        <div class="fx-section">
-                            <div class="fx-title">Phaser (Daft Punk Swirl)</div>
+                        <div class="fx-section" style="margin-top: 15px;">
+                            <div class="fx-title">🎸 Reese Bass</div>
                             <div class="control-group">
-                                <span class="control-label">Rate</span>
-                                <input type="range" id="phaserRate" min="0.1" max="10" step="0.1" value="0.5">
-                                <span class="value-display" id="phaserRateDisplay">0.5Hz</span>
+                                <span class="control-label">Wobble</span>
+                                <input type="range" id="wobbleRate" min="0.5" max="20" step="0.5" value="4">
+                                <span class="value-display" id="wobbleRateDisplay">4Hz</span>
                             </div>
                             <div class="control-group">
                                 <span class="control-label">Depth</span>
-                                <input type="range" id="phaserDepth" min="0" max="100" value="50">
-                                <span class="value-display" id="phaserDepthDisplay">50%</span>
+                                <input type="range" id="wobbleDepth" min="0" max="100" value="60">
+                                <span class="value-display" id="wobbleDepthDisplay">60%</span>
                             </div>
                             <div class="control-group">
-                                <span class="control-label">Feedback</span>
-                                <input type="range" id="phaserFeedback" min="0" max="90" value="30">
-                                <span class="value-display" id="phaserFeedbackDisplay">30%</span>
-                            </div>
-                        </div>
-
-                        <div class="fx-section">
-                            <div class="fx-title">Flanger (Jet Plane)</div>
-                            <div class="control-group">
-                                <span class="control-label">Rate</span>
-                                <input type="range" id="flangerRate" min="0.1" max="5" step="0.1" value="0.2">
-                                <span class="value-display" id="flangerRateDisplay">0.2Hz</span>
+                                <span class="control-label">F.Env</span>
+                                <input type="range" id="filterEnv" min="0" max="100" value="50">
+                                <span class="value-display" id="filterEnvDisplay">50%</span>
                             </div>
                             <div class="control-group">
-                                <span class="control-label">Depth</span>
-                                <input type="range" id="flangerDepth" min="0" max="100" value="40">
-                                <span class="value-display" id="flangerDepthDisplay">40%</span>
-                            </div>
-                            <div class="control-group">
-                                <span class="control-label">Feedback</span>
-                                <input type="range" id="flangerFeedback" min="0" max="90" value="50">
-                                <span class="value-display" id="flangerFeedbackDisplay">50%</span>
+                                <span class="control-label">Dist</span>
+                                <input type="range" id="bassDistortion" min="0" max="100" value="30">
+                                <span class="value-display" id="bassDistortionDisplay">30%</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Distortion Tab -->
-                    <div class="fx-panel-content" id="tab-distortion">
-                        <div class="fx-section">
-                            <div class="fx-title">Bitcrusher (Justice Grit)</div>
-                            <div class="control-group">
-                                <span class="control-label">Bits</span>
-                                <input type="range" id="bitcrushBits" min="1" max="16" value="8">
-                                <span class="value-display" id="bitcrushBitsDisplay">8-bit</span>
-                            </div>
-                            <div class="control-group">
-                                <span class="control-label">Sample Rate</span>
-                                <input type="range" id="bitcrushRate" min="1000" max="44100" step="1000" value="22050">
-                                <span class="value-display" id="bitcrushRateDisplay">22k</span>
-                            </div>
-                            <div class="control-group">
-                                <span class="control-label">Mix</span>
-                                <input type="range" id="bitcrushMix" min="0" max="100" value="20">
-                                <span class="value-display" id="bitcrushMixDisplay">20%</span>
-                            </div>
-                        </div>
-
-                        <div class="fx-section">
-                            <div class="fx-title">Organ Distortion</div>
-                            <div class="control-group">
-                                <span class="control-label">Drive</span>
-                                <input type="range" id="organDistortion" min="0" max="100" value="40">
-                                <span class="value-display" id="organDistortionDisplay">40%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Spatial Tab -->
-                    <div class="fx-panel-content" id="tab-spatial">
-                        <div class="fx-section">
-                            <div class="fx-title">Chorus (Thickening)</div>
-                            <div class="control-group">
-                                <span class="control-label">Rate</span>
-                                <input type="range" id="chorusRate" min="0.1" max="10" step="0.1" value="1.5">
-                                <span class="value-display" id="chorusRateDisplay">1.5Hz</span>
-                            </div>
-                            <div class="control-group">
-                                <span class="control-label">Depth</span>
-                                <input type="range" id="chorusDepth" min="0" max="100" value="30">
-                                <span class="value-display" id="chorusDepthDisplay">30%</span>
-                            </div>
-                            <div class="control-group">
-                                <span class="control-label">Voices</span>
-                                <input type="range" id="chorusVoices" min="2" max="8" value="4">
-                                <span class="value-display" id="chorusVoicesDisplay">4</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Vocoder Section -->
-                    <div class="fx-section" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-                        <div class="fx-title" style="color: var(--robot-copper);">🎤 Robot Vocoder</div>
-                        <div class="vocoder-display" id="vocoderDisplay">
-                            <div class="vocoder-band" id="vband-0" style="left: 2%; height: 20%"></div>
-                            <div class="vocoder-band" id="vband-1" style="left: 10%; height: 20%"></div>
-                            <div class="vocoder-band" id="vband-2" style="left: 18%; height: 20%"></div>
-                            <div class="vocoder-band" id="vband-3" style="left: 26%; height: 20%"></div>
-                            <div class="vocoder-band" id="vband-4" style="left: 34%; height: 20%"></div>
-                            <div class="vocoder-band" id="vband-5" style="left: 42%; height: 20%"></div>
-                            <div class="vocoder-band" id="vband-6" style="left: 50%; height: 20%"></div>
-                            <div class="vocoder-band" id="vband-7" style="left: 58%; height: 20%"></div>
-                            <div class="vocoder-band" id="vband-8" style="left: 66%; height: 20%"></div>
-                            <div class="vocoder-band" id="vband-9" style="left: 74%; height: 20%"></div>
-                            <div class="vocoder-band" id="vband-10" style="left: 82%; height: 20%"></div>
-                            <div class="vocoder-band" id="vband-11" style="left: 90%; height: 20%"></div>
-                        </div>
-                        <input type="text" class="vocoder-input" id="vocoderText" placeholder="Type text for robot to speak..." maxlength="20">
-                        <div class="control-group">
-                            <span class="control-label">Robot Pitch</span>
-                            <input type="range" id="vocoderPitch" min="50" max="400" value="150">
-                            <span class="value-display" id="vocoderPitchDisplay">150Hz</span>
-                        </div>
-                        <button class="btn btn-pattern" id="speakBtn" style="width: 100%; margin-top: 10px;">🤖 Speak</button>
-                    </div>
-
-                    <!-- French Electro Presets -->
-                    <div class="pattern-manager" style="margin-top: 20px;">
-                        <button class="btn btn-pattern" id="presetDaftPunk" style="border-color: var(--french-gold); color: var(--french-gold);">🎹 Daft Punk</button>
-                        <button class="btn btn-pattern" id="presetJustice" style="border-color: var(--french-blue); color: var(--french-blue);">⛪ Justice</button>
-                        <button class="btn btn-pattern" id="presetRobotRock" style="border-color: var(--robot-copper); color: var(--robot-copper);">🤖 Robot Rock</button>
-                    </div>
-                </div>
-
-                <!-- G-House / Malaa Panel -->
-                <div class="panel ghouse-panel" style="margin-top: 20px;">
-                    <div class="panel-title ghouse-title">🎭 G-HOUSE / MALAA</div>
+                    <!-- French Electro Tab -->
+                    <div class="right-panel-section" id="right-tab-french">
+                        <div class="panel-title french-title" style="margin-bottom: 15px;">🤖 French Electro</div>
                     
-                    <!-- G-House Bass Controls -->
-                    <div class="fx-section">
-                        <div class="fx-title" style="color: var(--ghouse-red);">🎸 G-House Bass</div>
-                        <div class="control-group">
-                            <span class="control-label">Glide Time</span>
-                            <input type="range" id="ghouseGlide" min="100" max="500" value="250">
-                            <span class="value-display" id="ghouseGlideDisplay">250ms</span>
+                        <!-- Sidechain -->
+                        <div class="fx-section">
+                            <div class="fx-title" style="color: var(--french-gold);">Sidechain (The Pump)</div>
+                            <div class="sidechain-meter" id="sidechainMeter">
+                                <div class="pump-bar" id="pump-0" style="height: 100%"></div>
+                                <div class="pump-bar" id="pump-1" style="height: 100%"></div>
+                                <div class="pump-bar" id="pump-2" style="height: 100%"></div>
+                                <div class="pump-bar" id="pump-3" style="height: 100%"></div>
+                                <div class="pump-bar" id="pump-4" style="height: 100%"></div>
+                                <div class="pump-bar" id="pump-5" style="height: 100%"></div>
+                                <div class="pump-bar" id="pump-6" style="height: 100%"></div>
+                                <div class="pump-bar" id="pump-7" style="height: 100%"></div>
+                                <div class="pump-bar" id="pump-8" style="height: 100%"></div>
+                                <div class="pump-bar" id="pump-9" style="height: 100%"></div>
+                                <div class="pump-bar" id="pump-10" style="height: 100%"></div>
+                                <div class="pump-bar" id="pump-11" style="height: 100%"></div>
+                                <div class="pump-bar" id="pump-12" style="height: 100%"></div>
+                                <div class="pump-bar" id="pump-13" style="height: 100%"></div>
+                                <div class="pump-bar" id="pump-14" style="height: 100%"></div>
+                                <div class="pump-bar" id="pump-15" style="height: 100%"></div>
+                            </div>
+                            <div class="control-group">
+                                <span class="control-label">Amt</span>
+                                <input type="range" id="sidechainAmount" min="0" max="100" value="70">
+                                <span class="value-display" id="sidechainAmountDisplay">70%</span>
+                            </div>
+                            <div class="control-group">
+                                <span class="control-label">Atk</span>
+                                <input type="range" id="sidechainAttack" min="1" max="50" value="5">
+                                <span class="value-display" id="sidechainAttackDisplay">5ms</span>
+                            </div>
+                            <div class="control-group">
+                                <span class="control-label">Rel</span>
+                                <input type="range" id="sidechainRelease" min="10" max="500" value="150">
+                                <span class="value-display" id="sidechainReleaseDisplay">150ms</span>
+                            </div>
+                            <button class="btn btn-small" id="ghostKickBtn" style="background: var(--french-gold); color: #000; width: 100%; margin-top: 8px;">Ghost Kick: ON</button>
                         </div>
-                        <div class="control-group">
-                            <span class="control-label">Sub-Octave</span>
-                            <input type="range" id="ghouseSubOctave" min="0" max="100" value="50">
-                            <span class="value-display" id="ghouseSubOctaveDisplay">50%</span>
+
+                        <!-- FX Grid -->
+                        <div class="fx-grid" style="margin-top: 15px;">
+                            <div class="fx-section-compact">
+                                <div class="fx-title">Phaser</div>
+                                <div class="control-group">
+                                    <span class="control-label">Rate</span>
+                                    <input type="range" id="phaserRate" min="0.1" max="10" step="0.1" value="0.5">
+                                    <span class="value-display" id="phaserRateDisplay">0.5Hz</span>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">Depth</span>
+                                    <input type="range" id="phaserDepth" min="0" max="100" value="50">
+                                    <span class="value-display" id="phaserDepthDisplay">50%</span>
+                                </div>
+                            </div>
+
+                            <div class="fx-section-compact">
+                                <div class="fx-title">Flanger</div>
+                                <div class="control-group">
+                                    <span class="control-label">Rate</span>
+                                    <input type="range" id="flangerRate" min="0.1" max="5" step="0.1" value="0.2">
+                                    <span class="value-display" id="flangerRateDisplay">0.2Hz</span>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">Depth</span>
+                                    <input type="range" id="flangerDepth" min="0" max="100" value="40">
+                                    <span class="value-display" id="flangerDepthDisplay">40%</span>
+                                </div>
+                            </div>
+
+                            <div class="fx-section-compact">
+                                <div class="fx-title">Bitcrush</div>
+                                <div class="control-group">
+                                    <span class="control-label">Bits</span>
+                                    <input type="range" id="bitcrushBits" min="1" max="16" value="8">
+                                    <span class="value-display" id="bitcrushBitsDisplay">8-bit</span>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">Mix</span>
+                                    <input type="range" id="bitcrushMix" min="0" max="100" value="20">
+                                    <span class="value-display" id="bitcrushMixDisplay">20%</span>
+                                </div>
+                            </div>
+
+                            <div class="fx-section-compact">
+                                <div class="fx-title">Chorus</div>
+                                <div class="control-group">
+                                    <span class="control-label">Rate</span>
+                                    <input type="range" id="chorusRate" min="0.1" max="10" step="0.1" value="1.5">
+                                    <span class="value-display" id="chorusRateDisplay">1.5Hz</span>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">Depth</span>
+                                    <input type="range" id="chorusDepth" min="0" max="100" value="30">
+                                    <span class="value-display" id="chorusDepthDisplay">30%</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="control-group">
-                            <span class="control-label">Filter Cutoff</span>
-                            <input type="range" id="ghouseFilter" min="50" max="1000" value="200">
-                            <span class="value-display" id="ghouseFilterDisplay">200Hz</span>
+
+                        <!-- Vocoder -->
+                        <div class="fx-section" style="margin-top: 15px;">
+                            <div class="fx-title" style="color: var(--robot-copper);">🎤 Vocoder</div>
+                            <div class="vocoder-display" id="vocoderDisplay">
+                                <div class="vocoder-band" id="vband-0" style="left: 2%; height: 20%"></div>
+                                <div class="vocoder-band" id="vband-1" style="left: 10%; height: 20%"></div>
+                                <div class="vocoder-band" id="vband-2" style="left: 18%; height: 20%"></div>
+                                <div class="vocoder-band" id="vband-3" style="left: 26%; height: 20%"></div>
+                                <div class="vocoder-band" id="vband-4" style="left: 34%; height: 20%"></div>
+                                <div class="vocoder-band" id="vband-5" style="left: 42%; height: 20%"></div>
+                                <div class="vocoder-band" id="vband-6" style="left: 50%; height: 20%"></div>
+                                <div class="vocoder-band" id="vband-7" style="left: 58%; height: 20%"></div>
+                                <div class="vocoder-band" id="vband-8" style="left: 66%; height: 20%"></div>
+                                <div class="vocoder-band" id="vband-9" style="left: 74%; height: 20%"></div>
+                                <div class="vocoder-band" id="vband-10" style="left: 82%; height: 20%"></div>
+                                <div class="vocoder-band" id="vband-11" style="left: 90%; height: 20%"></div>
+                            </div>
+                            <input type="text" class="vocoder-input" id="vocoderText" placeholder="Type for robot..." maxlength="15" style="font-size: 0.8rem;">
+                            <div class="control-group">
+                                <span class="control-label">Pitch</span>
+                                <input type="range" id="vocoderPitch" min="50" max="400" value="150">
+                                <span class="value-display" id="vocoderPitchDisplay">150Hz</span>
+                            </div>
+                            <button class="btn btn-pattern" id="speakBtn" style="width: 100%; margin-top: 8px;">🤖 Speak</button>
+                        </div>
+
+                        <!-- Presets -->
+                        <div class="pattern-manager" style="margin-top: 15px;">
+                            <button class="btn btn-pattern" id="presetDaftPunk" style="border-color: var(--french-gold); color: var(--french-gold); font-size: 0.7rem;">🎹 Daft</button>
+                            <button class="btn btn-pattern" id="presetJustice" style="border-color: var(--french-blue); color: var(--french-blue); font-size: 0.7rem;">⛪ Justice</button>
+                            <button class="btn btn-pattern" id="presetRobotRock" style="border-color: var(--robot-copper); color: var(--robot-copper); font-size: 0.7rem;">🤖 Rock</button>
                         </div>
                     </div>
 
-                    <!-- Vocal Chops -->
-                    <div class="fx-section">
-                        <div class="fx-title" style="color: var(--ghouse-burgundy);">🎤 Vocal Chops</div>
-                        <div class="vocal-selector" id="vocalSelector">
-                            <div class="vocal-word active" data-vocal="hey">Hey</div>
-                            <div class="vocal-word" data-vocal="yeah">Yeah</div>
-                            <div class="vocal-word" data-vocal="what">What</div>
-                            <div class="vocal-word" data-vocal="bass">Bass</div>
-                            <div class="vocal-word" data-vocal="drop">Drop</div>
-                        </div>
-                        <div class="control-group">
-                            <span class="control-label">Pitch</span>
-                            <input type="range" id="vocalPitch" min="-12" max="12" value="0">
-                            <span class="value-display" id="vocalPitchDisplay">0st</span>
-                        </div>
-                        <div class="control-group">
-                            <span class="control-label">Stutter</span>
-                            <input type="range" id="vocalStutter" min="1" max="8" value="1">
-                            <span class="value-display" id="vocalStutterDisplay">1x</span>
-                        </div>
-                        <div class="control-group">
-                            <span class="control-label">Filter</span>
-                            <input type="range" id="vocalFilter" min="200" max="8000" value="2000">
-                            <span class="value-display" id="vocalFilterDisplay">2k</span>
-                        </div>
-                    </div>
+                    <!-- G-House Tab -->
+                    <div class="right-panel-section" id="right-tab-ghouse">
+                        <div class="panel-title ghouse-title" style="margin-bottom: 15px;">🎭 G-House / Malaa</div>
+                    
+                        <div class="fx-grid">
+                            <div class="fx-section-compact">
+                                <div class="fx-title" style="color: var(--ghouse-red);">🎸 G-Bass</div>
+                                <div class="control-group">
+                                    <span class="control-label">Glide</span>
+                                    <input type="range" id="ghouseGlide" min="100" max="500" value="250">
+                                    <span class="value-display" id="ghouseGlideDisplay">250ms</span>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">Sub</span>
+                                    <input type="range" id="ghouseSubOctave" min="0" max="100" value="50">
+                                    <span class="value-display" id="ghouseSubOctaveDisplay">50%</span>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">Filter</span>
+                                    <input type="range" id="ghouseFilter" min="50" max="1000" value="200">
+                                    <span class="value-display" id="ghouseFilterDisplay">200Hz</span>
+                                </div>
+                            </div>
 
-                    <!-- Dark Pad -->
-                    <div class="fx-section">
-                        <div class="fx-title" style="color: #722f37;">🌑 Dark Pad</div>
-                        <div class="control-group">
-                            <span class="control-label">Detune</span>
-                            <input type="range" id="darkPadDetune" min="0" max="50" value="15">
-                            <span class="value-display" id="darkPadDetuneDisplay">15ct</span>
+                            <div class="fx-section-compact">
+                                <div class="fx-title" style="color: #722f37;">🌑 Dark Pad</div>
+                                <div class="control-group">
+                                    <span class="control-label">Detune</span>
+                                    <input type="range" id="darkPadDetune" min="0" max="50" value="15">
+                                    <span class="value-display" id="darkPadDetuneDisplay">15ct</span>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">LFO</span>
+                                    <input type="range" id="darkPadLFO" min="0.1" max="5" step="0.1" value="0.5">
+                                    <span class="value-display" id="darkPadLFODisplay">0.5Hz</span>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">Verb</span>
+                                    <input type="range" id="darkPadReverb" min="0" max="100" value="60">
+                                    <span class="value-display" id="darkPadReverbDisplay">60%</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="control-group">
-                            <span class="control-label">Filter LFO</span>
-                            <input type="range" id="darkPadLFO" min="0.1" max="5" step="0.1" value="0.5">
-                            <span class="value-display" id="darkPadLFODisplay">0.5Hz</span>
-                        </div>
-                        <div class="control-group">
-                            <span class="control-label">Reverb</span>
-                            <input type="range" id="darkPadReverb" min="0" max="100" value="60">
-                            <span class="value-display" id="darkPadReverbDisplay">60%</span>
-                        </div>
-                    </div>
 
-                    <!-- Underground Master Filter -->
-                    <div class="fx-section">
-                        <div class="fx-title" style="color: var(--ghouse-red);">🌫️ Underground Filter</div>
+                        <!-- Vocal Chops -->
+                        <div class="fx-section" style="margin-top: 15px;">
+                            <div class="fx-title" style="color: var(--ghouse-burgundy);">🎤 Vocal Chops</div>
+                            <div class="vocal-selector" id="vocalSelector">
+                                <div class="vocal-word active" data-vocal="hey">Hey</div>
+                                <div class="vocal-word" data-vocal="yeah">Yeah</div>
+                                <div class="vocal-word" data-vocal="what">What</div>
+                                <div class="vocal-word" data-vocal="bass">Bass</div>
+                                <div class="vocal-word" data-vocal="drop">Drop</div>
+                            </div>
+                            <div class="control-group">
+                                <span class="control-label">Pitch</span>
+                                <input type="range" id="vocalPitch" min="-12" max="12" value="0">
+                                <span class="value-display" id="vocalPitchDisplay">0st</span>
+                            </div>
+                            <div class="control-group">
+                                <span class="control-label">Stutter</span>
+                                <input type="range" id="vocalStutter" min="1" max="8" value="1">
+                                <span class="value-display" id="vocalStutterDisplay">1x</span>
+                            </div>
+                            <div class="control-group">
+                                <span class="control-label">Filter</span>
+                                <input type="range" id="vocalFilter" min="200" max="8000" value="2000">
+                                <span class="value-display" id="vocalFilterDisplay">2k</span>
+                            </div>
+                        </div>
+
+                        <!-- Underground Filter -->
+                        <div class="fx-section">
+                            <div class="fx-title" style="color: var(--ghouse-red);">🌫️ Underground Filter</div>
                         <div class="control-group">
                             <span class="control-label">Cutoff</span>
                             <input type="range" id="undergroundCutoff" min="200" max="20000" value="20000">
@@ -1238,28 +1360,102 @@
                         </div>
                     </div>
 
-                    <!-- Sub-Bass Enhancer -->
-                    <div class="fx-section">
-                        <div class="fx-title" style="color: var(--ghouse-burgundy);">🔊 Sub Enhancer</div>
-                        <div class="sub-meter" id="subMeter">
-                            <div class="sub-fill" id="subFill" style="height: 30%"></div>
+                        <!-- Sub Enhancer -->
+                        <div class="fx-section">
+                            <div class="fx-title" style="color: var(--ghouse-burgundy);">🔊 Sub Enhancer</div>
+                            <div class="sub-meter" id="subMeter">
+                                <div class="sub-fill" id="subFill" style="height: 30%"></div>
+                            </div>
+                            <div class="control-group">
+                                <span class="control-label">Amount</span>
+                                <input type="range" id="subEnhanceAmount" min="0" max="100" value="40">
+                                <span class="value-display" id="subEnhanceAmountDisplay">40%</span>
+                            </div>
+                            <div class="control-group">
+                                <span class="control-label">Freq</span>
+                                <input type="range" id="subEnhanceFreq" min="30" max="80" value="40">
+                                <span class="value-display" id="subEnhanceFreqDisplay">40Hz</span>
+                            </div>
                         </div>
-                        <div class="control-group">
-                            <span class="control-label">Sub Amount</span>
-                            <input type="range" id="subEnhanceAmount" min="0" max="100" value="40">
-                            <span class="value-display" id="subEnhanceAmountDisplay">40%</span>
-                        </div>
-                        <div class="control-group">
-                            <span class="control-label">Sub Frequency</span>
-                            <input type="range" id="subEnhanceFreq" min="30" max="80" value="40">
-                            <span class="value-display" id="subEnhanceFreqDisplay">40Hz</span>
-                        </div>
+
+                        <button class="btn ghouse-btn" id="presetMalaa" style="width: 100%; margin-top: 15px;">🔥 MALAA / G-HOUSE</button>
                     </div>
 
-                    <!-- Malaa Preset Button -->
-                    <div class="pattern-manager" style="margin-top: 20px;">
-                        <button class="btn ghouse-btn" id="presetMalaa" style="width: 100%;">🔥 MALAA / G-HOUSE</button>
+                    <!-- Synth Tab (NEW) -->
+                    <div class="right-panel-section" id="right-tab-synth">
+                        <div class="panel-title" style="margin-bottom: 15px; color: var(--neon-cyan);">🎹 Wavetable & FM Synth</div>
+                        
+                        <div class="fx-section">
+                            <div class="fx-title">🔬 Wavetable Position</div>
+                            <div class="control-group">
+                                <span class="control-label">Wave</span>
+                                <input type="range" id="wavetablePos" min="0" max="100" value="0">
+                                <span class="value-display" id="wavetablePosDisplay">Sine</span>
+                            </div>
+                            <div class="wavetable-preview" id="wavetablePreview" style="height: 60px; background: var(--bg-dark); border-radius: 5px; margin: 10px 0; position: relative; overflow: hidden;">
+                                <canvas id="waveformCanvas" style="width: 100%; height: 100%;"></canvas>
+                            </div>
+                            <div class="waveform-selector" style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                <button class="btn btn-small waveform-btn active" data-wave="sine">Sine</button>
+                                <button class="btn btn-small waveform-btn" data-wave="saw">Saw</button>
+                                <button class="btn btn-small waveform-btn" data-wave="square">Square</button>
+                                <button class="btn btn-small waveform-btn" data-wave="triangle">Tri</button>
+                                <button class="btn btn-small waveform-btn" data-wave="pulse">Pulse</button>
+                            </div>
+                        </div>
+
+                        <div class="fx-grid" style="margin-top: 15px;">
+                            <div class="fx-section-compact">
+                                <div class="fx-title">FM Synthesis</div>
+                                <div class="control-group">
+                                    <span class="control-label">Ratio</span>
+                                    <input type="range" id="fmRatio" min="0.5" max="10" step="0.5" value="2">
+                                    <span class="value-display" id="fmRatioDisplay">2:1</span>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">Depth</span>
+                                    <input type="range" id="fmDepth" min="0" max="1000" value="100">
+                                    <span class="value-display" id="fmDepthDisplay">100</span>
+                                </div>
+                            </div>
+
+                            <div class="fx-section-compact">
+                                <div class="fx-title">Unison</div>
+                                <div class="control-group">
+                                    <span class="control-label">Voices</span>
+                                    <input type="range" id="unisonVoices" min="1" max="8" value="3">
+                                    <span class="value-display" id="unisonVoicesDisplay">3</span>
+                                </div>
+                                <div class="control-group">
+                                    <span class="control-label">Detune</span>
+                                    <input type="range" id="unisonDetune" min="0" max="100" value="15">
+                                    <span class="value-display" id="unisonDetuneDisplay">15ct</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="fx-section" style="margin-top: 15px;">
+                            <div class="fx-title">🎛️ New Synth Tracks</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <button class="btn btn-small" id="addWavetableTrack" style="font-size: 0.7rem;">+ Wavetable</button>
+                                <button class="btn btn-small" id="addFMTrack" style="font-size: 0.7rem;">+ FM Synth</button>
+                                <button class="btn btn-small" id="addSuperSaw" style="font-size: 0.7rem;">+ SuperSaw</button>
+                                <button class="btn btn-small" id="addNoise" style="font-size: 0.7rem;">+ Noise</button>
+                            </div>
+                        </div>
+
+                        <div class="fx-section">
+                            <div class="fx-title">📁 Import/Export</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <button class="btn btn-pattern" id="exportPattern" style="font-size: 0.7rem;">📤 Export JSON</button>
+                                <button class="btn btn-pattern" id="importPattern" style="font-size: 0.7rem;">📥 Import JSON</button>
+                                <button class="btn btn-pattern" id="exportMIDI" style="font-size: 0.7rem;">🎼 Export MIDI</button>
+                                <button class="btn btn-pattern" id="randomizeAll" style="font-size: 0.7rem;">🎲 Randomize</button>
+                            </div>
+                            <input type="file" id="importFile" accept=".json" style="display: none;">
+                        </div>
                     </div>
+                </div>
                 </div>
             </div>
         </div>
@@ -3029,6 +3225,12 @@
                 // FX controls
                 this.setupFXControls();
 
+                // New right panel tabs
+                this.setupRightPanelTabs();
+
+                // Synth controls
+                this.setupSynthControls();
+
                 // Pattern manager
                 document.getElementById('savePattern').addEventListener('click', () => this.savePattern());
                 document.getElementById('loadPattern').addEventListener('click', () => this.loadFromStorage());
@@ -3664,12 +3866,13 @@
             }
 
             // ============================================
-            // VISUALIZER
+            // ENHANCED VISUALIZER - Spectrum + Oscilloscope
             // ============================================
 
             startVisualizer() {
                 const canvas = document.getElementById('visualizer');
                 const ctx = canvas.getContext('2d');
+                this.visualizerMode = 'spectrum'; // spectrum, oscilloscope, combined
                 
                 const resize = () => {
                     canvas.width = canvas.offsetWidth;
@@ -3680,50 +3883,64 @@
                 
                 const bufferLength = this.analyser.frequencyBinCount;
                 const dataArray = new Uint8Array(bufferLength);
+                const timeData = new Uint8Array(bufferLength);
                 
-                const draw = () => {
-                    requestAnimationFrame(draw);
-                    
+                // Visualizer tab switching
+                document.querySelectorAll('.viz-tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        document.querySelectorAll('.viz-tab').forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        this.visualizerMode = tab.dataset.viz;
+                    });
+                });
+                
+                const drawSpectrum = () => {
                     this.analyser.getByteFrequencyData(dataArray);
-                    
-                    ctx.fillStyle = 'rgba(10, 10, 15, 0.3)';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
                     
                     const barWidth = (canvas.width / bufferLength) * 2.5;
                     let barHeight;
                     let x = 0;
                     
                     for (let i = 0; i < bufferLength; i++) {
-                        barHeight = (dataArray[i] / 255) * canvas.height * 0.8;
+                        barHeight = (dataArray[i] / 255) * canvas.height * 0.85;
                         
-                        // Gradient based on frequency
-                        const hue = 180 + (i / bufferLength) * 120; // Cyan to purple
-                        const saturation = 100;
-                        const lightness = 50 + (dataArray[i] / 255) * 30;
+                        // Enhanced gradient with more colors
+                        const hue = 160 + (i / bufferLength) * 160; // Cyan to purple to pink
+                        const saturation = 80 + (dataArray[i] / 255) * 20;
+                        const lightness = 40 + (dataArray[i] / 255) * 40;
                         
-                        ctx.fillStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-                        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                        // Create gradient for each bar
+                        const gradient = ctx.createLinearGradient(0, canvas.height - barHeight, 0, canvas.height);
+                        gradient.addColorStop(0, `hsl(${hue}, ${saturation}%, ${lightness + 20}%)`);
+                        gradient.addColorStop(0.5, `hsl(${hue}, ${saturation}%, ${lightness}%)`);
+                        gradient.addColorStop(1, `hsl(${hue}, ${saturation}%, ${lightness - 20}%)`);
                         
-                        // Glow effect
-                        ctx.shadowBlur = 10;
-                        ctx.shadowColor = `hsl(${hue}, 100%, 50%)`;
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(x, canvas.height - barHeight, barWidth - 1, barHeight);
                         
-                        x += barWidth + 1;
+                        // Top highlight
+                        ctx.fillStyle = `hsla(${hue}, 100%, 80%, 0.8)`;
+                        ctx.fillRect(x, canvas.height - barHeight, barWidth - 1, 2);
+                        
+                        x += barWidth;
                     }
+                };
+                
+                const drawOscilloscope = () => {
+                    this.analyser.getByteTimeDomainData(timeData);
                     
-                    ctx.shadowBlur = 0;
-                    
-                    // Draw waveform overlay
-                    this.analyser.getByteTimeDomainData(dataArray);
-                    ctx.lineWidth = 2;
-                    ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)';
+                    ctx.lineWidth = 3;
+                    ctx.strokeStyle = '#00ffff';
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = '#00ffff';
                     ctx.beginPath();
                     
                     const sliceWidth = canvas.width * 1.0 / bufferLength;
-                    x = 0;
+                    let x = 0;
                     
+                    // Draw main waveform
                     for (let i = 0; i < bufferLength; i++) {
-                        const v = dataArray[i] / 128.0;
+                        const v = timeData[i] / 128.0;
                         const y = v * canvas.height / 2;
                         
                         if (i === 0) {
@@ -3736,6 +3953,352 @@
                     }
                     
                     ctx.stroke();
+                    ctx.shadowBlur = 0;
+                    
+                    // Draw secondary waveform (offset)
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = 'rgba(255, 0, 255, 0.6)';
+                    ctx.beginPath();
+                    x = 0;
+                    
+                    for (let i = 0; i < bufferLength; i++) {
+                        const v = timeData[i] / 128.0;
+                        const y = v * canvas.height / 2 + Math.sin(i * 0.1) * 5;
+                        
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                        
+                        x += sliceWidth;
+                    }
+                    
+                    ctx.stroke();
+                    
+                    // Draw center line
+                    ctx.lineWidth = 1;
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                    ctx.beginPath();
+                    ctx.moveTo(0, canvas.height / 2);
+                    ctx.lineTo(canvas.width, canvas.height / 2);
+                    ctx.stroke();
+                };
+                
+                const drawCombined = () => {
+                    // Draw spectrum in background (dimmed)
+                    this.analyser.getByteFrequencyData(dataArray);
+                    
+                    const barWidth = (canvas.width / bufferLength) * 2.5;
+                    let barHeight;
+                    let x = 0;
+                    
+                    for (let i = 0; i < bufferLength; i++) {
+                        barHeight = (dataArray[i] / 255) * canvas.height * 0.5;
+                        
+                        const hue = 180 + (i / bufferLength) * 120;
+                        ctx.fillStyle = `hsla(${hue}, 80%, 50%, 0.3)`;
+                        ctx.fillRect(x, canvas.height - barHeight, barWidth - 1, barHeight);
+                        
+                        x += barWidth;
+                    }
+                    
+                    // Draw oscilloscope on top
+                    drawOscilloscope();
+                };
+                
+                const draw = () => {
+                    requestAnimationFrame(draw);
+                    
+                    // Clear with fade effect for trails
+                    ctx.fillStyle = 'rgba(10, 10, 15, 0.2)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    switch(this.visualizerMode) {
+                        case 'spectrum':
+                            drawSpectrum();
+                            break;
+                        case 'oscilloscope':
+                            drawOscilloscope();
+                            break;
+                        case 'combined':
+                            drawCombined();
+                            break;
+                    }
+                };
+                
+                draw();
+            }
+
+            // ============================================
+            // RIGHT PANEL TABS
+            // ============================================
+
+            setupRightPanelTabs() {
+                document.querySelectorAll('.right-tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        document.querySelectorAll('.right-tab').forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        
+                        document.querySelectorAll('.right-panel-section').forEach(section => {
+                            section.classList.remove('active');
+                        });
+                        
+                        const tabId = tab.dataset.rightTab;
+                        document.getElementById(`right-tab-${tabId}`).classList.add('active');
+                    });
+                });
+            }
+
+            // ============================================
+            // WAVETABLE & FM SYNTHESIS
+            // ============================================
+
+            setupSynthControls() {
+                // Wavetable position
+                document.getElementById('wavetablePos')?.addEventListener('input', (e) => {
+                    const pos = parseInt(e.target.value);
+                    this.fx.wavetablePosition = pos / 100;
+                    const waveNames = ['Sine', 'Saw', 'Square', 'Tri', 'Pulse'];
+                    const index = Math.floor((pos / 100) * (waveNames.length - 1));
+                    document.getElementById('wavetablePosDisplay').textContent = waveNames[index];
+                    this.drawWaveformPreview();
+                });
+
+                // Waveform buttons
+                document.querySelectorAll('.waveform-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.waveform-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.fx.currentWaveform = btn.dataset.wave;
+                        this.drawWaveformPreview();
+                    });
+                });
+
+                // FM controls
+                document.getElementById('fmRatio')?.addEventListener('input', (e) => {
+                    this.fx.fmRatio = parseFloat(e.target.value);
+                    document.getElementById('fmRatioDisplay').textContent = this.fx.fmRatio + ':1';
+                });
+
+                document.getElementById('fmDepth')?.addEventListener('input', (e) => {
+                    this.fx.fmDepth = parseInt(e.target.value);
+                    document.getElementById('fmDepthDisplay').textContent = this.fx.fmDepth;
+                });
+
+                // Unison controls
+                document.getElementById('unisonVoices')?.addEventListener('input', (e) => {
+                    this.fx.unisonVoices = parseInt(e.target.value);
+                    document.getElementById('unisonVoicesDisplay').textContent = this.fx.unisonVoices;
+                });
+
+                document.getElementById('unisonDetune')?.addEventListener('input', (e) => {
+                    this.fx.unisonDetune = parseInt(e.target.value);
+                    document.getElementById('unisonDetuneDisplay').textContent = this.fx.unisonDetune + 'ct';
+                });
+
+                // New track buttons
+                document.getElementById('addWavetableTrack')?.addEventListener('click', () => this.addTrack('wavetable'));
+                document.getElementById('addFMTrack')?.addEventListener('click', () => this.addTrack('fm'));
+                document.getElementById('addSuperSaw')?.addEventListener('click', () => this.addTrack('supersaw'));
+                document.getElementById('addNoise')?.addEventListener('click', () => this.addTrack('noise'));
+
+                // Import/Export
+                document.getElementById('exportPattern')?.addEventListener('click', () => this.exportPattern());
+                document.getElementById('importPattern')?.addEventListener('click', () => {
+                    document.getElementById('importFile').click();
+                });
+                document.getElementById('importFile')?.addEventListener('change', (e) => this.importPattern(e));
+                document.getElementById('exportMIDI')?.addEventListener('click', () => this.exportMIDI());
+                document.getElementById('randomizeAll')?.addEventListener('click', () => this.randomizeAll());
+            }
+
+            drawWaveformPreview() {
+                const canvas = document.getElementById('waveformCanvas');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+                
+                const width = canvas.width;
+                const height = canvas.height;
+                const centerY = height / 2;
+                
+                ctx.clearRect(0, 0, width, height);
+                ctx.strokeStyle = '#00ffff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                const wave = this.fx.currentWaveform || 'sine';
+                
+                for (let x = 0; x < width; x++) {
+                    const t = (x / width) * Math.PI * 2;
+                    let y = centerY;
+                    
+                    switch(wave) {
+                        case 'sine':
+                            y += Math.sin(t) * (height * 0.4);
+                            break;
+                        case 'saw':
+                            y += ((t % (Math.PI * 2)) / (Math.PI * 2) - 0.5) * 2 * (height * 0.4);
+                            break;
+                        case 'square':
+                            y += (Math.sin(t) > 0 ? 1 : -1) * (height * 0.4);
+                            break;
+                        case 'triangle':
+                            y += (Math.asin(Math.sin(t)) / (Math.PI / 2)) * (height * 0.4);
+                            break;
+                        case 'pulse':
+                            const duty = 0.25;
+                            y += ((t % (Math.PI * 2)) / (Math.PI * 2) < duty ? 1 : -1) * (height * 0.4);
+                            break;
+                    }
+                    
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                
+                ctx.stroke();
+            }
+
+            addTrack(type) {
+                const trackNames = {
+                    'wavetable': 'Wavetable',
+                    'fm': 'FM Synth',
+                    'supersaw': 'SuperSaw',
+                    'noise': 'Noise'
+                };
+                
+                const trackColors = {
+                    'wavetable': '#ff00ff',
+                    'fm': '#00ff88',
+                    'supersaw': '#ff0080',
+                    'noise': '#888888'
+                };
+                
+                const newTrack = {
+                    name: trackNames[type],
+                    icon: type[0].toUpperCase(),
+                    color: trackColors[type],
+                    steps: new Array(16).fill(false),
+                    volume: 0.5,
+                    pan: 0,
+                    muted: false,
+                    solo: false,
+                    synthType: type
+                };
+                
+                this.tracks.push(newTrack);
+                this.buildSequencer();
+                this.buildTrackMixer();
+                
+                // Show notification
+                this.showNotification(`Added ${trackNames[type]} track!`);
+            }
+
+            showNotification(message) {
+                const notif = document.createElement('div');
+                notif.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background: var(--neon-cyan);
+                    color: #000;
+                    padding: 15px 25px;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    z-index: 10000;
+                    animation: slideIn 0.3s ease;
+                `;
+                notif.textContent = message;
+                document.body.appendChild(notif);
+                setTimeout(() => notif.remove(), 3000);
+            }
+
+            // ============================================
+            // IMPORT / EXPORT
+            // ============================================
+
+            exportPattern() {
+                const exportData = {
+                    version: '2.0',
+                    bpm: this.bpm,
+                    tracks: this.tracks.map(t => ({
+                        name: t.name,
+                        steps: t.steps,
+                        volume: t.volume,
+                        pan: t.pan,
+                        muted: t.muted,
+                        solo: t.solo
+                    })),
+                    fx: this.fx,
+                    timestamp: new Date().toISOString()
+                };
+                
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `neurofunk_pattern_${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                this.showNotification('Pattern exported!');
+            }
+
+            importPattern(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        
+                        if (data.tracks) {
+                            // Restore tracks
+                            data.tracks.forEach((importedTrack, i) => {
+                                if (this.tracks[i]) {
+                                    this.tracks[i].steps = importedTrack.steps;
+                                    this.tracks[i].volume = importedTrack.volume;
+                                    this.tracks[i].pan = importedTrack.pan;
+                                    this.tracks[i].muted = importedTrack.muted;
+                                    this.tracks[i].solo = importedTrack.solo;
+                                }
+                            });
+                        }
+                        
+                        if (data.bpm) {
+                            this.bpm = data.bpm;
+                            document.getElementById('bpmDisplay').textContent = this.bpm;
+                        }
+                        
+                        if (data.fx) {
+                            Object.assign(this.fx, data.fx);
+                        }
+                        
+                        this.updateSequencerUI();
+                        this.buildTrackMixer();
+                        this.showNotification('Pattern imported!');
+                    } catch (err) {
+                        alert('Error importing pattern: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            exportMIDI() {
+                // Simple MIDI export (placeholder - would need a MIDI library for full implementation)
+                this.showNotification('MIDI export coming soon!');
+            }
+
+            randomizeAll() {
+                this.tracks.forEach(track => {
+                    track.steps = track.steps.map(() => Math.random() > 0.7);
+                });
+                this.updateSequencerUI();
+                this.showNotification('Pattern randomized!');
+            }
                 };
                 
                 draw();
