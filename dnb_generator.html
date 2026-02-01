@@ -202,13 +202,14 @@
         /* Draggable Panels */
         .draggable-panel {
             position: relative;
-            margin-bottom: 15px;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
+            min-width: 280px;
         }
 
         .draggable-panel .panel,
         .draggable-panel .bass-controls {
             margin-top: 0 !important;
+            height: 100%;
         }
 
         .drag-handle {
@@ -240,14 +241,21 @@
         }
 
         .draggable-panel.dragging {
-            opacity: 0.8;
-            transform: scale(1.02) rotate(1deg);
+            opacity: 0.6;
+            transform: scale(1.02) rotate(0.5deg);
             z-index: 1000;
-            box-shadow: 0 8px 30px var(--shadow-medium);
+            box-shadow: 0 12px 40px var(--shadow-medium);
         }
 
         .draggable-panel.drag-over {
-            border-top: 3px solid var(--accent-primary);
+            outline: 3px dashed var(--accent-primary);
+            outline-offset: 4px;
+            transform: scale(0.98);
+        }
+
+        .draggable-panel.drag-over .panel,
+        .draggable-panel.drag-over .bass-controls {
+            opacity: 0.7;
         }
 
         .drop-indicator {
@@ -266,9 +274,9 @@
         .container {
             position: relative;
             z-index: 1;
-            max-width: 1400px;
+            max-width: 1900px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 20px 30px;
         }
 
         /* Header - Clean Cream Style */
@@ -300,18 +308,26 @@
             text-transform: uppercase;
         }
 
-        /* Main Layout */
+        /* Main Layout - Expanded workspace */
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 20px;
+            grid-template-columns: minmax(400px, 500px) 1fr;
+            gap: 25px;
             margin-bottom: 20px;
         }
 
-        @media (max-width: 1100px) {
+        @media (max-width: 1200px) {
             .main-grid {
                 grid-template-columns: 1fr;
             }
+        }
+
+        /* Right column - flexible grid for panels */
+        .right-column {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            align-content: start;
         }
 
         /* Panels - Clean cream cards */
@@ -1612,16 +1628,12 @@
             const rightColumn = document.getElementById('rightColumn');
             if (!rightColumn) return;
             
-            const panels = rightColumn.querySelectorAll('.draggable-panel');
             let draggedPanel = null;
-            let placeholder = null;
             
             // Load saved order from localStorage
             loadPanelOrder();
             
-            panels.forEach(panel => {
-                const handle = panel.querySelector('.drag-handle');
-                
+            function setupPanelListeners(panel) {
                 // Drag start
                 panel.addEventListener('dragstart', (e) => {
                     draggedPanel = panel;
@@ -1629,12 +1641,8 @@
                     e.dataTransfer.effectAllowed = 'move';
                     e.dataTransfer.setData('text/plain', panel.dataset.panelId);
                     
-                    // Create placeholder
-                    placeholder = document.createElement('div');
-                    placeholder.className = 'drop-indicator visible';
-                    
                     setTimeout(() => {
-                        panel.style.opacity = '0.5';
+                        panel.style.opacity = '0.4';
                     }, 0);
                 });
                 
@@ -1645,7 +1653,6 @@
                     draggedPanel = null;
                     
                     // Remove all indicators
-                    rightColumn.querySelectorAll('.drop-indicator').forEach(el => el.remove());
                     rightColumn.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
                     
                     // Save new order
@@ -1658,53 +1665,56 @@
                     e.dataTransfer.dropEffect = 'move';
                     
                     if (draggedPanel && draggedPanel !== panel) {
-                        const rect = panel.getBoundingClientRect();
-                        const midpoint = rect.top + rect.height / 2;
-                        
                         // Remove existing indicators
-                        rightColumn.querySelectorAll('.drop-indicator').forEach(el => el.remove());
                         rightColumn.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-                        
-                        // Add indicator
-                        if (e.clientY < midpoint) {
-                            panel.classList.add('drag-over');
-                        } else {
-                            panel.classList.add('drag-over');
-                        }
+                        panel.classList.add('drag-over');
                     }
                 });
                 
                 // Drag leave
-                panel.addEventListener('dragleave', () => {
-                    panel.classList.remove('drag-over');
+                panel.addEventListener('dragleave', (e) => {
+                    // Only remove if we're actually leaving the panel
+                    if (!panel.contains(e.relatedTarget)) {
+                        panel.classList.remove('drag-over');
+                    }
                 });
                 
                 // Drop
                 panel.addEventListener('drop', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     
                     if (draggedPanel && draggedPanel !== panel) {
-                        const rect = panel.getBoundingClientRect();
-                        const midpoint = rect.top + rect.height / 2;
+                        // Get all panels and their positions
+                        const panels = Array.from(rightColumn.querySelectorAll('.draggable-panel'));
+                        const draggedIndex = panels.indexOf(draggedPanel);
+                        const targetIndex = panels.indexOf(panel);
                         
-                        if (e.clientY < midpoint) {
-                            rightColumn.insertBefore(draggedPanel, panel);
-                        } else {
+                        // Insert based on position
+                        if (draggedIndex < targetIndex) {
                             rightColumn.insertBefore(draggedPanel, panel.nextSibling);
+                        } else {
+                            rightColumn.insertBefore(draggedPanel, panel);
                         }
                     }
                     
                     panel.classList.remove('drag-over');
                 });
-            });
+            }
             
-            // Allow dropping on the column itself (for last position)
+            // Setup listeners for all panels
+            rightColumn.querySelectorAll('.draggable-panel').forEach(setupPanelListeners);
+            
+            // Allow dropping on the column itself (for empty areas)
             rightColumn.addEventListener('dragover', (e) => {
                 e.preventDefault();
             });
             
             rightColumn.addEventListener('drop', (e) => {
                 e.preventDefault();
+                if (draggedPanel) {
+                    rightColumn.appendChild(draggedPanel);
+                }
             });
         }
         
