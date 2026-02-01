@@ -12,18 +12,19 @@
         }
 
         :root {
-            /* === RETRO SPACE AGE PALETTE === */
-            /* Warm backgrounds - like vintage synth panels */
-            --bg-dark: #1C1915;
-            --bg-panel: #2A2520;
-            --bg-grid: #3A3530;
-            --bg-inset: #151310;
+            /* === RETRO CREAM PALETTE === */
+            /* Light cream backgrounds - like vintage equipment */
+            --bg-dark: #F5F0E8;
+            --bg-panel: #EBE6DC;
+            --bg-grid: #E0DAD0;
+            --bg-inset: #D5CFC5;
+            --bg-deep: #2A2520;
             
-            /* Primary accents - burnt orange & amber */
-            --accent-primary: #FF6B35;
-            --accent-secondary: #F7C548;
-            --accent-warm: #E85D75;
-            --accent-cool: #00A896;
+            /* Primary accents - bold on cream */
+            --accent-primary: #E85A30;
+            --accent-secondary: #D4A03C;
+            --accent-warm: #C94D6D;
+            --accent-cool: #008578;
             
             /* Legacy mappings for compatibility */
             --neon-cyan: var(--accent-primary);
@@ -31,44 +32,47 @@
             --neon-pink: var(--accent-warm);
             --neon-green: var(--accent-cool);
             
-            /* Track colors - warm & distinguishable */
-            --track-kick: #FF6B35;
-            --track-snare: #E85D75;
-            --track-hat: #F7C548;
-            --track-bass: #00A896;
-            --track-atmos: #8B8680;
+            /* Track colors - bold on light bg */
+            --track-kick: #E85A30;
+            --track-snare: #C94D6D;
+            --track-hat: #D4A03C;
+            --track-bass: #008578;
+            --track-atmos: #7A756D;
             
             /* French Electro colors */
-            --french-gold: #FFD93D;
-            --french-blue: #6B5B95;
-            --french-silver: #A8A39D;
-            --robot-copper: #C17F59;
+            --french-gold: #C9940A;
+            --french-blue: #5B4B85;
+            --french-silver: #8A857D;
+            --robot-copper: #A66B45;
             
             /* G-House colors */
-            --ghouse-red: #C1292E;
-            --ghouse-burgundy: #8B4049;
-            --ghouse-dark: #3D2A2A;
+            --ghouse-red: #A32228;
+            --ghouse-burgundy: #6B3039;
+            --ghouse-dark: #4D3A3A;
             
-            /* Text */
-            --text-dim: #8B8680;
-            --text-bright: #F5F0E6;
-            --text-muted: #5C5850;
+            /* Text - dark on light */
+            --text-dim: #6B665E;
+            --text-bright: #2A2520;
+            --text-muted: #9A958D;
+            --text-light: #F5F0E8;
             
-            /* Glows - warm tones */
-            --accent-glow: rgba(255, 107, 53, 0.3);
-            --gold-glow: rgba(247, 197, 72, 0.3);
-            --warm-glow: rgba(232, 93, 117, 0.25);
+            /* Shadows & accents for light mode */
+            --shadow-soft: rgba(42, 37, 32, 0.1);
+            --shadow-medium: rgba(42, 37, 32, 0.15);
+            --accent-glow: rgba(232, 90, 48, 0.25);
+            --gold-glow: rgba(212, 160, 60, 0.3);
+            --warm-glow: rgba(201, 77, 109, 0.2);
         }
 
         body {
-            font-family: 'Segoe UI', 'Roboto', monospace;
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
             background: var(--bg-dark);
             color: var(--text-bright);
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        /* Background Grid Animation - Retro graph paper style */
+        /* Background Grid Animation - Subtle graph paper */
         .bg-grid {
             position: fixed;
             top: 0;
@@ -76,9 +80,9 @@
             width: 100%;
             height: 100%;
             background-image: 
-                linear-gradient(rgba(255, 107, 53, 0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 107, 53, 0.04) 1px, transparent 1px);
-            background-size: 40px 40px;
+                linear-gradient(rgba(42, 37, 32, 0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(42, 37, 32, 0.06) 1px, transparent 1px);
+            background-size: 32px 32px;
             pointer-events: none;
             z-index: 0;
         }
@@ -91,31 +95,31 @@
             padding: 20px;
         }
 
-        /* Header - Retro Space Age */
+        /* Header - Clean Cream Style */
         .header {
             text-align: center;
             padding: 25px 0;
             border-bottom: 3px solid var(--accent-primary);
             margin-bottom: 20px;
-            background: linear-gradient(180deg, rgba(255, 107, 53, 0.08) 0%, transparent 100%);
+            background: var(--bg-panel);
         }
 
         .header h1 {
-            font-size: 2.2rem;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary), var(--accent-warm));
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             letter-spacing: 6px;
             text-transform: uppercase;
-            font-weight: 700;
+            font-weight: 800;
             text-shadow: none;
         }
 
         .header p {
             color: var(--text-dim);
             margin-top: 12px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             letter-spacing: 2px;
             text-transform: uppercase;
         }
@@ -134,37 +138,37 @@
             }
         }
 
-        /* Panels - Vintage equipment style */
+        /* Panels - Clean cream cards */
         .panel {
             background: var(--bg-panel);
             border: 2px solid var(--bg-grid);
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 20px;
             box-shadow: 
-                0 4px 20px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+                0 2px 8px var(--shadow-soft),
+                0 4px 16px var(--shadow-medium);
         }
 
         .panel-title {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 3px;
-            color: var(--accent-secondary);
+            color: var(--accent-primary);
             margin-bottom: 15px;
             border-bottom: 2px solid var(--bg-grid);
             padding-bottom: 10px;
-            font-weight: 600;
+            font-weight: 700;
         }
 
-        /* Visualizer - Oscilloscope style */
+        /* Visualizer - Clean display */
         .visualizer-container {
             height: 150px;
-            background: var(--bg-inset);
-            border-radius: 6px;
+            background: var(--bg-deep);
+            border-radius: 8px;
             overflow: hidden;
             margin-bottom: 20px;
-            border: 2px solid var(--bg-grid);
-            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+            border: 3px solid var(--bg-grid);
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         #visualizer {
@@ -257,15 +261,14 @@
         .bpm-display {
             font-size: 2rem;
             font-weight: bold;
-            color: var(--accent-secondary);
-            text-shadow: 0 0 8px var(--gold-glow);
+            color: var(--text-light);
             min-width: 100px;
             text-align: center;
             font-family: 'Courier New', monospace;
-            background: var(--bg-inset);
-            padding: 8px 16px;
-            border-radius: 4px;
-            border: 2px solid var(--bg-grid);
+            background: var(--bg-deep);
+            padding: 10px 18px;
+            border-radius: 6px;
+            border: 3px solid var(--bg-grid);
         }
 
         .bpm-label {
@@ -296,33 +299,33 @@
             border-radius: 4px;
             outline: none;
             -webkit-appearance: none;
-            border: 1px solid var(--bg-grid);
+            border: 2px solid var(--bg-grid);
         }
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
-            background: linear-gradient(180deg, var(--accent-primary) 0%, #D45A2E 100%);
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(180deg, var(--accent-primary) 0%, #C04A25 100%);
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            border: 2px solid var(--bg-dark);
+            box-shadow: 0 2px 6px var(--shadow-medium);
+            border: 3px solid var(--bg-panel);
         }
 
         input[type="range"]::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            background: linear-gradient(180deg, var(--accent-primary) 0%, #D45A2E 100%);
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(180deg, var(--accent-primary) 0%, #C04A25 100%);
             border-radius: 50%;
             cursor: pointer;
-            border: 2px solid var(--bg-dark);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            border: 3px solid var(--bg-panel);
+            box-shadow: 0 2px 6px var(--shadow-medium);
         }
 
         .value-display {
             font-size: 0.75rem;
-            color: var(--accent-secondary);
+            color: var(--accent-primary);
             min-width: 45px;
             text-align: right;
             font-family: 'Courier New', monospace;
@@ -388,11 +391,11 @@
             height: 32px;
             background: var(--bg-inset);
             border: 2px solid var(--bg-grid);
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
             transition: all 0.1s;
             position: relative;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+            box-shadow: inset 0 1px 3px var(--shadow-soft);
         }
 
         .step:hover {
@@ -404,18 +407,19 @@
             background: var(--accent-primary);
             border-color: var(--accent-primary);
             box-shadow: 
-                0 0 8px var(--accent-glow),
-                inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+                0 2px 8px var(--accent-glow),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.15);
         }
 
         .step.current {
-            border-color: var(--accent-secondary);
-            box-shadow: 0 0 12px var(--gold-glow);
+            border-color: var(--bg-deep);
+            border-width: 3px;
+            box-shadow: 0 0 0 2px var(--accent-secondary);
         }
 
         .step.active.current {
             background: var(--accent-secondary);
-            border-color: var(--accent-secondary);
+            border-color: var(--bg-deep);
         }
 
         /* Track Controls */
@@ -428,7 +432,7 @@
             padding: 6px 10px;
             font-size: 0.6rem;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
             text-transform: uppercase;
             transition: all 0.15s;
@@ -443,11 +447,12 @@
 
         .btn-mute:hover {
             border-color: var(--accent-warm);
+            color: var(--accent-warm);
         }
 
         .btn-mute.active {
             background: var(--accent-warm);
-            color: var(--bg-dark);
+            color: var(--text-light);
             border-color: var(--accent-warm);
         }
 
@@ -459,11 +464,12 @@
 
         .btn-solo:hover {
             border-color: var(--accent-secondary);
+            color: var(--accent-secondary);
         }
 
         .btn-solo.active {
             background: var(--accent-secondary);
-            color: var(--bg-dark);
+            color: var(--text-light);
             border-color: var(--accent-secondary);
         }
 
@@ -793,14 +799,14 @@
             box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
         }
 
-        /* Start Overlay - Retro Launch Screen */
+        /* Start Overlay - Clean Launch Screen */
         .start-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(ellipse at center, var(--bg-panel) 0%, var(--bg-dark) 100%);
+            background: var(--bg-dark);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -815,32 +821,32 @@
         .start-btn {
             padding: 28px 56px;
             font-size: 1.3rem;
-            background: linear-gradient(180deg, var(--accent-primary) 0%, #D45A2E 100%);
-            color: var(--bg-dark);
+            background: linear-gradient(180deg, var(--accent-primary) 0%, #C04A25 100%);
+            color: var(--text-light);
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 4px;
             font-weight: bold;
             box-shadow: 
-                0 6px 0 #A33D1A,
-                0 8px 20px rgba(0, 0, 0, 0.4);
+                0 6px 0 #8A3518,
+                0 8px 20px var(--shadow-medium);
             transition: all 0.2s;
         }
 
         .start-btn:hover {
             transform: translateY(-4px);
             box-shadow: 
-                0 10px 0 #A33D1A,
-                0 14px 30px rgba(0, 0, 0, 0.5);
+                0 10px 0 #8A3518,
+                0 14px 30px var(--shadow-medium);
         }
 
         .start-btn:active {
             transform: translateY(2px);
             box-shadow: 
-                0 3px 0 #A33D1A,
-                0 5px 10px rgba(0, 0, 0, 0.3);
+                0 3px 0 #8A3518,
+                0 5px 10px var(--shadow-soft);
         }
 
         .start-text {
@@ -859,11 +865,11 @@
 
         .section-btn {
             padding: 10px 16px;
-            background: var(--bg-grid);
-            border: 2px solid var(--bg-inset);
+            background: var(--bg-inset);
+            border: 2px solid var(--bg-grid);
             color: var(--text-dim);
             cursor: pointer;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 0.65rem;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -874,11 +880,12 @@
         .section-btn:hover {
             border-color: var(--accent-primary);
             color: var(--accent-primary);
+            background: var(--bg-grid);
         }
 
         .section-btn.active {
             background: var(--accent-primary);
-            color: var(--bg-dark);
+            color: var(--text-light);
             border-color: var(--accent-primary);
             box-shadow: 0 2px 8px var(--accent-glow);
         }
@@ -887,11 +894,11 @@
         .level-meter {
             width: 6px;
             height: 32px;
-            background: var(--bg-inset);
+            background: var(--bg-deep);
             border-radius: 3px;
             overflow: hidden;
             position: relative;
-            border: 1px solid var(--bg-grid);
+            border: 2px solid var(--bg-grid);
         }
 
         .level-fill {
