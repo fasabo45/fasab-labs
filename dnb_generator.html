@@ -383,6 +383,9 @@
         /* Sequencer */
         .sequencer {
             margin-top: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .track-row {
@@ -390,16 +393,20 @@
             align-items: center;
             margin-bottom: 8px;
             gap: 10px;
+            min-height: 35px;
+            padding: 2px 0;
         }
 
         .track-label {
-            width: 80px;
-            font-size: 0.75rem;
+            width: 90px;
+            min-width: 90px;
+            font-size: 0.7rem;
             text-transform: uppercase;
             color: var(--text-dim);
             display: flex;
             align-items: center;
             gap: 5px;
+            flex-shrink: 0;
         }
 
         .track-icon {
@@ -414,18 +421,47 @@
 
         .track-kick .track-icon { background: var(--neon-pink); }
         .track-snare .track-icon { background: var(--neon-purple); }
-        .track-hat .track-icon { background: var(--neon-cyan); }
+        .track-hat .track-icon, .track-hihat .track-icon { background: var(--neon-cyan); }
         .track-bass .track-icon { background: var(--neon-green); }
         .track-atmos .track-icon { background: #888; }
+        /* French Electro track icons */
+        .track-frenchlead .track-icon { background: var(--french-gold); }
+        .track-vocoder .track-icon { background: var(--robot-copper); }
+        .track-discobass .track-icon { background: var(--french-blue); }
+        .track-organ .track-icon { background: var(--french-silver); }
+        /* G-House track icons */
+        .track-ghousebass .track-icon { background: var(--ghouse-red); }
+        .track-vocalchops .track-icon { background: var(--ghouse-burgundy); }
+        .track-darkpad .track-icon { background: #722f37; }
+
+        /* Custom scrollbar for sequencer */
+        .sequencer::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .sequencer::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+            border-radius: 4px;
+        }
+        .sequencer::-webkit-scrollbar-thumb {
+            background: rgba(0, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+        .sequencer::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 255, 255, 0.5);
+        }
 
         .step-grid {
             display: flex;
             gap: 3px;
             flex: 1;
+            min-width: 0;
+            overflow-x: auto;
         }
 
         .step {
-            flex: 1;
+            flex: 1 0 auto;
+            min-width: 25px;
             height: 35px;
             background: var(--bg-dark);
             border: 1px solid rgba(255, 255, 255, 0.1);
