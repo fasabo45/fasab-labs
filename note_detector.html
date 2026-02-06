@@ -469,6 +469,193 @@
             background: rgba(255, 255, 255, 0.2);
         }
         
+        /* Summary Panel Styles */
+        .summary-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+        
+        .summary-panel.visible {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-stat {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .summary-stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #e94560;
+            line-height: 1;
+        }
+        
+        .summary-stat-label {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+        
+        .note-distribution {
+            margin-top: 20px;
+        }
+        
+        .distribution-bar-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 10px;
+        }
+        
+        .distribution-note {
+            width: 40px;
+            font-weight: bold;
+            color: #feca57;
+        }
+        
+        .distribution-bar-wrapper {
+            flex: 1;
+            height: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .distribution-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #e94560, #ff6b6b);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            min-width: 30px;
+        }
+        
+        .distribution-count {
+            font-size: 0.8rem;
+            color: #fff;
+            font-weight: bold;
+        }
+        
+        .distribution-percent {
+            width: 50px;
+            text-align: right;
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+        
+        .key-detection {
+            background: linear-gradient(135deg, rgba(233, 69, 96, 0.2), rgba(254, 202, 87, 0.2));
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .detected-key {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #feca57;
+        }
+        
+        .key-confidence {
+            color: #a0a0a0;
+            margin-top: 5px;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .confidence-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        
+        .confidence-high {
+            background: rgba(46, 204, 113, 0.3);
+            color: #2ecc71;
+        }
+        
+        .confidence-medium {
+            background: rgba(254, 202, 87, 0.3);
+            color: #feca57;
+        }
+        
+        .confidence-low {
+            background: rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+        }
+        
+        .timeline-container {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        
+        #timelineCanvas {
+            width: 100%;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+        
+        .top-notes {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .top-note-chip {
+            background: rgba(233, 69, 96, 0.2);
+            border: 1px solid #e94560;
+            border-radius: 20px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .top-note-name {
+            font-weight: bold;
+            color: #e94560;
+        }
+        
+        .top-note-count {
+            color: #a0a0a0;
+            font-size: 0.85rem;
+        }
+        
         /* Audio source tabs */
         .source-tabs {
             display: flex;
@@ -650,6 +837,53 @@
             </div>
         </div>
         
+        <!-- Summary Panel (shown after analysis) -->
+        <div class="summary-panel" id="summaryPanel">
+            <div class="panel-title">📊 Analysis Summary <button class="clear-btn" id="closeSummary">Close</button></div>
+            
+            <div class="summary-grid">
+                <div class="summary-stat">
+                    <div class="summary-stat-value" id="totalNotes">0</div>
+                    <div class="summary-stat-label">Total Notes Detected</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="summary-stat-value" id="uniqueNotes">0</div>
+                    <div class="summary-stat-label">Unique Notes</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="summary-stat-value" id="avgConfidence">0%</div>
+                    <div class="summary-stat-label">Avg Confidence</div>
+                </div>
+                <div class="summary-stat">
+                    <div class="summary-stat-value" id="analysisDuration">0s</div>
+                    <div class="summary-stat-label">Duration</div>
+                </div>
+            </div>
+            
+            <div class="key-detection">
+                <div>🎼 Detected Key / Scale</div>
+                <div class="detected-key" id="detectedKey">--</div>
+                <div class="key-confidence" id="keyConfidence">Analyzing...</div>
+            </div>
+            
+            <div class="panel-title" style="margin-top: 20px;">🏆 Most Common Notes</div>
+            <div class="top-notes" id="topNotes"></div>
+            
+            <div class="panel-title" style="margin-top: 20px;">📈 Note Distribution</div>
+            <div class="note-distribution" id="noteDistribution"></div>
+            
+            <div class="panel-title" style="margin-top: 20px;">⏱️ Timeline</div>
+            <div class="timeline-container">
+                <canvas id="timelineCanvas"></canvas>
+            </div>
+            
+            <div class="export-buttons">
+                <button class="btn btn-secondary" id="copyNotesBtn">📋 Copy Notes</button>
+                <button class="btn btn-secondary" id="exportJsonBtn">💾 Export JSON</button>
+                <button class="btn btn-secondary" id="exportTxtBtn">📄 Export TXT</button>
+            </div>
+        </div>
+        
         <!-- Main Display -->
         <div class="main-display">
             <div class="visualizer-panel">
@@ -681,6 +915,7 @@
             <div class="note-history">
                 <div class="panel-title">
                     📝 Detected Notes
+                    <button class="clear-btn" id="viewSummaryBtn" style="margin-right: 5px;">📊 Summary</button>
                     <button class="clear-btn" id="clearHistory">Clear</button>
                 </div>
                 <div class="history-list" id="historyList"></div>
@@ -730,6 +965,15 @@
         
         const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
         
+        // Major and Minor scale patterns (semitones from root)
+        const SCALE_PATTERNS = {
+            'Major': [0, 2, 4, 5, 7, 9, 11],
+            'Minor': [0, 2, 3, 5, 7, 8, 10],
+            'Dorian': [0, 2, 3, 5, 7, 9, 10],
+            'Mixolydian': [0, 2, 4, 5, 7, 9, 10],
+            'Pentatonic': [0, 2, 4, 7, 9]
+        };
+        
         // State
         let audioContext = null;
         let analyser = null;
@@ -739,14 +983,25 @@
         let lastNote = null;
         let lastNoteTime = 0;
         let noteHistory = [];
+        let detailedHistory = []; // For summary - stores all detections with confidence
         let startTime = 0;
+        
+        // Accuracy improvement: median filter buffer
+        let pitchBuffer = [];
+        const PITCH_BUFFER_SIZE = 5;
+        
+        // Confidence tracking
+        let consecutiveDetections = 0;
+        let lastDetectedFreq = 0;
         
         // Settings
         let settings = {
             volumeThreshold: 0.1,
             noteHoldTime: 150,
             referencePitch: 440,
-            algorithm: 'autocorrelation'
+            algorithm: 'autocorrelation',
+            minConfidence: 0.6, // Minimum confidence to register a note
+            stabilityFrames: 3  // Frames a note must be stable
         };
         
         // DOM Elements
@@ -902,7 +1157,9 @@
             
             document.getElementById('clearHistory').addEventListener('click', () => {
                 noteHistory = [];
+                detailedHistory = [];
                 historyList.innerHTML = '';
+                document.getElementById('summaryPanel').classList.remove('visible');
             });
         }
         
@@ -1020,6 +1277,14 @@
         function startListening() {
             isListening = true;
             startTime = Date.now();
+            // Clear previous session data
+            detailedHistory = [];
+            pitchBuffer = [];
+            stabilityBuffer = [];
+            consecutiveDetections = 0;
+            lastDetectedFreq = 0;
+            lastNote = null;
+            document.getElementById('summaryPanel').classList.remove('visible');
             setStatus('active', 'Listening...');
             analyze();
         }
@@ -1043,6 +1308,17 @@
             document.getElementById('stopMicBtn').disabled = true;
             document.getElementById('analyzeFileBtn').disabled = false;
             document.getElementById('stopFileBtn').disabled = true;
+            
+            // Show summary if we have data
+            if (detailedHistory.length > 0) {
+                generateSummary();
+            }
+            
+            // Reset stability tracking
+            pitchBuffer = [];
+            stabilityBuffer = [];
+            consecutiveDetections = 0;
+            lastDetectedFreq = 0;
         }
         
         function analyze() {
@@ -1060,35 +1336,161 @@
             analyser.getByteFrequencyData(freqData);
             drawSpectrum(freqData);
             
-            // Check volume
+            // Check volume (RMS)
             const volume = getVolume(buffer);
             
             if (volume > settings.volumeThreshold) {
-                // Detect pitch
-                let frequency;
-                if (settings.algorithm === 'yin') {
-                    frequency = detectPitchYIN(buffer, audioContext.sampleRate);
-                } else {
-                    frequency = detectPitchAutocorrelation(buffer, audioContext.sampleRate);
-                }
+                // Run BOTH algorithms for better accuracy
+                const freqAutocorr = detectPitchAutocorrelation(buffer, audioContext.sampleRate);
+                const freqYIN = detectPitchYIN(buffer, audioContext.sampleRate);
                 
-                if (frequency && frequency > 50 && frequency < 2000) {
-                    const noteInfo = frequencyToNote(frequency);
-                    updateDisplay(noteInfo, frequency);
+                // Calculate confidence based on algorithm agreement
+                let frequency, confidence;
+                const result = calculateConfidence(freqAutocorr, freqYIN, volume, buffer);
+                frequency = result.frequency;
+                confidence = result.confidence;
+                
+                if (frequency && frequency > 50 && frequency < 2000 && confidence >= settings.minConfidence) {
+                    // Apply median filter for stability
+                    pitchBuffer.push(frequency);
+                    if (pitchBuffer.length > PITCH_BUFFER_SIZE) {
+                        pitchBuffer.shift();
+                    }
                     
-                    // Add to history if different note
+                    const stableFrequency = getMedian(pitchBuffer);
+                    const noteInfo = frequencyToNote(stableFrequency);
+                    noteInfo.confidence = confidence;
+                    noteInfo.rawFrequency = frequency;
+                    
+                    updateDisplay(noteInfo, stableFrequency, confidence);
+                    
+                    // Add to history if different note or enough time passed
                     const now = Date.now();
                     if (noteInfo.fullNote !== lastNote || now - lastNoteTime > settings.noteHoldTime) {
-                        addToHistory(noteInfo, frequency);
-                        lastNote = noteInfo.fullNote;
-                        lastNoteTime = now;
+                        // Check stability - note must be consistent for a few frames
+                        if (isNoteStable(noteInfo.fullNote)) {
+                            addToHistory(noteInfo, stableFrequency, confidence);
+                            
+                            // Add to detailed history for summary
+                            detailedHistory.push({
+                                note: noteInfo.fullNote,
+                                noteName: noteInfo.note,
+                                octave: noteInfo.octave,
+                                frequency: stableFrequency,
+                                confidence: confidence,
+                                cents: noteInfo.cents,
+                                timestamp: now - startTime
+                            });
+                            
+                            lastNote = noteInfo.fullNote;
+                            lastNoteTime = now;
+                        }
                     }
                 }
             } else {
-                // Optional: fade out display when quiet
+                // Reset stability tracking when quiet
+                pitchBuffer = [];
+                consecutiveDetections = 0;
             }
             
             animationId = requestAnimationFrame(analyze);
+        }
+        
+        // Calculate confidence based on multiple factors
+        function calculateConfidence(freqAutocorr, freqYIN, volume, buffer) {
+            let frequency = null;
+            let confidence = 0;
+            
+            const validAutocorr = freqAutocorr > 50 && freqAutocorr < 2000;
+            const validYIN = freqYIN > 50 && freqYIN < 2000;
+            
+            if (validAutocorr && validYIN) {
+                // Both algorithms detected pitch - check agreement
+                const ratio = Math.abs(freqAutocorr - freqYIN) / Math.min(freqAutocorr, freqYIN);
+                
+                if (ratio < 0.02) {
+                    // Excellent agreement (within 2%)
+                    frequency = (freqAutocorr + freqYIN) / 2;
+                    confidence = 0.95;
+                } else if (ratio < 0.05) {
+                    // Good agreement (within 5%)
+                    frequency = (freqAutocorr + freqYIN) / 2;
+                    confidence = 0.85;
+                } else if (ratio < 0.1) {
+                    // Moderate agreement
+                    frequency = settings.algorithm === 'yin' ? freqYIN : freqAutocorr;
+                    confidence = 0.7;
+                } else {
+                    // Poor agreement - use preferred algorithm
+                    frequency = settings.algorithm === 'yin' ? freqYIN : freqAutocorr;
+                    confidence = 0.5;
+                }
+            } else if (validAutocorr) {
+                frequency = freqAutocorr;
+                confidence = 0.6;
+            } else if (validYIN) {
+                frequency = freqYIN;
+                confidence = 0.6;
+            }
+            
+            // Boost confidence if frequency is stable
+            if (frequency && lastDetectedFreq > 0) {
+                const freqChange = Math.abs(frequency - lastDetectedFreq) / lastDetectedFreq;
+                if (freqChange < 0.02) {
+                    confidence = Math.min(1, confidence + 0.1);
+                    consecutiveDetections++;
+                } else {
+                    consecutiveDetections = 0;
+                }
+            }
+            
+            lastDetectedFreq = frequency || 0;
+            
+            // Volume factor - louder is more confident
+            const volumeFactor = Math.min(1, volume * 5);
+            confidence *= (0.7 + 0.3 * volumeFactor);
+            
+            // Spectral clarity factor
+            const clarity = getSpectralClarity(buffer);
+            confidence *= (0.8 + 0.2 * clarity);
+            
+            return { frequency, confidence: Math.min(1, confidence) };
+        }
+        
+        // Get median of array for stability
+        function getMedian(arr) {
+            if (arr.length === 0) return 0;
+            const sorted = [...arr].sort((a, b) => a - b);
+            const mid = Math.floor(sorted.length / 2);
+            return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+        }
+        
+        // Check if note has been stable for required frames
+        let stabilityBuffer = [];
+        function isNoteStable(noteName) {
+            stabilityBuffer.push(noteName);
+            if (stabilityBuffer.length > settings.stabilityFrames) {
+                stabilityBuffer.shift();
+            }
+            
+            if (stabilityBuffer.length < settings.stabilityFrames) return false;
+            return stabilityBuffer.every(n => n === noteName);
+        }
+        
+        // Calculate spectral clarity (how clean the signal is)
+        function getSpectralClarity(buffer) {
+            // Simple zero-crossing rate as clarity indicator
+            let zeroCrossings = 0;
+            for (let i = 1; i < buffer.length; i++) {
+                if ((buffer[i] >= 0 && buffer[i-1] < 0) || (buffer[i] < 0 && buffer[i-1] >= 0)) {
+                    zeroCrossings++;
+                }
+            }
+            // Normalize to 0-1 range (typical musical signals have moderate zero crossings)
+            const zcRate = zeroCrossings / buffer.length;
+            // Sweet spot is around 0.01-0.1 for musical signals
+            if (zcRate < 0.005 || zcRate > 0.2) return 0.5;
+            return 1 - Math.abs(zcRate - 0.05) * 10;
         }
         
         function getVolume(buffer) {
@@ -1232,19 +1634,24 @@
         // DISPLAY UPDATES
         // ============================================
         
-        function updateDisplay(noteInfo, frequency) {
+        function updateDisplay(noteInfo, frequency, confidence = 1) {
             // Update current note display
             currentNoteEl.textContent = noteInfo.fullNote;
             currentFreqEl.textContent = frequency.toFixed(1) + ' Hz';
             
-            // Update cents display
+            // Update cents display with confidence
             const centsText = noteInfo.cents >= 0 ? '+' + noteInfo.cents : noteInfo.cents;
-            centsDisplayEl.textContent = centsText + ' cents';
+            const confPct = Math.round(confidence * 100);
+            const confClass = confidence >= 0.85 ? 'high' : confidence >= 0.7 ? 'medium' : 'low';
+            centsDisplayEl.innerHTML = `${centsText} cents <span class="confidence-badge confidence-${confClass}">${confPct}%</span>`;
             
             // Update pitch meter
             const centsPct = Math.max(-50, Math.min(50, noteInfo.cents));
             const indicatorPos = 50 + centsPct;
             pitchIndicator.style.left = indicatorPos + '%';
+            
+            // Color indicator based on confidence
+            pitchIndicator.style.background = confidence >= 0.85 ? '#2ecc71' : confidence >= 0.7 ? '#feca57' : '#e94560';
             
             // Highlight piano key
             document.querySelectorAll('.white-key, .black-key').forEach(key => {
@@ -1264,8 +1671,10 @@
             });
         }
         
-        function addToHistory(noteInfo, frequency) {
+        function addToHistory(noteInfo, frequency, confidence = 1) {
             const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+            const confPct = Math.round(confidence * 100);
+            const confClass = confidence >= 0.85 ? 'high' : confidence >= 0.7 ? 'medium' : 'low';
             
             const item = document.createElement('div');
             item.className = 'history-item';
@@ -1273,13 +1682,14 @@
                 <div>
                     <span class="history-note">${noteInfo.fullNote}</span>
                     <span class="history-freq">${frequency.toFixed(1)} Hz</span>
+                    <span class="confidence-badge confidence-${confClass}">${confPct}%</span>
                 </div>
                 <span class="history-time">${elapsed}s</span>
             `;
             
             historyList.insertBefore(item, historyList.firstChild);
             
-            // Limit history
+            // Limit history display
             if (historyList.children.length > 100) {
                 historyList.removeChild(historyList.lastChild);
             }
@@ -1363,8 +1773,262 @@
             statusText.textContent = text;
         }
         
+        // ============================================
+        // SUMMARY GENERATION
+        // ============================================
+        
+        function generateSummary() {
+            const panel = document.getElementById('summaryPanel');
+            panel.classList.add('visible');
+            
+            // Basic stats
+            document.getElementById('totalNotes').textContent = detailedHistory.length;
+            
+            const uniqueNoteSet = new Set(detailedHistory.map(n => n.noteName));
+            document.getElementById('uniqueNotes').textContent = uniqueNoteSet.size;
+            
+            const avgConf = detailedHistory.reduce((sum, n) => sum + n.confidence, 0) / detailedHistory.length;
+            document.getElementById('avgConfidence').textContent = Math.round(avgConf * 100) + '%';
+            
+            const duration = detailedHistory.length > 0 
+                ? (detailedHistory[detailedHistory.length - 1].timestamp / 1000).toFixed(1)
+                : 0;
+            document.getElementById('analysisDuration').textContent = duration + 's';
+            
+            // Calculate note distribution
+            const noteCount = {};
+            NOTE_NAMES.forEach(n => noteCount[n] = 0);
+            detailedHistory.forEach(n => {
+                noteCount[n.noteName] = (noteCount[n.noteName] || 0) + 1;
+            });
+            
+            // Detect key
+            const keyResult = detectKey(noteCount);
+            document.getElementById('detectedKey').textContent = keyResult.key;
+            document.getElementById('keyConfidence').textContent = 
+                `Confidence: ${Math.round(keyResult.confidence * 100)}% | Scale match: ${keyResult.scaleName}`;
+            
+            // Top notes
+            const topNotesContainer = document.getElementById('topNotes');
+            topNotesContainer.innerHTML = '';
+            const sortedNotes = Object.entries(noteCount)
+                .filter(([_, count]) => count > 0)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            sortedNotes.forEach(([note, count]) => {
+                const chip = document.createElement('div');
+                chip.className = 'top-note-chip';
+                chip.innerHTML = `
+                    <span class="top-note-name">${note}</span>
+                    <span class="top-note-count">${count} times</span>
+                `;
+                topNotesContainer.appendChild(chip);
+            });
+            
+            // Distribution bars
+            const distContainer = document.getElementById('noteDistribution');
+            distContainer.innerHTML = '';
+            const maxCount = Math.max(...Object.values(noteCount), 1);
+            const totalCount = detailedHistory.length;
+            
+            sortedNotes.forEach(([note, count]) => {
+                const pct = (count / maxCount) * 100;
+                const actualPct = ((count / totalCount) * 100).toFixed(1);
+                
+                const bar = document.createElement('div');
+                bar.className = 'distribution-bar-container';
+                bar.innerHTML = `
+                    <span class="distribution-note">${note}</span>
+                    <div class="distribution-bar-wrapper">
+                        <div class="distribution-bar" style="width: ${pct}%">
+                            <span class="distribution-count">${count}</span>
+                        </div>
+                    </div>
+                    <span class="distribution-percent">${actualPct}%</span>
+                `;
+                distContainer.appendChild(bar);
+            });
+            
+            // Draw timeline
+            drawTimeline();
+        }
+        
+        function detectKey(noteCount) {
+            let bestKey = 'Unknown';
+            let bestScale = 'Unknown';
+            let bestScore = 0;
+            
+            // Try each note as potential root
+            for (let rootIdx = 0; rootIdx < 12; rootIdx++) {
+                const rootNote = NOTE_NAMES[rootIdx];
+                
+                // Try each scale pattern
+                for (const [scaleName, pattern] of Object.entries(SCALE_PATTERNS)) {
+                    let score = 0;
+                    let totalNotesInScale = 0;
+                    
+                    // Check how many detected notes fit this scale
+                    pattern.forEach(interval => {
+                        const noteIdx = (rootIdx + interval) % 12;
+                        const noteName = NOTE_NAMES[noteIdx];
+                        score += noteCount[noteName] || 0;
+                        totalNotesInScale += noteCount[noteName] || 0;
+                    });
+                    
+                    // Weight by scale fit
+                    const totalNotes = Object.values(noteCount).reduce((a, b) => a + b, 0);
+                    const fitScore = totalNotes > 0 ? score / totalNotes : 0;
+                    
+                    // Bonus for root note being common
+                    const rootBonus = (noteCount[rootNote] || 0) / Math.max(totalNotes, 1) * 0.2;
+                    
+                    const finalScore = fitScore + rootBonus;
+                    
+                    if (finalScore > bestScore) {
+                        bestScore = finalScore;
+                        bestKey = rootNote + ' ' + scaleName;
+                        bestScale = scaleName;
+                    }
+                }
+            }
+            
+            return {
+                key: bestKey,
+                scaleName: bestScale,
+                confidence: Math.min(1, bestScore)
+            };
+        }
+        
+        function drawTimeline() {
+            const canvas = document.getElementById('timelineCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 80;
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            if (detailedHistory.length === 0) return;
+            
+            const maxTime = detailedHistory[detailedHistory.length - 1].timestamp;
+            const noteToY = {};
+            NOTE_NAMES.forEach((note, idx) => {
+                noteToY[note] = 5 + (idx / 12) * (canvas.height - 10);
+            });
+            
+            // Draw notes as dots on timeline
+            detailedHistory.forEach(item => {
+                const x = (item.timestamp / maxTime) * canvas.width;
+                const y = noteToY[item.noteName] || canvas.height / 2;
+                const size = 4 + item.confidence * 4;
+                
+                // Color based on confidence
+                const hue = item.confidence >= 0.85 ? 120 : item.confidence >= 0.7 ? 45 : 0;
+                ctx.fillStyle = `hsla(${hue}, 80%, 50%, 0.8)`;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            // Draw note labels on right
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.font = '9px sans-serif';
+            NOTE_NAMES.forEach((note, idx) => {
+                ctx.fillText(note, canvas.width - 20, noteToY[note] + 3);
+            });
+        }
+        
+        // ============================================
+        // EXPORT FUNCTIONS
+        // ============================================
+        
+        function exportNotesAsText() {
+            if (detailedHistory.length === 0) return '';
+            
+            let text = '=== Note Detection Summary ===\n\n';
+            text += `Total Notes: ${detailedHistory.length}\n`;
+            text += `Duration: ${(detailedHistory[detailedHistory.length - 1].timestamp / 1000).toFixed(1)}s\n\n`;
+            text += '=== Detected Notes ===\n\n';
+            
+            detailedHistory.forEach(item => {
+                const time = (item.timestamp / 1000).toFixed(2);
+                const conf = Math.round(item.confidence * 100);
+                text += `[${time}s] ${item.note} - ${item.frequency.toFixed(1)}Hz (${conf}% confidence)\n`;
+            });
+            
+            return text;
+        }
+        
+        function exportNotesAsJSON() {
+            return JSON.stringify({
+                summary: {
+                    totalNotes: detailedHistory.length,
+                    uniqueNotes: new Set(detailedHistory.map(n => n.noteName)).size,
+                    duration: detailedHistory.length > 0 
+                        ? detailedHistory[detailedHistory.length - 1].timestamp 
+                        : 0,
+                    avgConfidence: detailedHistory.reduce((sum, n) => sum + n.confidence, 0) / detailedHistory.length
+                },
+                notes: detailedHistory
+            }, null, 2);
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                setStatus('active', 'Copied to clipboard!');
+                setTimeout(() => setStatus('idle', 'Ready'), 2000);
+            });
+        }
+        
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // ============================================
+        // ADDITIONAL EVENT LISTENERS
+        // ============================================
+        
+        function setupSummaryListeners() {
+            document.getElementById('closeSummary').addEventListener('click', () => {
+                document.getElementById('summaryPanel').classList.remove('visible');
+            });
+            
+            document.getElementById('viewSummaryBtn').addEventListener('click', () => {
+                if (detailedHistory.length > 0) {
+                    generateSummary();
+                } else {
+                    setStatus('idle', 'No notes detected yet!');
+                    setTimeout(() => setStatus('idle', 'Ready'), 2000);
+                }
+            });
+            
+            document.getElementById('copyNotesBtn').addEventListener('click', () => {
+                const notes = detailedHistory.map(n => n.note).join(' ');
+                copyToClipboard(notes);
+            });
+            
+            document.getElementById('exportJsonBtn').addEventListener('click', () => {
+                downloadFile(exportNotesAsJSON(), 'notes.json', 'application/json');
+            });
+            
+            document.getElementById('exportTxtBtn').addEventListener('click', () => {
+                downloadFile(exportNotesAsText(), 'notes.txt', 'text/plain');
+            });
+        }
+        
         // Initialize on load
         init();
+        setupSummaryListeners();
     </script>
 </body>
 </html>
