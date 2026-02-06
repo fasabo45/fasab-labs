@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 Note Detector - YouTube Song Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #e94560, #ff6b6b, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(233, 69, 96, 0.3);
+        }
+        
+        .subtitle {
+            color: #a0a0a0;
+            font-size: 1.1rem;
+        }
+        
+        .input-section {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .input-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 25px;
+            flex: 1;
+            min-width: 300px;
+            max-width: 450px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .input-card h3 {
+            color: #e94560;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .input-card input[type="text"],
+        .input-card input[type="file"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        .input-card input[type="text"]:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #e94560, #ff6b6b);
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(233, 69, 96, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-stop {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            color: #fff;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .main-display {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 1000px) {
+            .main-display {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .visualizer-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .panel-title {
+            font-size: 1.2rem;
+            color: #feca57;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Piano Keyboard Styles */
+        .piano-container {
+            overflow-x: auto;
+            padding: 20px 0;
+        }
+        
+        .piano {
+            display: flex;
+            position: relative;
+            height: 150px;
+            min-width: 100%;
+        }
+        
+        .white-key {
+            width: 40px;
+            height: 150px;
+            background: linear-gradient(to bottom, #fff 0%, #e8e8e8 100%);
+            border: 1px solid #888;
+            border-radius: 0 0 5px 5px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.1s;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 8px;
+        }
+        
+        .white-key.active {
+            background: linear-gradient(to bottom, #ff6b6b 0%, #e94560 100%);
+            box-shadow: 0 0 20px rgba(233, 69, 96, 0.8);
+        }
+        
+        .white-key span {
+            font-size: 10px;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .white-key.active span {
+            color: #fff;
+        }
+        
+        .black-key {
+            width: 25px;
+            height: 95px;
+            background: linear-gradient(to bottom, #333 0%, #000 100%);
+            border-radius: 0 0 4px 4px;
+            position: absolute;
+            z-index: 1;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+        
+        .black-key.active {
+            background: linear-gradient(to bottom, #e94560 0%, #c0392b 100%);
+            box-shadow: 0 0 20px rgba(233, 69, 96, 0.8);
+        }
+        
+        /* Current Note Display */
+        .current-note {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .note-display {
+            font-size: 5rem;
+            font-weight: bold;
+            color: #e94560;
+            text-shadow: 0 0 30px rgba(233, 69, 96, 0.5);
+            line-height: 1;
+        }
+        
+        .frequency-display {
+            font-size: 1.5rem;
+            color: #a0a0a0;
+            margin-top: 10px;
+        }
+        
+        .cents-display {
+            font-size: 1rem;
+            color: #feca57;
+            margin-top: 5px;
+        }
+        
+        /* Pitch Meter */
+        .pitch-meter {
+            height: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            margin-top: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pitch-meter-marker {
+            position: absolute;
+            width: 4px;
+            height: 100%;
+            background: #feca57;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .pitch-meter-indicator {
+            position: absolute;
+            width: 10px;
+            height: 100%;
+            background: #e94560;
+            border-radius: 5px;
+            transition: left 0.05s;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        /* Waveform Visualizer */
+        #waveform {
+            width: 100%;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+        
+        /* Frequency Spectrum */
+        #spectrum {
+            width: 100%;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        /* Note History */
+        .note-history {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .history-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .history-note {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e94560;
+        }
+        
+        .history-freq {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+        
+        .history-time {
+            color: #feca57;
+            font-size: 0.85rem;
+        }
+        
+        /* Status Indicator */
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #555;
+        }
+        
+        .status-dot.active {
+            background: #2ecc71;
+            animation: pulse 1s infinite;
+        }
+        
+        .status-dot.error {
+            background: #e74c3c;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* YouTube Embed */
+        .youtube-container {
+            margin-top: 15px;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            background: #000;
+        }
+        
+        .youtube-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Settings Panel */
+        .settings {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+        
+        .setting-label {
+            color: #a0a0a0;
+        }
+        
+        .setting-value {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        input[type="range"] {
+            width: 120px;
+            accent-color: #e94560;
+        }
+        
+        select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            cursor: pointer;
+        }
+        
+        /* Info Box */
+        .info-box {
+            background: rgba(254, 202, 87, 0.1);
+            border: 1px solid rgba(254, 202, 87, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #feca57;
+        }
+        
+        /* Clear button */
+        .clear-btn {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 4px;
+            color: #a0a0a0;
+            cursor: pointer;
+            margin-left: auto;
+        }
+        
+        .clear-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Audio source tabs */
+        .source-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .source-tab {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .source-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .source-tab.active {
+            background: rgba(233, 69, 96, 0.2);
+            border-color: #e94560;
+        }
+        
+        .source-content {
+            display: none;
+        }
+        
+        .source-content.active {
+            display: block;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Chromatic scale indicator */
+        .scale-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .scale-note {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: all 0.1s;
+        }
+        
+        .scale-note.active {
+            background: #e94560;
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(233, 69, 96, 0.6);
+        }
+
+        /* File drop zone */
+        .drop-zone {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .drop-zone:hover,
+        .drop-zone.dragover {
+            border-color: #e94560;
+            background: rgba(233, 69, 96, 0.1);
+        }
+        
+        .drop-zone-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        .audio-player {
+            width: 100%;
+            margin-top: 15px;
+        }
+        
+        audio {
+            width: 100%;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎵 Note Detector</h1>
+            <p class="subtitle">Identify notes from YouTube videos, audio files, or your microphone</p>
+        </header>
+        
+        <div class="status">
+            <div class="status-dot" id="statusDot"></div>
+            <span id="statusText">Ready - Select an audio source to begin</span>
+        </div>
+        
+        <!-- Source Selection Tabs -->
+        <div class="source-tabs">
+            <div class="source-tab active" data-source="mic">🎤 Microphone</div>
+            <div class="source-tab" data-source="file">📁 Audio File</div>
+            <div class="source-tab" data-source="youtube">📺 YouTube</div>
+        </div>
+        
+        <!-- Microphone Source -->
+        <div class="source-content active" id="source-mic">
+            <div class="input-card" style="max-width: 100%;">
+                <h3>🎤 Microphone Input</h3>
+                <p style="color: #a0a0a0; margin-bottom: 15px;">Capture audio directly from your microphone. Play any song through speakers and detect the notes in real-time!</p>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" id="startMicBtn">▶️ Start Listening</button>
+                    <button class="btn btn-stop" id="stopMicBtn" disabled>⏹️ Stop</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- File Source -->
+        <div class="source-content" id="source-file">
+            <div class="input-card" style="max-width: 100%;">
+                <h3>📁 Audio File</h3>
+                <div class="drop-zone" id="dropZone">
+                    <div class="drop-zone-icon">📂</div>
+                    <p>Drop an audio file here or click to browse</p>
+                    <p style="color: #666; font-size: 0.9rem; margin-top: 10px;">Supports MP3, WAV, OGG, FLAC</p>
+                    <input type="file" id="fileInput" accept="audio/*" style="display: none;">
+                </div>
+                <div class="audio-player" id="audioPlayerContainer" style="display: none;">
+                    <audio id="audioPlayer" controls></audio>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn btn-primary" id="analyzeFileBtn">🔍 Analyze Audio</button>
+                        <button class="btn btn-stop" id="stopFileBtn" disabled>⏹️ Stop</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- YouTube Source -->
+        <div class="source-content" id="source-youtube">
+            <div class="input-card" style="max-width: 100%;">
+                <h3>📺 YouTube Video</h3>
+                <input type="text" id="youtubeUrl" placeholder="Paste YouTube URL here (e.g., https://youtube.com/watch?v=...)">
+                <button class="btn btn-primary" id="loadYoutubeBtn">🎬 Load Video</button>
+                <div class="youtube-container" id="youtubeContainer" style="display: none;"></div>
+                <div class="info-box">
+                    <strong>💡 How it works:</strong> Due to browser security, we can't directly access YouTube audio. 
+                    Load the video below, then click "Start Listening" on the Microphone tab to capture audio through your speakers/headphones.
+                    For best results, use external speakers or route audio through a virtual audio cable.
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Display -->
+        <div class="main-display">
+            <div class="visualizer-panel">
+                <div class="panel-title">🎹 Piano Visualization</div>
+                
+                <div class="current-note">
+                    <div class="note-display" id="currentNote">--</div>
+                    <div class="frequency-display" id="currentFreq">-- Hz</div>
+                    <div class="cents-display" id="centsDisplay">-- cents</div>
+                    <div class="pitch-meter">
+                        <div class="pitch-meter-marker"></div>
+                        <div class="pitch-meter-indicator" id="pitchIndicator"></div>
+                    </div>
+                </div>
+                
+                <div class="scale-indicator" id="scaleIndicator"></div>
+                
+                <div class="piano-container">
+                    <div class="piano" id="piano"></div>
+                </div>
+                
+                <div class="panel-title" style="margin-top: 20px;">📊 Waveform</div>
+                <canvas id="waveform"></canvas>
+                
+                <div class="panel-title" style="margin-top: 20px;">🌈 Frequency Spectrum</div>
+                <canvas id="spectrum"></canvas>
+            </div>
+            
+            <div class="note-history">
+                <div class="panel-title">
+                    📝 Detected Notes
+                    <button class="clear-btn" id="clearHistory">Clear</button>
+                </div>
+                <div class="history-list" id="historyList"></div>
+            </div>
+        </div>
+        
+        <!-- Settings -->
+        <div class="settings">
+            <div class="panel-title">⚙️ Settings</div>
+            <div class="setting-row">
+                <span class="setting-label">Minimum Volume Threshold</span>
+                <div class="setting-value">
+                    <input type="range" id="volumeThreshold" min="0" max="100" value="10">
+                    <span id="volumeThresholdValue">10%</span>
+                </div>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Note Hold Time (ms)</span>
+                <div class="setting-value">
+                    <input type="range" id="noteHoldTime" min="50" max="500" value="150">
+                    <span id="noteHoldTimeValue">150ms</span>
+                </div>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Reference Pitch (A4)</span>
+                <div class="setting-value">
+                    <input type="range" id="referencePitch" min="430" max="450" value="440">
+                    <span id="referencePitchValue">440 Hz</span>
+                </div>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Detection Algorithm</span>
+                <div class="setting-value">
+                    <select id="algorithm">
+                        <option value="autocorrelation">Autocorrelation (Best for melody)</option>
+                        <option value="yin">YIN (Best for voice)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ============================================
+        // NOTE DETECTOR - Core Audio Analysis Engine
+        // ============================================
+        
+        const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        
+        // State
+        let audioContext = null;
+        let analyser = null;
+        let sourceNode = null;
+        let isListening = false;
+        let animationId = null;
+        let lastNote = null;
+        let lastNoteTime = 0;
+        let noteHistory = [];
+        let startTime = 0;
+        
+        // Settings
+        let settings = {
+            volumeThreshold: 0.1,
+            noteHoldTime: 150,
+            referencePitch: 440,
+            algorithm: 'autocorrelation'
+        };
+        
+        // DOM Elements
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const currentNoteEl = document.getElementById('currentNote');
+        const currentFreqEl = document.getElementById('currentFreq');
+        const centsDisplayEl = document.getElementById('centsDisplay');
+        const pitchIndicator = document.getElementById('pitchIndicator');
+        const historyList = document.getElementById('historyList');
+        const pianoEl = document.getElementById('piano');
+        const scaleIndicator = document.getElementById('scaleIndicator');
+        const waveformCanvas = document.getElementById('waveform');
+        const spectrumCanvas = document.getElementById('spectrum');
+        const waveformCtx = waveformCanvas.getContext('2d');
+        const spectrumCtx = spectrumCanvas.getContext('2d');
+        
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        
+        function init() {
+            buildPiano();
+            buildScaleIndicator();
+            setupEventListeners();
+            resizeCanvases();
+            window.addEventListener('resize', resizeCanvases);
+        }
+        
+        function resizeCanvases() {
+            const rect = waveformCanvas.parentElement.getBoundingClientRect();
+            waveformCanvas.width = rect.width - 40;
+            spectrumCanvas.width = rect.width - 40;
+        }
+        
+        function buildPiano() {
+            pianoEl.innerHTML = '';
+            
+            // Build 3 octaves (C3 to B5)
+            const startOctave = 3;
+            const endOctave = 5;
+            
+            let whiteKeyIndex = 0;
+            
+            for (let octave = startOctave; octave <= endOctave; octave++) {
+                for (let i = 0; i < 12; i++) {
+                    const noteName = NOTE_NAMES[i];
+                    const fullNote = noteName + octave;
+                    
+                    if (!noteName.includes('#')) {
+                        // White key
+                        const key = document.createElement('div');
+                        key.className = 'white-key';
+                        key.dataset.note = fullNote;
+                        key.innerHTML = `<span>${noteName}${octave}</span>`;
+                        pianoEl.appendChild(key);
+                        whiteKeyIndex++;
+                    }
+                }
+            }
+            
+            // Add black keys
+            whiteKeyIndex = 0;
+            for (let octave = startOctave; octave <= endOctave; octave++) {
+                for (let i = 0; i < 12; i++) {
+                    const noteName = NOTE_NAMES[i];
+                    const fullNote = noteName + octave;
+                    
+                    if (!noteName.includes('#')) {
+                        // Check if next note is a black key
+                        const nextNote = NOTE_NAMES[(i + 1) % 12];
+                        if (nextNote.includes('#')) {
+                            const key = document.createElement('div');
+                            key.className = 'black-key';
+                            key.dataset.note = nextNote + octave;
+                            key.style.left = (whiteKeyIndex * 40 - 12) + 'px';
+                            pianoEl.appendChild(key);
+                        }
+                        whiteKeyIndex++;
+                    }
+                }
+            }
+        }
+        
+        function buildScaleIndicator() {
+            scaleIndicator.innerHTML = '';
+            NOTE_NAMES.forEach(note => {
+                const el = document.createElement('div');
+                el.className = 'scale-note';
+                el.dataset.note = note;
+                el.textContent = note;
+                scaleIndicator.appendChild(el);
+            });
+        }
+        
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        
+        function setupEventListeners() {
+            // Source tabs
+            document.querySelectorAll('.source-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.source-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.source-content').forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById('source-' + tab.dataset.source).classList.add('active');
+                });
+            });
+            
+            // Microphone controls
+            document.getElementById('startMicBtn').addEventListener('click', startMicrophone);
+            document.getElementById('stopMicBtn').addEventListener('click', stopListening);
+            
+            // File controls
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            
+            dropZone.addEventListener('click', () => fileInput.click());
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+            dropZone.addEventListener('drop', handleFileDrop);
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            document.getElementById('analyzeFileBtn').addEventListener('click', analyzeAudioFile);
+            document.getElementById('stopFileBtn').addEventListener('click', stopListening);
+            
+            // YouTube controls
+            document.getElementById('loadYoutubeBtn').addEventListener('click', loadYoutubeVideo);
+            
+            // Settings
+            document.getElementById('volumeThreshold').addEventListener('input', (e) => {
+                settings.volumeThreshold = e.target.value / 100;
+                document.getElementById('volumeThresholdValue').textContent = e.target.value + '%';
+            });
+            
+            document.getElementById('noteHoldTime').addEventListener('input', (e) => {
+                settings.noteHoldTime = parseInt(e.target.value);
+                document.getElementById('noteHoldTimeValue').textContent = e.target.value + 'ms';
+            });
+            
+            document.getElementById('referencePitch').addEventListener('input', (e) => {
+                settings.referencePitch = parseInt(e.target.value);
+                document.getElementById('referencePitchValue').textContent = e.target.value + ' Hz';
+            });
+            
+            document.getElementById('algorithm').addEventListener('change', (e) => {
+                settings.algorithm = e.target.value;
+            });
+            
+            document.getElementById('clearHistory').addEventListener('click', () => {
+                noteHistory = [];
+                historyList.innerHTML = '';
+            });
+        }
+        
+        // ============================================
+        // AUDIO SOURCE HANDLERS
+        // ============================================
+        
+        async function startMicrophone() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                initAudioContext();
+                sourceNode = audioContext.createMediaStreamSource(stream);
+                sourceNode.connect(analyser);
+                startListening();
+                
+                document.getElementById('startMicBtn').disabled = true;
+                document.getElementById('stopMicBtn').disabled = false;
+            } catch (err) {
+                setStatus('error', 'Microphone access denied: ' + err.message);
+            }
+        }
+        
+        function handleFileDrop(e) {
+            e.preventDefault();
+            document.getElementById('dropZone').classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('audio/')) {
+                loadAudioFile(file);
+            }
+        }
+        
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                loadAudioFile(file);
+            }
+        }
+        
+        function loadAudioFile(file) {
+            const audioPlayer = document.getElementById('audioPlayer');
+            const url = URL.createObjectURL(file);
+            audioPlayer.src = url;
+            document.getElementById('audioPlayerContainer').style.display = 'block';
+            document.getElementById('dropZone').style.display = 'none';
+        }
+        
+        function analyzeAudioFile() {
+            const audioPlayer = document.getElementById('audioPlayer');
+            initAudioContext();
+            
+            if (sourceNode) {
+                sourceNode.disconnect();
+            }
+            
+            sourceNode = audioContext.createMediaElementSource(audioPlayer);
+            sourceNode.connect(analyser);
+            analyser.connect(audioContext.destination);
+            
+            audioPlayer.play();
+            startListening();
+            
+            document.getElementById('analyzeFileBtn').disabled = true;
+            document.getElementById('stopFileBtn').disabled = false;
+            
+            audioPlayer.addEventListener('ended', () => {
+                stopListening();
+            });
+        }
+        
+        function loadYoutubeVideo() {
+            const url = document.getElementById('youtubeUrl').value;
+            const videoId = extractYoutubeId(url);
+            
+            if (videoId) {
+                const container = document.getElementById('youtubeContainer');
+                container.style.display = 'block';
+                container.innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>`;
+                setStatus('active', 'Video loaded! Use the Microphone tab to capture audio');
+            } else {
+                setStatus('error', 'Invalid YouTube URL');
+            }
+        }
+        
+        function extractYoutubeId(url) {
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/,
+                /youtube\.com\/embed\/([\w-]+)/,
+                /youtube\.com\/v\/([\w-]+)/
+            ];
+            
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) return match[1];
+            }
+            return null;
+        }
+        
+        // ============================================
+        // AUDIO ANALYSIS ENGINE
+        // ============================================
+        
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 4096;
+                analyser.smoothingTimeConstant = 0.8;
+            }
+            
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+        
+        function startListening() {
+            isListening = true;
+            startTime = Date.now();
+            setStatus('active', 'Listening...');
+            analyze();
+        }
+        
+        function stopListening() {
+            isListening = false;
+            
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            if (sourceNode && sourceNode.mediaStream) {
+                sourceNode.mediaStream.getTracks().forEach(track => track.stop());
+            }
+            
+            setStatus('idle', 'Stopped');
+            resetDisplay();
+            
+            // Reset buttons
+            document.getElementById('startMicBtn').disabled = false;
+            document.getElementById('stopMicBtn').disabled = true;
+            document.getElementById('analyzeFileBtn').disabled = false;
+            document.getElementById('stopFileBtn').disabled = true;
+        }
+        
+        function analyze() {
+            if (!isListening) return;
+            
+            const bufferLength = analyser.fftSize;
+            const buffer = new Float32Array(bufferLength);
+            analyser.getFloatTimeDomainData(buffer);
+            
+            // Draw waveform
+            drawWaveform(buffer);
+            
+            // Draw spectrum
+            const freqData = new Uint8Array(analyser.frequencyBinCount);
+            analyser.getByteFrequencyData(freqData);
+            drawSpectrum(freqData);
+            
+            // Check volume
+            const volume = getVolume(buffer);
+            
+            if (volume > settings.volumeThreshold) {
+                // Detect pitch
+                let frequency;
+                if (settings.algorithm === 'yin') {
+                    frequency = detectPitchYIN(buffer, audioContext.sampleRate);
+                } else {
+                    frequency = detectPitchAutocorrelation(buffer, audioContext.sampleRate);
+                }
+                
+                if (frequency && frequency > 50 && frequency < 2000) {
+                    const noteInfo = frequencyToNote(frequency);
+                    updateDisplay(noteInfo, frequency);
+                    
+                    // Add to history if different note
+                    const now = Date.now();
+                    if (noteInfo.fullNote !== lastNote || now - lastNoteTime > settings.noteHoldTime) {
+                        addToHistory(noteInfo, frequency);
+                        lastNote = noteInfo.fullNote;
+                        lastNoteTime = now;
+                    }
+                }
+            } else {
+                // Optional: fade out display when quiet
+            }
+            
+            animationId = requestAnimationFrame(analyze);
+        }
+        
+        function getVolume(buffer) {
+            let sum = 0;
+            for (let i = 0; i < buffer.length; i++) {
+                sum += buffer[i] * buffer[i];
+            }
+            return Math.sqrt(sum / buffer.length);
+        }
+        
+        // ============================================
+        // PITCH DETECTION ALGORITHMS
+        // ============================================
+        
+        function detectPitchAutocorrelation(buffer, sampleRate) {
+            const SIZE = buffer.length;
+            const MAX_SAMPLES = Math.floor(SIZE / 2);
+            let bestOffset = -1;
+            let bestCorrelation = 0;
+            let foundGoodCorrelation = false;
+            const correlations = new Array(MAX_SAMPLES);
+            
+            // Find the first point where we cross from negative to positive
+            let lastCorrelation = 1;
+            
+            for (let offset = 0; offset < MAX_SAMPLES; offset++) {
+                let correlation = 0;
+                
+                for (let i = 0; i < MAX_SAMPLES; i++) {
+                    correlation += Math.abs((buffer[i]) - (buffer[i + offset]));
+                }
+                
+                correlation = 1 - (correlation / MAX_SAMPLES);
+                correlations[offset] = correlation;
+                
+                if ((correlation > 0.9) && (correlation > lastCorrelation)) {
+                    foundGoodCorrelation = true;
+                    if (correlation > bestCorrelation) {
+                        bestCorrelation = correlation;
+                        bestOffset = offset;
+                    }
+                } else if (foundGoodCorrelation) {
+                    const shift = (correlations[bestOffset + 1] - correlations[bestOffset - 1]) / correlations[bestOffset];
+                    return sampleRate / (bestOffset + (8 * shift));
+                }
+                
+                lastCorrelation = correlation;
+            }
+            
+            if (bestCorrelation > 0.01) {
+                return sampleRate / bestOffset;
+            }
+            
+            return -1;
+        }
+        
+        function detectPitchYIN(buffer, sampleRate) {
+            const threshold = 0.15;
+            const bufferSize = buffer.length;
+            const halfBufferSize = Math.floor(bufferSize / 2);
+            const yinBuffer = new Float32Array(halfBufferSize);
+            
+            // Step 2: Difference function
+            for (let tau = 0; tau < halfBufferSize; tau++) {
+                yinBuffer[tau] = 0;
+                for (let i = 0; i < halfBufferSize; i++) {
+                    const delta = buffer[i] - buffer[i + tau];
+                    yinBuffer[tau] += delta * delta;
+                }
+            }
+            
+            // Step 3: Cumulative mean normalized difference
+            yinBuffer[0] = 1;
+            let runningSum = 0;
+            for (let tau = 1; tau < halfBufferSize; tau++) {
+                runningSum += yinBuffer[tau];
+                yinBuffer[tau] *= tau / runningSum;
+            }
+            
+            // Step 4: Absolute threshold
+            let tauEstimate = -1;
+            for (let tau = 2; tau < halfBufferSize; tau++) {
+                if (yinBuffer[tau] < threshold) {
+                    while (tau + 1 < halfBufferSize && yinBuffer[tau + 1] < yinBuffer[tau]) {
+                        tau++;
+                    }
+                    tauEstimate = tau;
+                    break;
+                }
+            }
+            
+            if (tauEstimate === -1) {
+                return -1;
+            }
+            
+            // Step 5: Parabolic interpolation
+            let betterTau;
+            const x0 = tauEstimate < 1 ? tauEstimate : tauEstimate - 1;
+            const x2 = tauEstimate + 1 < halfBufferSize ? tauEstimate + 1 : tauEstimate;
+            
+            if (x0 === tauEstimate) {
+                betterTau = yinBuffer[tauEstimate] <= yinBuffer[x2] ? tauEstimate : x2;
+            } else if (x2 === tauEstimate) {
+                betterTau = yinBuffer[tauEstimate] <= yinBuffer[x0] ? tauEstimate : x0;
+            } else {
+                const s0 = yinBuffer[x0];
+                const s1 = yinBuffer[tauEstimate];
+                const s2 = yinBuffer[x2];
+                betterTau = tauEstimate + (s2 - s0) / (2 * (2 * s1 - s2 - s0));
+            }
+            
+            return sampleRate / betterTau;
+        }
+        
+        // ============================================
+        // NOTE CONVERSION
+        // ============================================
+        
+        function frequencyToNote(frequency) {
+            const A4 = settings.referencePitch;
+            const C0 = A4 * Math.pow(2, -4.75);
+            const halfSteps = Math.round(12 * Math.log2(frequency / C0));
+            const octave = Math.floor(halfSteps / 12);
+            const noteIndex = halfSteps % 12;
+            const noteName = NOTE_NAMES[noteIndex];
+            
+            // Calculate cents (how far from perfect pitch)
+            const perfectFreq = C0 * Math.pow(2, halfSteps / 12);
+            const cents = Math.round(1200 * Math.log2(frequency / perfectFreq));
+            
+            return {
+                note: noteName,
+                octave: octave,
+                fullNote: noteName + octave,
+                cents: cents,
+                perfectFreq: perfectFreq
+            };
+        }
+        
+        // ============================================
+        // DISPLAY UPDATES
+        // ============================================
+        
+        function updateDisplay(noteInfo, frequency) {
+            // Update current note display
+            currentNoteEl.textContent = noteInfo.fullNote;
+            currentFreqEl.textContent = frequency.toFixed(1) + ' Hz';
+            
+            // Update cents display
+            const centsText = noteInfo.cents >= 0 ? '+' + noteInfo.cents : noteInfo.cents;
+            centsDisplayEl.textContent = centsText + ' cents';
+            
+            // Update pitch meter
+            const centsPct = Math.max(-50, Math.min(50, noteInfo.cents));
+            const indicatorPos = 50 + centsPct;
+            pitchIndicator.style.left = indicatorPos + '%';
+            
+            // Highlight piano key
+            document.querySelectorAll('.white-key, .black-key').forEach(key => {
+                key.classList.remove('active');
+            });
+            const activeKey = pianoEl.querySelector(`[data-note="${noteInfo.fullNote}"]`);
+            if (activeKey) {
+                activeKey.classList.add('active');
+            }
+            
+            // Highlight scale indicator
+            document.querySelectorAll('.scale-note').forEach(el => {
+                el.classList.remove('active');
+                if (el.dataset.note === noteInfo.note) {
+                    el.classList.add('active');
+                }
+            });
+        }
+        
+        function addToHistory(noteInfo, frequency) {
+            const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+            
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.innerHTML = `
+                <div>
+                    <span class="history-note">${noteInfo.fullNote}</span>
+                    <span class="history-freq">${frequency.toFixed(1)} Hz</span>
+                </div>
+                <span class="history-time">${elapsed}s</span>
+            `;
+            
+            historyList.insertBefore(item, historyList.firstChild);
+            
+            // Limit history
+            if (historyList.children.length > 100) {
+                historyList.removeChild(historyList.lastChild);
+            }
+        }
+        
+        function resetDisplay() {
+            currentNoteEl.textContent = '--';
+            currentFreqEl.textContent = '-- Hz';
+            centsDisplayEl.textContent = '-- cents';
+            pitchIndicator.style.left = '50%';
+            
+            document.querySelectorAll('.white-key, .black-key, .scale-note').forEach(el => {
+                el.classList.remove('active');
+            });
+        }
+        
+        // ============================================
+        // VISUALIZATIONS
+        // ============================================
+        
+        function drawWaveform(buffer) {
+            const width = waveformCanvas.width;
+            const height = waveformCanvas.height;
+            
+            waveformCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            waveformCtx.fillRect(0, 0, width, height);
+            
+            waveformCtx.lineWidth = 2;
+            waveformCtx.strokeStyle = '#e94560';
+            waveformCtx.beginPath();
+            
+            const sliceWidth = width / buffer.length;
+            let x = 0;
+            
+            for (let i = 0; i < buffer.length; i++) {
+                const v = buffer[i] * 0.5 + 0.5;
+                const y = v * height;
+                
+                if (i === 0) {
+                    waveformCtx.moveTo(x, y);
+                } else {
+                    waveformCtx.lineTo(x, y);
+                }
+                
+                x += sliceWidth;
+            }
+            
+            waveformCtx.stroke();
+        }
+        
+        function drawSpectrum(freqData) {
+            const width = spectrumCanvas.width;
+            const height = spectrumCanvas.height;
+            
+            spectrumCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            spectrumCtx.fillRect(0, 0, width, height);
+            
+            const barWidth = width / freqData.length * 2.5;
+            let x = 0;
+            
+            for (let i = 0; i < freqData.length; i++) {
+                const barHeight = (freqData[i] / 255) * height;
+                
+                // Color gradient based on frequency
+                const hue = (i / freqData.length) * 60 + 340; // Red to yellow
+                spectrumCtx.fillStyle = `hsl(${hue % 360}, 80%, 50%)`;
+                spectrumCtx.fillRect(x, height - barHeight, barWidth, barHeight);
+                
+                x += barWidth + 1;
+                if (x > width) break;
+            }
+        }
+        
+        function setStatus(state, text) {
+            statusDot.className = 'status-dot';
+            if (state === 'active') {
+                statusDot.classList.add('active');
+            } else if (state === 'error') {
+                statusDot.classList.add('error');
+            }
+            statusText.textContent = text;
+        }
+        
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
