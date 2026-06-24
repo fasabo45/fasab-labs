@@ -83,6 +83,16 @@ function readRecipeFromForm(){
       dust:      +document.getElementById('d_dust').value,
       stains:    +document.getElementById('d_stain').value,
     },
+    hud: {
+      on:        document.getElementById('h_on').checked,
+      color:     document.getElementById('h_color').value,
+      crosshair: document.getElementById('h_cross').checked,
+      ammo:      document.getElementById('h_ammo').checked,
+      minimap:   document.getElementById('h_map').checked,
+      killfeed:  document.getElementById('h_feed').checked,
+      compass:   document.getElementById('h_compass').checked,
+      lowhealth: document.getElementById('h_low').checked,
+    },
     w, h,
     seed:     document.getElementById('f_seed').value.trim() || 'FORGE-001',
   };
@@ -108,6 +118,15 @@ function applyRecipeToForm(r){
   document.getElementById('d_scratch').value = dg.scratches || 0;
   document.getElementById('d_dust').value = dg.dust || 0;
   document.getElementById('d_stain').value = dg.stains || 0;
+  const hd = r.hud || {};
+  document.getElementById('h_on').checked = !!hd.on;
+  document.getElementById('h_color').value = hd.color || 'green';
+  document.getElementById('h_cross').checked = !!hd.crosshair;
+  document.getElementById('h_ammo').checked = !!hd.ammo;
+  document.getElementById('h_map').checked = !!hd.minimap;
+  document.getElementById('h_feed').checked = !!hd.killfeed;
+  document.getElementById('h_compass').checked = !!hd.compass;
+  document.getElementById('h_low').checked = !!hd.lowhealth;
   document.getElementById('f_size').value = r.w + 'x' + r.h;
   document.getElementById('f_seed').value = r.seed;
   refreshLabels();
@@ -212,17 +231,28 @@ function applyGrade(ctx, recipe, rng){
     const tint = TINTS[recipe.grade];
     for (let i = 0; i < d.length; i += 4){
       if (doGrade){
-        let r = d[i], g = d[i + 1], b = d[i + 2];
-        const lum = 0.3 * r + 0.59 * g + 0.11 * b;
-        if (recipe.grade === 'mono'){ r = g = b = lum; }
-        else {
-          r += (lum - r) * 0.4; g += (lum - g) * 0.4; b += (lum - b) * 0.4;
-          if (tint){ r *= tint[0] / 160; g *= tint[1] / 160; b *= tint[2] / 160; }
+        const r0 = d[i], g0 = d[i + 1], b0 = d[i + 2];
+        const lum = 0.3 * r0 + 0.59 * g0 + 0.11 * b0;
+        let nr, ng, nb, contrast = 1.15;
+        switch (recipe.grade){
+          case 'mono':  nr = ng = nb = lum; break;
+          case 'noir':  nr = ng = nb = lum; contrast = 1.65; break;
+          case 'sepia': nr = lum * 1.07; ng = lum * 0.85; nb = lum * 0.62; contrast = 1.1; break;
+          case 'nvg':   nr = lum * 0.15; ng = lum * 1.2; nb = lum * 0.15; contrast = 1.3; break;
+          case 'bleach': {
+            const ds = 0.6;
+            nr = r0 + (lum - r0) * ds; ng = g0 + (lum - g0) * ds; nb = b0 + (lum - b0) * ds;
+            contrast = 1.45; break;
+          }
+          default: { // cod, vhs (tinted desaturate)
+            nr = r0 + (lum - r0) * 0.4; ng = g0 + (lum - g0) * 0.4; nb = b0 + (lum - b0) * 0.4;
+            if (tint){ nr *= tint[0] / 160; ng *= tint[1] / 160; nb *= tint[2] / 160; }
+          }
         }
-        r = (r - 128) * 1.15 + 128; g = (g - 128) * 1.15 + 128; b = (b - 128) * 1.15 + 128;
-        d[i]     += (clamp(r) - d[i]) * amt;
-        d[i + 1] += (clamp(g) - d[i + 1]) * amt;
-        d[i + 2] += (clamp(b) - d[i + 2]) * amt;
+        nr = (nr - 128) * contrast + 128; ng = (ng - 128) * contrast + 128; nb = (nb - 128) * contrast + 128;
+        d[i]     += (clamp(nr) - d[i]) * amt;
+        d[i + 1] += (clamp(ng) - d[i + 1]) * amt;
+        d[i + 2] += (clamp(nb) - d[i + 2]) * amt;
       }
       if (doGrain){
         const nz = (rng() * 2 - 1) * recipe.grain;
@@ -292,6 +322,7 @@ async function renderRecipe(recipe, canvas, lib){
   if (window.applyDegradation) applyDegradation(ctx, recipe, rng);
   applyGrade(ctx, recipe, rng);
   if (recipe.glitch > 0) applyGlitch(ctx, recipe, rng);
+  if (window.applyHud) applyHud(ctx, recipe);
 }
 
 function scaleRecipe(r, maxDim){

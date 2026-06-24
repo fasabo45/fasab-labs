@@ -126,8 +126,12 @@
       <div class="field"><label>Grade</label>
         <select id="f_grade">
           <option value="cod">CoD Nostalgic (khaki/green)</option>
+          <option value="bleach">Bleach Bypass (war film)</option>
           <option value="vhs">Faded VHS</option>
+          <option value="sepia">Sepia (old photo)</option>
+          <option value="noir">Noir (high-contrast B/W)</option>
           <option value="mono">Gritty Mono</option>
+          <option value="nvg">Night Vision (green)</option>
           <option value="none">None (raw)</option>
         </select></div>
       <div class="field"><label>Grade intensity <span class="val" id="f_gradeAmt_v">80%</span></label>
@@ -153,6 +157,21 @@
         <input type="range" id="d_dust" min="0" max="100" value="0"></div>
       <div class="field"><label>Stains / water <span class="val" id="d_stain_v">0</span></label>
         <input type="range" id="d_stain" min="0" max="100" value="0"></div>
+
+      <h3 style="margin-top:18px">HUD Overlay</h3>
+      <div class="field"><label><input type="checkbox" id="h_on">Enable HUD</label></div>
+      <div class="field"><label>HUD color</label>
+        <select id="h_color">
+          <option value="green">Classic Green</option>
+          <option value="amber">Amber</option>
+          <option value="white">White</option>
+        </select></div>
+      <div class="field"><label><input type="checkbox" id="h_cross" checked>Crosshair</label></div>
+      <div class="field"><label><input type="checkbox" id="h_ammo" checked>Ammo counter</label></div>
+      <div class="field"><label><input type="checkbox" id="h_map" checked>Minimap / radar</label></div>
+      <div class="field"><label><input type="checkbox" id="h_feed" checked>Killfeed</label></div>
+      <div class="field"><label><input type="checkbox" id="h_compass">Compass</label></div>
+      <div class="field"><label><input type="checkbox" id="h_low">Low-health red pulse</label></div>
 
       <div class="field"><label>Canvas</label>
         <select id="f_size">
@@ -226,5 +245,6 @@
 <script src="forge.js"></script>
 <script src="degrade.js"></script>
 <script src="engine.js"></script>
+<script src="hud.js"></script>
 </body>
 </html>

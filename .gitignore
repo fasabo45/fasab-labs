@@ -11,6 +11,7 @@
 !forge.js
 !engine.js
 !degrade.js
+!hud.js
 !AGENTS.md
 !checkpoint.bat
 !checkpoints/
