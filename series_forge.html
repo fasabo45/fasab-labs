@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Series Forge - generative editions from your reference library</title>
+<style>
+  :root{
+    --bg:#0d0f0a;--panel:#15180f;--panel2:#1e2214;--accent:#b8e23a;--accent2:#e2a13a;
+    --text:#e9ecd9;--muted:#8f9678;--good:#9be23a;--danger:#e2563a;--line:#3a4226;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+  header{display:flex;align-items:center;gap:12px;padding:10px 16px;background:linear-gradient(90deg,#16190f,#22260f);border-bottom:1px solid var(--line)}
+  header h1{font-size:18px;margin:0;letter-spacing:2px;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  header .spacer{flex:1}
+  .badge{font-size:10px;padding:3px 8px;border-radius:6px;background:#2a3015;color:var(--good);letter-spacing:1px}
+  .tabs{display:flex;gap:4px;padding:8px 16px 0;background:var(--panel);border-bottom:1px solid var(--line)}
+  .tab{padding:9px 18px;cursor:pointer;font-size:13px;letter-spacing:1px;color:var(--muted);border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0;text-transform:uppercase}
+  .tab:hover{color:var(--text)}
+  .tab.active{color:var(--bg);background:linear-gradient(135deg,var(--accent),var(--accent2));font-weight:700}
+  .panel{flex:1;min-height:0;overflow-y:auto;padding:18px;display:none}
+  .panel.active{display:block}
+  h3{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--accent2);margin:4px 0 12px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  button.act{padding:11px 18px;border:none;border-radius:10px;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg);font-weight:700;font-size:14px}
+  button.act:hover{filter:brightness(1.1)}
+  button.ghost{background:#262b15;color:var(--text);padding:9px 14px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:12px}
+  button.ghost:hover{background:#333a1c}
+  button.danger{background:transparent;color:var(--danger);border:1px solid var(--danger);padding:6px 10px;border-radius:7px;cursor:pointer;font-size:11px}
+  button.danger:hover{background:var(--danger);color:var(--bg)}
+  .muted{color:var(--muted);font-size:12px;line-height:1.6}
+  /* ---- Library ---- */
+  #dropzone{border:2px dashed var(--line);border-radius:14px;padding:34px;text-align:center;color:var(--muted);transition:.2s;cursor:pointer;margin-bottom:16px}
+  #dropzone.hot{border-color:var(--accent);color:var(--accent);background:#1a1f0d}
+  #dropzone b{color:var(--text)}
+  .libgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+  .card .thumb{width:100%;height:110px;object-fit:cover;background:#000;display:block}
+  .card .meta{padding:7px 8px;display:flex;flex-direction:column;gap:6px}
+  .card .name{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card input.tag{width:100%;background:#0d0f0a;border:1px solid var(--line);color:var(--text);border-radius:6px;padding:5px;font-size:11px;font-family:inherit}
+  .card .dim{font-size:10px;color:var(--muted)}
+  .libstats{margin:6px 0 14px;font-size:12px;color:var(--good)}
+  .stub{border:1px dashed var(--line);border-radius:12px;padding:28px;color:var(--muted);line-height:1.7}
+  .stub h2{color:var(--accent);font-size:16px;margin:0 0 10px}
+  .stub code{background:#0d0f0a;border:1px solid var(--line);padding:2px 6px;border-radius:5px;color:var(--accent2);font-size:12px}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--accent);padding:10px 18px;border-radius:10px;opacity:0;transition:.3s;pointer-events:none;z-index:50}
+  .toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <h1>SERIES FORGE</h1>
+  <span class="badge" id="libBadge">0 refs</span>
+  <div class="spacer"></div>
+  <span class="muted">generative editions from your reference library</span>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-tab="library" onclick="showTab('library')">Library</div>
+  <div class="tab" data-tab="formula" onclick="showTab('formula')">Formula</div>
+  <div class="tab" data-tab="series" onclick="showTab('series')">Series</div>
+</div>
+
+<!-- ==================== LIBRARY ==================== -->
+<section class="panel active" id="panel-library">
+  <h3>Reference Library</h3>
+  <p class="muted">Drop your reference images here (screenshots, captures, textures). They're stored locally in your browser (IndexedDB) and survive refreshes. Tag them so the formula can pick by theme later.</p>
+  <div id="dropzone">
+    <p><b>Drag &amp; drop images here</b></p>
+    <p class="muted">or click to browse — JPG / PNG / WEBP / GIF</p>
+    <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
+  </div>
+  <div class="row" style="margin-bottom:10px">
+    <button class="ghost" onclick="document.getElementById('fileInput').click()">+ Import Images</button>
+    <button class="ghost" onclick="exportLibraryManifest()">Export Manifest (JSON)</button>
+    <button class="danger" onclick="clearLibrary()">Clear Entire Library</button>
+  </div>
+  <div class="libstats" id="libstats">Library empty.</div>
+  <div class="libgrid" id="libgrid"></div>
+</section>
+
+<!-- ==================== FORMULA ==================== -->
+<section class="panel" id="panel-formula">
+  <h3>Formula</h3>
+  <div class="stub">
+    <h2>Coming next — the recipe engine</h2>
+    A <b>formula</b> is a small reproducible recipe that builds one collage from your library:
+    <br><br>
+    <code>fragments: 6</code> &nbsp; <code>layout: scatter</code> &nbsp; <code>grade: cod-nostalgic</code> &nbsp; <code>fx: [grain, scanlines, glitch]</code> &nbsp; <code>seed: 8F3A-2C91</code>
+    <br><br>
+    Then you choose how the <b>series</b> varies:
+    <br>• <b>Reseed</b> — same recipe, new seed each piece = unique siblings
+    <br>• <b>Sweep</b> — march one knob across a range = an evolving sequence
+    <br><br>
+    Build your reference Library first — that's the fuel. Engine lands in the next session. 
+  </div>
+</section>
+
+<!-- ==================== SERIES ==================== -->
+<section class="panel" id="panel-series">
+  <h3>Series Output</h3>
+  <div class="stub">
+    <h2>Coming next — the gallery</h2>
+    Hit <b>Generate</b> and a grid of N collages appears here. Click any piece to enlarge it,
+    copy its <b>formula code</b> (so you can recreate it pixel-for-pixel later), or save the ones you love.
+    <br><br>
+    First we feed the Library, then we forge. Go drop some references in. 
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+<script src="forge.js"></script>
+</body>
+</html>
