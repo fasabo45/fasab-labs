@@ -12,6 +12,8 @@
 !engine.js
 !degrade.js
 !hud.js
+!overlays.js
+!video.js
 !AGENTS.md
 !checkpoint.bat
 !checkpoints/

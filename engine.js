@@ -93,6 +93,16 @@ function readRecipeFromForm(){
       compass:   document.getElementById('h_compass').checked,
       lowhealth: document.getElementById('h_low').checked,
     },
+    ov: {
+      on:       document.getElementById('o_on').checked,
+      redacted: document.getElementById('o_redact').checked,
+      stamp:    document.getElementById('o_stamp').value,
+      timecode: document.getElementById('o_time').checked,
+      ufo:      document.getElementById('o_ufo').checked,
+      holo:     document.getElementById('o_holo').checked,
+      coords:   document.getElementById('o_coords').checked,
+      nft:      document.getElementById('o_nft').checked,
+    },
     w, h,
     seed:     document.getElementById('f_seed').value.trim() || 'FORGE-001',
   };
@@ -127,6 +137,15 @@ function applyRecipeToForm(r){
   document.getElementById('h_feed').checked = !!hd.killfeed;
   document.getElementById('h_compass').checked = !!hd.compass;
   document.getElementById('h_low').checked = !!hd.lowhealth;
+  const ov = r.ov || {};
+  document.getElementById('o_on').checked = !!ov.on;
+  document.getElementById('o_redact').checked = !!ov.redacted;
+  document.getElementById('o_stamp').value = ov.stamp || 'random';
+  document.getElementById('o_time').checked = !!ov.timecode;
+  document.getElementById('o_ufo').checked = !!ov.ufo;
+  document.getElementById('o_holo').checked = !!ov.holo;
+  document.getElementById('o_coords').checked = !!ov.coords;
+  document.getElementById('o_nft').checked = !!ov.nft;
   document.getElementById('f_size').value = r.w + 'x' + r.h;
   document.getElementById('f_seed').value = r.seed;
   refreshLabels();
@@ -323,6 +342,7 @@ async function renderRecipe(recipe, canvas, lib){
   applyGrade(ctx, recipe, rng);
   if (recipe.glitch > 0) applyGlitch(ctx, recipe, rng);
   if (window.applyHud) applyHud(ctx, recipe);
+  if (window.applyOverlays) applyOverlays(ctx, recipe);
 }
 
 function scaleRecipe(r, maxDim){
@@ -429,6 +449,9 @@ async function generateSeries(){
   for (let i = 0; i < count; i++){
     const r = Object.assign({}, base);
     r.deg = Object.assign({}, base.deg);   // own copy so sweeps don't bleed across siblings
+    r.hud = Object.assign({}, base.hud);
+    r.ov  = Object.assign({}, base.ov);
+    r.ov._idx = i + 1; r.ov._total = count;   // real edition numbers in the NFT stamp
     if (mode === 'reseed'){
       r.seed = base.seed + '-' + (i + 1);
     } else {
@@ -494,6 +517,7 @@ const LABELS = [
   ['f_glitch', 'f_glitch_v', ''], ['s_count', 's_count_v', ''],
   ['d_rust', 'd_rust_v', ''], ['d_burn', 'd_burn_v', ''], ['d_cracks', 'd_cracks_v', ''],
   ['d_scratch', 'd_scratch_v', ''], ['d_dust', 'd_dust_v', ''], ['d_stain', 'd_stain_v', ''],
+  ['v_frames', 'v_frames_v', ''],
 ];
 function refreshLabels(){
   LABELS.forEach(([id, span, suf]) => {
