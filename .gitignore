@@ -18,9 +18,11 @@
 !create_shortcut.ps1
 !create_art_shortcut.ps1
 !create_sound_shortcut.ps1
+!create_forge_shortcut.ps1
 !dnb_icon.ico
 !art_icon.ico
 !sound_icon.ico
+!forge_icon.ico
 !HOW_TO_RESTORE.txt
 
 # Ignore system files even if in checkpoints
