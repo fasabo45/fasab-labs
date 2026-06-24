@@ -76,7 +76,10 @@
     background-size:24px 24px; background-position:0 0,0 12px,12px -12px,-12px 0px;
     background-color:#100e22; position:relative;
   }
-  #canvas{box-shadow:0 0 40px rgba(255,77,210,.25); max-width:100%; max-height:100%; cursor:crosshair; image-rendering:pixelated}
+  .stage{position:relative; display:inline-flex; max-width:100%; max-height:100%; box-shadow:0 0 40px rgba(255,77,210,.25)}
+  #canvas{display:block; max-width:100%; max-height:100%; cursor:crosshair; image-rendering:pixelated}
+  #overlay{position:absolute; inset:0; width:100%; height:100%; pointer-events:none}
+  #overlay.layeredit{pointer-events:auto; cursor:move}
   .hint{font-size:11px; color:var(--muted); margin-top:10px; line-height:1.5}
   .badge{font-size:10px; padding:2px 6px; border-radius:6px; background:#2c2658; color:var(--good)}
   .toast{
@@ -107,7 +110,7 @@
     <div class="tabs">
       <button class="tab active" data-pane="gen">Generate</button>
       <button class="tab" data-pane="math">Math</button>
-      <button class="tab" data-pane="snd">Sound</button>
+      <button class="tab" data-pane="lay">Layers</button>
       <button class="tab" data-pane="ai">AI</button>
       <button class="tab" data-pane="adj">Adjust</button>
       <button class="tab" data-pane="flt">Filters</button>
@@ -185,46 +188,33 @@
         <p class="hint">Tweak the two sliders then re-click any pattern. Each draws fresh onto the canvas, fully editable afterward.</p>
       </div>
 
-      <!-- SOUND -->
-      <div class="pane" id="pane-snd">
-        <h3>See Sound</h3>
-        <p class="mini">Live audio visualizer. Pick a source, start it, watch the canvas dance, then Freeze a frame to edit.</p>
-        <label>Audio source</label>
-        <select id="sndSource">
-          <option value="file">Audio file (mp3/wav)</option>
-          <option value="mic">Microphone</option>
-          <option value="system">System / Tab audio</option>
-        </select>
-        <div id="sndFileBox">
-          <label>Choose file</label>
-          <input type="file" id="sndFile" accept="audio/*">
-          <audio id="sndAudio" controls style="width:100%;margin-top:8px;display:none"></audio>
+      <!-- LAYERS -->
+      <div class="pane" id="pane-lay">
+        <h3>Layers</h3>
+        <p class="mini">Stack images, then drag to move and pull the corner handles to resize. Front layer is on top.</p>
+        <div class="grid2">
+          <button class="ghost" onclick="addLayerFromCanvas()">+ Canvas as Layer</button>
+          <button class="ghost" onclick="layerFileInput.click()">+ Import Image</button>
         </div>
-        <label>Visual style</label>
-        <select id="sndStyle">
-          <option value="bars">Spectrum Bars</option>
-          <option value="radial">Radial Spectrum</option>
-          <option value="wave">Oscilloscope Wave</option>
-          <option value="particles">Particle Burst</option>
-          <option value="inkblot">Mirror Inkblot</option>
-          <option value="tunnel">Frequency Tunnel</option>
-        </select>
-        <label>Palette</label>
-        <select id="sndPalette">
-          <option value="neon">Neon Dream</option>
-          <option value="sunset">Sunset</option>
-          <option value="ocean">Ocean</option>
-          <option value="fire">Fire</option>
-          <option value="mono">Monochrome</option>
-        </select>
-        <label>Trail / smear <span class="val" id="vSndTrail">25</span></label>
-        <input type="range" id="sndTrail" min="0" max="95" value="25">
-        <div class="pillrow">
-          <button class="ghost" id="btnSndStart" onclick="startSound()">Start</button>
-          <button class="ghost" onclick="stopSound()">Stop</button>
-          <button class="ghost" onclick="freezeSound()">Freeze Frame</button>
+        <input type="file" id="layerFileInput" accept="image/*" style="display:none">
+        <div id="layerList" style="margin-top:10px"></div>
+        <div id="layerControls" style="display:none">
+          <div class="divider"></div>
+          <label>Opacity <span class="val" id="vLayerOp">100</span></label>
+          <input type="range" id="layerOp" min="0" max="100" value="100">
+          <label>Width <span class="val" id="vLayerW">0</span></label>
+          <input type="range" id="layerW" min="10" max="2048" value="100">
+          <label>Height <span class="val" id="vLayerH">0</span></label>
+          <input type="range" id="layerH" min="10" max="2048" value="100">
+          <div class="pillrow">
+            <button class="ghost" onclick="layerFit()">Fit Stage</button>
+            <button class="ghost" onclick="layerCenter()">Center</button>
+            <button class="ghost" onclick="layerAspect()">Reset Aspect</button>
+          </div>
         </div>
-        <p class="hint">File = you control playback with the player. Mic = grants live input. System/Tab = pick a tab and TICK "share audio" in the dialog. Freeze drops the current frame onto the editable canvas so you can filter/ASCII it.</p>
+        <div class="divider"></div>
+        <button class="ghost" style="width:100%" onclick="flattenLayers()">Flatten All to Canvas</button>
+        <p class="hint">Workflow: generate or import art, hit "+ Canvas as Layer", make MORE art, add it too, then arrange them. Flatten bakes everything down so you can filter/ASCII the whole collage. Save PNG exports the full composite either way.</p>
       </div>
 
       <!-- AI -->
@@ -358,7 +348,10 @@
   </aside>
 
   <div class="canvas-wrap" id="canvasWrap">
-    <canvas id="canvas" width="512" height="512"></canvas>
+    <div class="stage" id="stage">
+      <canvas id="canvas" width="512" height="512"></canvas>
+      <canvas id="overlay"></canvas>
+    </div>
   </div>
 </div>
 
@@ -389,7 +382,7 @@ function undo(){
 function updateDims(){ document.getElementById('dims').textContent=`${canvas.width} × ${canvas.height}`; }
 function setSize(w,h){ pushHistory(); canvas.width=w; canvas.height=h; ctx.fillStyle='#0d0b1a'; ctx.fillRect(0,0,w,h); updateDims(); toast(`Canvas ${w}×${h}`); }
 function resetCanvas(){ pushHistory(); ctx.fillStyle='#0d0b1a'; ctx.fillRect(0,0,canvas.width,canvas.height); toast('Cleared '); }
-function download(){ const a=document.createElement('a'); a.download='ai-art-'+Date.now()+'.png'; a.href=canvas.toDataURL('image/png'); a.click(); }
+function download(){ const out=(typeof layers!=='undefined'&&layers.length)?flattenedCanvas():canvas; const a=document.createElement('a'); a.download='ai-art-'+Date.now()+'.png'; a.href=out.toDataURL('image/png'); a.click(); }
 
 //==================== TABS ====================
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
@@ -397,6 +390,7 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   document.querySelectorAll('.pane').forEach(x=>x.classList.remove('active'));
   t.classList.add('active');
   document.getElementById('pane-'+t.dataset.pane).classList.add('active');
+  document.getElementById('overlay').classList.toggle('layeredit', t.dataset.pane==='lay');
 });
 
 //==================== UPLOAD / DROP ====================
@@ -773,67 +767,82 @@ function mathArt(type){
   ctx.globalAlpha=1; toast('Math art rendered');
 }
 
-//==================== SOUND VISUALIZER ====================
-let audioCtx=null, analyser=null, sndRAF=null, sndStream=null, mediaSrc=null, freqData=null, timeData=null, sndParticles=[];
-document.getElementById('sndTrail').addEventListener('input',e=>document.getElementById('vSndTrail').textContent=e.target.value);
-document.getElementById('sndSource').addEventListener('change',e=>{ document.getElementById('sndFileBox').style.display = e.target.value==='file'?'block':'none'; });
-document.getElementById('sndFile').addEventListener('change',e=>{ const f=e.target.files[0]; if(!f)return; const au=document.getElementById('sndAudio'); au.src=URL.createObjectURL(f); au.style.display='block'; toast('Loaded '+f.name); });
-function ensureCtx(){ if(!audioCtx){ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); analyser=audioCtx.createAnalyser(); analyser.fftSize=2048; } return audioCtx; }
-async function startSound(){
-  stopSound(false); ensureCtx(); if(audioCtx.state==='suspended') await audioCtx.resume();
-  const source=document.getElementById('sndSource').value;
-  try{
-    if(source==='file'){ const au=document.getElementById('sndAudio'); if(!au.src){ toast('Pick an audio file first'); return; } if(!au._node){ au._node=audioCtx.createMediaElementSource(au); } mediaSrc=au._node; mediaSrc.connect(analyser); analyser.connect(audioCtx.destination); au.play(); }
-    else if(source==='mic'){ sndStream=await navigator.mediaDevices.getUserMedia({audio:true}); mediaSrc=audioCtx.createMediaStreamSource(sndStream); mediaSrc.connect(analyser); }
-    else if(source==='system'){ sndStream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true}); if(!sndStream.getAudioTracks().length){ toast('No audio shared - tick Share audio in the dialog'); stopSound(); return; } mediaSrc=audioCtx.createMediaStreamSource(sndStream); mediaSrc.connect(analyser); }
-  }catch(err){ toast('Audio error: '+err.message); return; }
-  pushHistory(); sndParticles=[];
-  freqData=new Uint8Array(analyser.frequencyBinCount); timeData=new Uint8Array(analyser.fftSize);
-  document.getElementById('btnSndStart').style.background='#3a2a6a';
-  drawSound(); toast('Listening... watch the canvas');
+//==================== LAYERS ====================
+const overlay=document.getElementById('overlay');
+const octx=overlay.getContext('2d');
+const layerFileInput=document.getElementById('layerFileInput');
+let layers=[]; let activeLayer=-1; let layerDrag=null;
+const HANDLE=9;
+function makeLayerCanvas(w,h){ const c=document.createElement('canvas'); c.width=w; c.height=h; return c; }
+function addLayerFromCanvas(){
+  const c=makeLayerCanvas(canvas.width,canvas.height); c.getContext('2d').drawImage(canvas,0,0);
+  layers.push({cnv:c,x:0,y:0,w:canvas.width,h:canvas.height,op:1,vis:true,name:'Layer '+(layers.length+1)});
+  activeLayer=layers.length-1; refreshLayers(); toast('Layer added');
 }
-function stopSound(full){
-  if(full===undefined) full=true;
-  if(sndRAF){ cancelAnimationFrame(sndRAF); sndRAF=null; }
-  if(mediaSrc){ try{mediaSrc.disconnect();}catch(e){} mediaSrc=null; }
-  if(analyser){ try{analyser.disconnect();}catch(e){} }
-  if(sndStream){ sndStream.getTracks().forEach(t=>t.stop()); sndStream=null; }
-  if(full){ const au=document.getElementById('sndAudio'); if(au) au.pause(); }
-  document.getElementById('btnSndStart').style.background='#2c2658';
-}
-function freezeSound(){ if(sndRAF){ cancelAnimationFrame(sndRAF); sndRAF=null; } document.getElementById('btnSndStart').style.background='#2c2658'; toast('Frame frozen - now editable'); }
-function drawSound(){
-  sndRAF=requestAnimationFrame(drawSound);
-  analyser.getByteFrequencyData(freqData); analyser.getByteTimeDomainData(timeData);
-  const W=canvas.width,H=canvas.height,cx=W/2,cy=H/2;
-  const trail=+document.getElementById('sndTrail').value/100;
-  const pal=palFrom('sndPalette'); const style=document.getElementById('sndStyle').value;
-  ctx.globalAlpha=Math.max(0.04,1-trail); ctx.fillStyle='#0d0b1a'; ctx.fillRect(0,0,W,H); ctx.globalAlpha=1;
-  const bins=freqData.length;
-  if(style==='bars'){
-    const n=80, step=Math.floor(bins/n/1.6), bw=W/n;
-    for(let i=0;i<n;i++){ const v=freqData[i*step]/255; const bh=v*H*0.9; ctx.fillStyle=colStr(pal,i/n); ctx.fillRect(i*bw,H-bh,bw-1,bh); }
-  } else if(style==='radial'){
-    const n=120, step=Math.floor(bins/n/1.8), inner=Math.min(W,H)*0.16;
-    for(let i=0;i<n;i++){ const v=freqData[i*step]/255; const ang=i/n*Math.PI*2; const len=inner+v*Math.min(W,H)*0.32; ctx.strokeStyle=colStr(pal,i/n); ctx.lineWidth=2; for(const dir of [1,-1]){ const aa=cy*0+ang*dir; ctx.beginPath(); ctx.moveTo(cx+Math.cos(ang)*inner*dir, cy+Math.sin(ang)*inner); ctx.lineTo(cx+Math.cos(ang)*len*dir, cy+Math.sin(ang)*len); ctx.stroke(); } }
-  } else if(style==='wave'){
-    ctx.lineWidth=2.4; ctx.strokeStyle=colStr(pal,0.6); ctx.beginPath(); const slice=W/timeData.length;
-    for(let i=0;i<timeData.length;i++){ const y=cy+(timeData[i]-128)/128*H*0.42; if(i===0)ctx.moveTo(0,y); else ctx.lineTo(i*slice,y); } ctx.stroke();
-  } else if(style==='inkblot'){
-    const n=90, step=Math.floor(bins/n/1.8); ctx.beginPath();
-    for(let i=0;i<n;i++){ const v=freqData[i*step]/255; const ang=i/n*Math.PI; const rad=Math.min(W,H)*0.1+v*Math.min(W,H)*0.36; const x=cx+Math.cos(ang-Math.PI/2)*rad, y=cy+Math.sin(ang-Math.PI/2)*rad; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }
-    for(let i=n-1;i>=0;i--){ const v=freqData[i*step]/255; const ang=i/n*Math.PI; const rad=Math.min(W,H)*0.1+v*Math.min(W,H)*0.36; const x=cx-Math.cos(ang-Math.PI/2)*rad, y=cy+Math.sin(ang-Math.PI/2)*rad; ctx.lineTo(x,y); }
-    ctx.closePath(); const g=ctx.createLinearGradient(0,0,W,H); g.addColorStop(0,colStr(pal,0.2)); g.addColorStop(1,colStr(pal,0.8)); ctx.fillStyle=g; ctx.fill();
-  } else if(style==='tunnel'){
-    let bass=0; for(let i=0;i<20;i++) bass+=freqData[i]; bass/=20*255; const rings=18; const rot=performance.now()*0.0005;
-    for(let r=rings;r>0;r--){ const v=freqData[r*4]/255; const rad=(r/rings)*Math.min(W,H)*0.5*(1+bass*0.5); ctx.strokeStyle=colStr(pal,r/rings); ctx.lineWidth=1+v*5; ctx.beginPath(); for(let s=0;s<=24;s++){ const a=s/24*Math.PI*2+rot*r; const rr=rad*(1+v*0.15*Math.sin(s*3+rot*10)); const x=cx+Math.cos(a)*rr, y=cy+Math.sin(a)*rr; s===0?ctx.moveTo(x,y):ctx.lineTo(x,y); } ctx.closePath(); ctx.stroke(); }
-  } else if(style==='particles'){
-    let bass=0; for(let i=0;i<24;i++) bass+=freqData[i]; bass/=24*255;
-    const spawn=Math.floor(bass*8); for(let s=0;s<spawn;s++){ const ang=Math.random()*Math.PI*2, spd=2+bass*9; sndParticles.push({x:cx,y:cy,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd,life:1,c:Math.random()}); }
-    for(let i=sndParticles.length-1;i>=0;i--){ const p=sndParticles[i]; p.x+=p.vx; p.y+=p.vy; p.vy+=0.02; p.life-=0.012; if(p.life<=0){ sndParticles.splice(i,1); continue; } ctx.globalAlpha=p.life; ctx.fillStyle=colStr(pal,p.c); ctx.beginPath(); ctx.arc(p.x,p.y,2+p.life*4,0,Math.PI*2); ctx.fill(); } ctx.globalAlpha=1;
-    if(sndParticles.length>1200) sndParticles.splice(0,sndParticles.length-1200);
+layerFileInput.addEventListener('change',e=>{ const f=e.target.files[0]; if(!f)return; const r=new FileReader();
+  r.onload=ev=>{ const img=new Image(); img.onload=()=>{ const c=makeLayerCanvas(img.width,img.height); c.getContext('2d').drawImage(img,0,0);
+    let w=img.width,h=img.height; const max=Math.min(canvas.width,canvas.height)*0.8; if(w>max||h>max){ const s=max/Math.max(w,h); w=Math.round(w*s); h=Math.round(h*s); }
+    layers.push({cnv:c,x:(canvas.width-w)/2,y:(canvas.height-h)/2,w,h,op:1,vis:true,name:f.name.slice(0,14)});
+    activeLayer=layers.length-1; refreshLayers(); toast('Imported as layer'); }; img.src=ev.target.result; };
+  r.readAsDataURL(f); layerFileInput.value=''; });
+function selectLayer(i){ activeLayer=i; refreshLayers(); }
+function deleteLayer(i){ layers.splice(i,1); if(activeLayer>=layers.length)activeLayer=layers.length-1; refreshLayers(); }
+function moveLayer(i,dir){ const j=i+dir; if(j<0||j>=layers.length)return; const t=layers[i]; layers[i]=layers[j]; layers[j]=t; activeLayer=j; refreshLayers(); }
+function layerFit(){ const L=layers[activeLayer]; if(!L)return; L.x=0;L.y=0;L.w=canvas.width;L.h=canvas.height; refreshLayers(); }
+function layerCenter(){ const L=layers[activeLayer]; if(!L)return; L.x=(canvas.width-L.w)/2; L.y=(canvas.height-L.h)/2; refreshLayers(); }
+function layerAspect(){ const L=layers[activeLayer]; if(!L)return; const ar=L.cnv.width/L.cnv.height; L.h=L.w/ar; refreshLayers(); }
+function flattenLayers(){ if(!layers.length){ toast('No layers to flatten'); return; } pushHistory();
+  for(const L of layers){ if(!L.vis)continue; ctx.globalAlpha=L.op; ctx.drawImage(L.cnv,L.x,L.y,L.w,L.h); } ctx.globalAlpha=1;
+  layers=[]; activeLayer=-1; refreshLayers(); toast('Flattened to canvas'); }
+function refreshLayers(){
+  const list=document.getElementById('layerList'); list.innerHTML='';
+  for(let i=layers.length-1;i>=0;i--){ const L=layers[i]; const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:6px;padding:6px;border-radius:8px;margin-bottom:4px;cursor:pointer;font-size:12px;'+(i===activeLayer?'background:#3a2a6a;border:1px solid var(--accent)':'background:#211c44');
+    row.innerHTML=`<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${L.name}</span>`;
+    const vis=document.createElement('span'); vis.textContent=L.vis?'on':'off'; vis.className='badge'; vis.style.cursor='pointer';
+    vis.onclick=ev=>{ ev.stopPropagation(); L.vis=!L.vis; refreshLayers(); };
+    const up=document.createElement('button'); up.className='ghost'; up.style.cssText='flex:none;padding:2px 6px'; up.textContent='^'; up.onclick=ev=>{ev.stopPropagation();moveLayer(i,1);};
+    const dn=document.createElement('button'); dn.className='ghost'; dn.style.cssText='flex:none;padding:2px 6px'; dn.textContent='v'; dn.onclick=ev=>{ev.stopPropagation();moveLayer(i,-1);};
+    const del=document.createElement('button'); del.className='ghost'; del.style.cssText='flex:none;padding:2px 6px'; del.textContent='x'; del.onclick=ev=>{ev.stopPropagation();deleteLayer(i);};
+    row.appendChild(vis); row.appendChild(up); row.appendChild(dn); row.appendChild(del);
+    row.onclick=()=>selectLayer(i); list.appendChild(row);
   }
+  const ctrls=document.getElementById('layerControls'); const L=layers[activeLayer];
+  ctrls.style.display=L?'block':'none';
+  if(L){ document.getElementById('layerOp').value=Math.round(L.op*100); document.getElementById('vLayerOp').textContent=Math.round(L.op*100);
+    document.getElementById('layerW').value=Math.round(L.w); document.getElementById('vLayerW').textContent=Math.round(L.w);
+    document.getElementById('layerH').value=Math.round(L.h); document.getElementById('vLayerH').textContent=Math.round(L.h); }
 }
+document.getElementById('layerOp').addEventListener('input',e=>{ const L=layers[activeLayer]; if(!L)return; L.op=+e.target.value/100; document.getElementById('vLayerOp').textContent=e.target.value; });
+document.getElementById('layerW').addEventListener('input',e=>{ const L=layers[activeLayer]; if(!L)return; L.w=+e.target.value; document.getElementById('vLayerW').textContent=e.target.value; });
+document.getElementById('layerH').addEventListener('input',e=>{ const L=layers[activeLayer]; if(!L)return; L.h=+e.target.value; document.getElementById('vLayerH').textContent=e.target.value; });
+// overlay compositor + interaction
+function overlayPt(e){ const r=overlay.getBoundingClientRect(); return { x:(e.clientX-r.left)/r.width*overlay.width, y:(e.clientY-r.top)/r.height*overlay.height }; }
+function cornerAt(L,p){ const cs=[[L.x,L.y,'nw'],[L.x+L.w,L.y,'ne'],[L.x,L.y+L.h,'sw'],[L.x+L.w,L.y+L.h,'se']]; const tol=HANDLE*1.6*overlay.width/Math.max(1,overlay.getBoundingClientRect().width); for(const c of cs){ if(Math.hypot(p.x-c[0],p.y-c[1])<tol)return c[2]; } return null; }
+overlay.addEventListener('mousedown',e=>{ const L=layers[activeLayer]; if(!L)return; const p=overlayPt(e); const corner=cornerAt(L,p);
+  if(corner){ layerDrag={mode:'resize',corner,sx:p.x,sy:p.y,o:{...L}}; }
+  else if(p.x>=L.x&&p.x<=L.x+L.w&&p.y>=L.y&&p.y<=L.y+L.h){ layerDrag={mode:'move',sx:p.x,sy:p.y,o:{...L}}; }
+  else { // click another layer under the point
+    for(let i=layers.length-1;i>=0;i--){ const Q=layers[i]; if(p.x>=Q.x&&p.x<=Q.x+Q.w&&p.y>=Q.y&&p.y<=Q.y+Q.h){ activeLayer=i; refreshLayers(); break; } } }
+});
+window.addEventListener('mousemove',e=>{ if(!layerDrag)return; const L=layers[activeLayer]; if(!L)return; const p=overlayPt(e); const dx=p.x-layerDrag.sx, dy=p.y-layerDrag.sy, o=layerDrag.o;
+  if(layerDrag.mode==='move'){ L.x=o.x+dx; L.y=o.y+dy; }
+  else { const c=layerDrag.corner; if(c.includes('e'))L.w=Math.max(10,o.w+dx); if(c.includes('s'))L.h=Math.max(10,o.h+dy); if(c.includes('w')){ L.w=Math.max(10,o.w-dx); L.x=o.x+dx; } if(c.includes('n')){ L.h=Math.max(10,o.h-dy); L.y=o.y+dy; } }
+  refreshLayers();
+});
+window.addEventListener('mouseup',()=>{ layerDrag=null; });
+function compositeOverlay(){ requestAnimationFrame(compositeOverlay);
+  if(overlay.width!==canvas.width||overlay.height!==canvas.height){ overlay.width=canvas.width; overlay.height=canvas.height; }
+  octx.clearRect(0,0,overlay.width,overlay.height);
+  for(const L of layers){ if(!L.vis)continue; octx.globalAlpha=L.op; octx.drawImage(L.cnv,L.x,L.y,L.w,L.h); }
+  octx.globalAlpha=1;
+  const editing=document.getElementById('pane-lay').classList.contains('active'); const L=layers[activeLayer];
+  if(editing&&L){ octx.strokeStyle='#ff4dd2'; octx.lineWidth=2; octx.setLineDash([6,4]); octx.strokeRect(L.x,L.y,L.w,L.h); octx.setLineDash([]);
+    octx.fillStyle='#4dd2ff'; for(const c of [[L.x,L.y],[L.x+L.w,L.y],[L.x,L.y+L.h],[L.x+L.w,L.y+L.h]]){ octx.fillRect(c[0]-HANDLE/2,c[1]-HANDLE/2,HANDLE,HANDLE); } }
+}
+compositeOverlay();
+// composite stage + layers into a flat canvas (for export)
+function flattenedCanvas(){ const t=makeLayerCanvas(canvas.width,canvas.height); const tx=t.getContext('2d'); tx.drawImage(canvas,0,0); for(const L of layers){ if(!L.vis)continue; tx.globalAlpha=L.op; tx.drawImage(L.cnv,L.x,L.y,L.w,L.h); } tx.globalAlpha=1; return t; }
 
 //==================== PAINT ====================
 const SWATCH_COLORS=['#ff4dd2','#4dd2ff','#6dffb0','#ffd54d','#ff5e4d','#b44dff','#ffffff','#000000'];
