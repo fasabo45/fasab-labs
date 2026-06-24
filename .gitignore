@@ -4,6 +4,7 @@
 # Except project files
 !dnb_generator.html
 !note_detector.html
+!ai_art_studio.html
 !AGENTS.md
 !checkpoint.bat
 !checkpoints/
