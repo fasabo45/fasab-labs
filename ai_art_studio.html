@@ -110,6 +110,7 @@
       <button class="tab" data-pane="adj">Adjust</button>
       <button class="tab" data-pane="flt">Filters</button>
       <button class="tab" data-pane="glt">Glitch</button>
+      <button class="tab" data-pane="asc">ASCII</button>
       <button class="tab" data-pane="pnt">Paint</button>
     </div>
     <div class="panel">
@@ -227,6 +228,34 @@
           <button class="ghost" onclick="glitch('wave')">〰 Wave Warp</button>
         </div>
         <p class="hint">Stack 'em! Each effect builds on the last. Undo is your friend.</p>
+      </div>
+
+      <!-- ASCII -->
+      <div class="pane" id="pane-asc">
+        <h3>ASCII Art Filter</h3>
+        <p class="mini">Turns your image into text-rendered characters. Re-runs the LAST clean image, so tweak settings and re-apply freely.</p>
+        <label>Character ramp</label>
+        <select id="ascRamp">
+          <option value=" .:-=+*#%@">Classic (10 levels)</option>
+          <option value=" .,:;i1tfLCG08@">Detailed (15 levels)</option>
+          <option value=" .'`^,:;Il!i&gt;&lt;~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&amp;8%B@$">Ultra (70 levels)</option>
+          <option value=" .oO0@">Blocky (6 levels)</option>
+          <option value="01">Binary</option>
+          <option value=" ._/\|()1{}[]?-+=*#">Matrix-ish</option>
+        </select>
+        <label><input type="checkbox" id="ascInvert" style="width:auto;vertical-align:middle"> Invert (dark background)</label>
+        <label>Resolution (char width) <span class="val" id="vAscCols">120</span></label>
+        <input type="range" id="ascCols" min="40" max="260" value="120">
+        <label>Color mode</label>
+        <select id="ascColor">
+          <option value="image">Full color (from image)</option>
+          <option value="green">Terminal green</option>
+          <option value="amber">Amber CRT</option>
+          <option value="mono">White on black</option>
+        </select>
+        <button class="act" onclick="asciiFilter()">Convert to ASCII</button>
+        <button class="ghost" style="width:100%;margin-top:6px" onclick="downloadAsciiText()">Save as .txt</button>
+        <p class="hint">Renders ASCII back onto the canvas (so you can keep filtering/glitching it), and can also export the raw text. Tip: more columns = finer detail but bigger characters.</p>
       </div>
 
       <!-- PAINT -->
@@ -553,6 +582,59 @@ function sortRun(d,y,x0,x1,W){
   for(let x=x0;x<x1;x++){ const i=(y*W+x)*4; arr.push([d[i],d[i+1],d[i+2],d[i+3]]); }
   arr.sort((a,b)=>(a[0]+a[1]+a[2])-(b[0]+b[1]+b[2]));
   for(let x=x0;x<x1;x++){ const i=(y*W+x)*4; const p=arr[x-x0]; d[i]=p[0];d[i+1]=p[1];d[i+2]=p[2];d[i+3]=p[3]; }
+}
+
+//==================== ASCII ====================
+let lastAsciiText='';
+document.getElementById('ascCols').addEventListener('input',e=>document.getElementById('vAscCols').textContent=e.target.value);
+function asciiFilter(){
+  const ramp=document.getElementById('ascRamp').value;
+  const invert=document.getElementById('ascInvert').checked;
+  const cols=+document.getElementById('ascCols').value;
+  const colorMode=document.getElementById('ascColor').value;
+  const W=canvas.width,H=canvas.height;
+  // sample current canvas at low res; chars are ~2x taller than wide
+  const cellW=W/cols; const cellH=cellW*2;
+  const rows=Math.max(1,Math.floor(H/cellH));
+  const src=ctx.getImageData(0,0,W,H).data;
+  pushHistory();
+  // backgrounds per color mode
+  const bg = (colorMode==='image' && !invert) ? '#0d0b1a'
+           : (invert ? '#000' : (colorMode==='mono'?'#000': (colorMode==='green'?'#001500':(colorMode==='amber'?'#160d00':'#000'))));
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+  const fontPx=cellH; ctx.font=fontPx+'px monospace'; ctx.textBaseline='top';
+  const n=ramp.length-1;
+  let textOut='';
+  for(let ry=0;ry<rows;ry++){
+    let line='';
+    for(let rx=0;rx<cols;rx++){
+      const sx=Math.floor(rx*cellW), sy=Math.floor(ry*cellH);
+      let r=0,g=0,b=0,cnt=0;
+      for(let dy=0;dy<cellH&&sy+dy<H;dy+=2)for(let dx=0;dx<cellW&&sx+dx<W;dx+=2){
+        const i=((sy+dy)*W+(sx+dx))*4; r+=src[i];g+=src[i+1];b+=src[i+2];cnt++;
+      }
+      if(cnt){r/=cnt;g/=cnt;b/=cnt;}
+      let lum=(0.299*r+0.587*g+0.114*b)/255;
+      if(invert) lum=1-lum;
+      const ch=ramp[Math.round(lum*n)]||' ';
+      line+=ch;
+      if(ch!==' '){
+        ctx.fillStyle = colorMode==='image' ? `rgb(${r|0},${g|0},${b|0})`
+                      : colorMode==='green' ? '#6dffb0'
+                      : colorMode==='amber' ? '#ffb347' : '#ffffff';
+        ctx.fillText(ch, rx*cellW, ry*cellH);
+      }
+    }
+    textOut+=line+'\n';
+  }
+  lastAsciiText=textOut;
+  toast('ASCII-fied');
+}
+function downloadAsciiText(){
+  if(!lastAsciiText){ toast('Convert to ASCII first'); return; }
+  const blob=new Blob([lastAsciiText],{type:'text/plain'});
+  const a=document.createElement('a'); a.download='ascii-art-'+Date.now()+'.txt';
+  a.href=URL.createObjectURL(blob); a.click();
 }
 
 //==================== PAINT ====================
