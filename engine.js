@@ -75,6 +75,14 @@ function readRecipeFromForm(){
     vig:      +document.getElementById('f_vig').value,
     scan:     document.getElementById('f_scan').checked,
     glitch:   +document.getElementById('f_glitch').value,
+    deg: {
+      rust:      +document.getElementById('d_rust').value,
+      burn:      +document.getElementById('d_burn').value,
+      cracks:    +document.getElementById('d_cracks').value,
+      scratches: +document.getElementById('d_scratch').value,
+      dust:      +document.getElementById('d_dust').value,
+      stains:    +document.getElementById('d_stain').value,
+    },
     w, h,
     seed:     document.getElementById('f_seed').value.trim() || 'FORGE-001',
   };
@@ -93,6 +101,13 @@ function applyRecipeToForm(r){
   document.getElementById('f_vig').value = r.vig;
   document.getElementById('f_scan').checked = !!r.scan;
   document.getElementById('f_glitch').value = r.glitch;
+  const dg = r.deg || {};
+  document.getElementById('d_rust').value = dg.rust || 0;
+  document.getElementById('d_burn').value = dg.burn || 0;
+  document.getElementById('d_cracks').value = dg.cracks || 0;
+  document.getElementById('d_scratch').value = dg.scratches || 0;
+  document.getElementById('d_dust').value = dg.dust || 0;
+  document.getElementById('d_stain').value = dg.stains || 0;
   document.getElementById('f_size').value = r.w + 'x' + r.h;
   document.getElementById('f_seed').value = r.seed;
   refreshLabels();
@@ -274,6 +289,7 @@ async function renderRecipe(recipe, canvas, lib){
     return;
   }
   for (const p of buildLayout(recipe, pool, rng)) drawPiece(ctx, p);
+  if (window.applyDegradation) applyDegradation(ctx, recipe, rng);
   applyGrade(ctx, recipe, rng);
   if (recipe.glitch > 0) applyGlitch(ctx, recipe, rng);
 }
@@ -332,6 +348,7 @@ function onSeriesMode(){
   document.getElementById('sweepBox').style.display = sweep ? 'block' : 'none';
 }
 
+const DEG_PARAMS = { rust: 1, burn: 1, cracks: 1, scratches: 1, dust: 1, stains: 1 };
 function applySweep(r, param, val){
   if (param === 'fragments') r.fragments = Math.max(1, Math.round(val));
   else if (param === 'scale') r.scale = val;
@@ -339,6 +356,7 @@ function applySweep(r, param, val){
   else if (param === 'grain') r.grain = val;
   else if (param === 'glitch') r.glitch = val;
   else if (param === 'gradeAmt') r.gradeAmt = val;
+  else if (DEG_PARAMS[param]) r.deg[param] = val;
 }
 
 function makeGalleryCard(recipe, index){
@@ -379,6 +397,7 @@ async function generateSeries(){
 
   for (let i = 0; i < count; i++){
     const r = Object.assign({}, base);
+    r.deg = Object.assign({}, base.deg);   // own copy so sweeps don't bleed across siblings
     if (mode === 'reseed'){
       r.seed = base.seed + '-' + (i + 1);
     } else {
@@ -442,6 +461,8 @@ const LABELS = [
   ['f_frag', 'f_frag_v', ''], ['f_scale', 'f_scale_v', '%'], ['f_rot', 'f_rot_v', ''],
   ['f_gradeAmt', 'f_gradeAmt_v', '%'], ['f_grain', 'f_grain_v', ''], ['f_vig', 'f_vig_v', ''],
   ['f_glitch', 'f_glitch_v', ''], ['s_count', 's_count_v', ''],
+  ['d_rust', 'd_rust_v', ''], ['d_burn', 'd_burn_v', ''], ['d_cracks', 'd_cracks_v', ''],
+  ['d_scratch', 'd_scratch_v', ''], ['d_dust', 'd_dust_v', ''], ['d_stain', 'd_stain_v', ''],
 ];
 function refreshLabels(){
   LABELS.forEach(([id, span, suf]) => {
