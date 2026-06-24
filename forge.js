@@ -145,6 +145,7 @@ function fmtBytes(n){
 }
 
 async function renderLibrary(){
+  if (window.invalidateLib) window.invalidateLib();  // engine cache is now stale
   const grid = document.getElementById('libgrid');
   const stats = document.getElementById('libstats');
   const badge = document.getElementById('libBadge');

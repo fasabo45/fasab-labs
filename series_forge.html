@@ -45,6 +45,27 @@
   .stub{border:1px dashed var(--line);border-radius:12px;padding:28px;color:var(--muted);line-height:1.7}
   .stub h2{color:var(--accent);font-size:16px;margin:0 0 10px}
   .stub code{background:#0d0f0a;border:1px solid var(--line);padding:2px 6px;border-radius:5px;color:var(--accent2);font-size:12px}
+  label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
+  select,input[type=text],input[type=number]{width:100%;background:#0d0f0a;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px;font-size:13px;font-family:inherit}
+  input[type=range]{width:100%;accent-color:var(--accent)}
+  input[type=checkbox]{accent-color:var(--accent);margin-right:6px;vertical-align:middle}
+  .val{font-size:11px;color:var(--good)}
+  .formwrap{display:flex;gap:24px;flex-wrap:wrap}
+  .formcol{flex:1;min-width:260px;max-width:340px}
+  .previewwrap{flex:2;min-width:300px}
+  #previewCanvas{width:100%;max-width:560px;border:1px solid var(--line);border-radius:10px;background:#000;display:block}
+  .field{margin-bottom:4px}
+  .codebox{width:100%;background:#0d0f0a;border:1px solid var(--line);color:var(--accent2);border-radius:8px;padding:8px;font-family:monospace;font-size:11px;word-break:break-all;min-height:34px}
+  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:16px}
+  .gcard{background:var(--panel2);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .gcard canvas{width:100%;display:block;background:#000;cursor:zoom-in}
+  .gcard .gmeta{padding:8px;display:flex;flex-direction:column;gap:6px}
+  .gcard .gseed{font-family:monospace;font-size:11px;color:var(--muted);word-break:break-all}
+  .gcard .grow{display:flex;gap:6px}
+  .gcard .grow button{flex:1;font-size:11px;padding:6px}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;z-index:60;cursor:zoom-out}
+  .lightbox.show{display:flex}
+  .lightbox img{max-width:92vw;max-height:92vh;border:1px solid var(--accent)}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--accent);padding:10px 18px;border-radius:10px;opacity:0;transition:.3s;pointer-events:none;z-index:50}
   .toast.show{opacity:1}
 </style>
@@ -84,33 +105,104 @@
 <!-- ==================== FORMULA ==================== -->
 <section class="panel" id="panel-formula">
   <h3>Formula</h3>
-  <div class="stub">
-    <h2>Coming next — the recipe engine</h2>
-    A <b>formula</b> is a small reproducible recipe that builds one collage from your library:
-    <br><br>
-    <code>fragments: 6</code> &nbsp; <code>layout: scatter</code> &nbsp; <code>grade: cod-nostalgic</code> &nbsp; <code>fx: [grain, scanlines, glitch]</code> &nbsp; <code>seed: 8F3A-2C91</code>
-    <br><br>
-    Then you choose how the <b>series</b> varies:
-    <br>• <b>Reseed</b> — same recipe, new seed each piece = unique siblings
-    <br>• <b>Sweep</b> — march one knob across a range = an evolving sequence
-    <br><br>
-    Build your reference Library first — that's the fuel. Engine lands in the next session. 
+  <div class="formwrap">
+    <div class="formcol">
+      <div class="field"><label>Source tag filter (blank = all)</label>
+        <input type="text" id="f_tag" placeholder="e.g. mw2, snow"></div>
+      <div class="field"><label>Layout</label>
+        <select id="f_layout">
+          <option value="scatter">Scatter (gritty overlap)</option>
+          <option value="grid">Grid (mosaic)</option>
+          <option value="stack">Stack (blended composite)</option>
+          <option value="strip">Strip (vertical bands)</option>
+        </select></div>
+      <div class="field"><label>Fragments <span class="val" id="f_frag_v">8</span></label>
+        <input type="range" id="f_frag" min="1" max="40" value="8"></div>
+      <div class="field"><label><input type="checkbox" id="f_torn" checked>Torn fragments (crop sub-rects)</label></div>
+      <div class="field"><label>Fragment scale <span class="val" id="f_scale_v">45%</span></label>
+        <input type="range" id="f_scale" min="10" max="120" value="45"></div>
+      <div class="field"><label>Rotation jitter <span class="val" id="f_rot_v">25</span></label>
+        <input type="range" id="f_rot" min="0" max="180" value="25"></div>
+      <div class="field"><label>Grade</label>
+        <select id="f_grade">
+          <option value="cod">CoD Nostalgic (khaki/green)</option>
+          <option value="vhs">Faded VHS</option>
+          <option value="mono">Gritty Mono</option>
+          <option value="none">None (raw)</option>
+        </select></div>
+      <div class="field"><label>Grade intensity <span class="val" id="f_gradeAmt_v">80%</span></label>
+        <input type="range" id="f_gradeAmt" min="0" max="100" value="80"></div>
+      <div class="field"><label>Film grain <span class="val" id="f_grain_v">30</span></label>
+        <input type="range" id="f_grain" min="0" max="100" value="30"></div>
+      <div class="field"><label>Vignette <span class="val" id="f_vig_v">60</span></label>
+        <input type="range" id="f_vig" min="0" max="100" value="60"></div>
+      <div class="field"><label><input type="checkbox" id="f_scan" checked>Scanlines</label></div>
+      <div class="field"><label>Glitch / RGB split <span class="val" id="f_glitch_v">10</span></label>
+        <input type="range" id="f_glitch" min="0" max="100" value="10"></div>
+      <div class="field"><label>Canvas</label>
+        <select id="f_size">
+          <option value="1024x1024">1024 x 1024 (square)</option>
+          <option value="1280x720">1280 x 720 (16:9)</option>
+          <option value="1080x1350">1080 x 1350 (portrait)</option>
+          <option value="720x900">720 x 900 (poster)</option>
+        </select></div>
+      <div class="field"><label>Seed</label>
+        <div class="row"><input type="text" id="f_seed" style="flex:1" value="FORGE-001">
+          <button class="ghost" onclick="randomizeSeed()">Roll</button></div></div>
+      <button class="act" style="width:100%;margin-top:14px" onclick="previewOne()">Preview One</button>
+    </div>
+    <div class="previewwrap">
+      <label>Preview</label>
+      <canvas id="previewCanvas" width="512" height="512"></canvas>
+      <label style="margin-top:12px">Formula code (paste to recreate)</label>
+      <div class="codebox" id="formulaCode">- press Preview One -</div>
+      <div class="row" style="margin-top:8px">
+        <button class="ghost" onclick="copyFormulaCode()">Copy Code</button>
+        <input type="text" id="loadCode" placeholder="paste a formula code..." style="flex:1">
+        <button class="ghost" onclick="loadFormulaCode()">Load</button>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- ==================== SERIES ==================== -->
 <section class="panel" id="panel-series">
   <h3>Series Output</h3>
-  <div class="stub">
-    <h2>Coming next — the gallery</h2>
-    Hit <b>Generate</b> and a grid of N collages appears here. Click any piece to enlarge it,
-    copy its <b>formula code</b> (so you can recreate it pixel-for-pixel later), or save the ones you love.
-    <br><br>
-    First we feed the Library, then we forge. Go drop some references in. 
+  <p class="muted">Set your look in the <b>Formula</b> tab first, then forge a batch here. Gallery thumbnails render at reduced size for speed; <b>Save</b> re-renders full resolution.</p>
+  <div class="row">
+    <div style="min-width:200px"><label>Mode</label>
+      <select id="s_mode" onchange="onSeriesMode()">
+        <option value="reseed">Reseed (unique siblings)</option>
+        <option value="sweep">Sweep (evolving sequence)</option>
+      </select></div>
+    <div style="min-width:200px"><label>Count <span class="val" id="s_count_v">9</span></label>
+      <input type="range" id="s_count" min="1" max="24" value="9"></div>
+    <div id="sweepBox" style="display:none;min-width:200px">
+      <label>Sweep parameter</label>
+      <select id="s_param">
+        <option value="fragments">Fragments</option>
+        <option value="scale">Fragment scale</option>
+        <option value="rot">Rotation jitter</option>
+        <option value="grain">Film grain</option>
+        <option value="glitch">Glitch</option>
+        <option value="gradeAmt">Grade intensity</option>
+      </select>
+      <div class="row">
+        <div><label>From</label><input type="number" id="s_from" value="2" style="width:90px"></div>
+        <div><label>To</label><input type="number" id="s_to" value="30" style="width:90px"></div>
+      </div>
+    </div>
   </div>
+  <div class="row" style="margin-top:14px">
+    <button class="act" onclick="generateSeries()">Generate Series</button>
+    <button class="ghost" onclick="saveAllSeries()">Save All PNG</button>
+  </div>
+  <div class="gallery" id="gallery"></div>
 </section>
 
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('show')"><img id="lightboxImg" alt="enlarged edition"></div>
 <div class="toast" id="toast"></div>
 <script src="forge.js"></script>
+<script src="engine.js"></script>
 </body>
 </html>
