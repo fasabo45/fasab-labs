@@ -16,6 +16,76 @@ function gDelete(id){ return gStore('readwrite').then(s => gReq(s, st => st.dele
 function gClear(){ return gStore('readwrite').then(s => gReq(s, st => st.clear())); }
 window.galleryAll = gGetAll;   // frames.js source picker
 
+//==================== CURATOR (Gay-Avant NFT scorer) ====================
+// Scores each edition on aesthetic INTENSITY (Fasab's picks: vivid colour,
+// bold contrast, maximalist detail, glitch/decay, holographic sheen). Hue-
+// neutral (pink weight 0). Reuses analyzeImage + the recipe's glitch/decay.
+const CURATE_WEIGHTS = { vivid: 1, contrast: 1, maximal: 1, glitch: 1, holo: 1, pink: 0 };
+const CURATE_TOP = 20;
+let _curated = false;
+let _scores = new Map();
+
+function _imgFromBlob(blob){
+  return new Promise((res, rej) => {
+    const u = URL.createObjectURL(blob); const i = new Image();
+    i.onload = () => res({ img: i, url: u });
+    i.onerror = () => { URL.revokeObjectURL(u); rej(new Error('img')); };
+    i.src = u;
+  });
+}
+function _pinkAffinity(palette){
+  if (!palette || !palette.length) return 0;
+  let hit = 0;
+  palette.slice(0, 6).forEach(c => { const h = (typeof _hue === 'function') ? _hue(c.r, c.g, c.b) : 0; if (h >= 275 && h <= 345) hit++; });
+  return Math.min(1, hit / 3);
+}
+function scoreAesthetic(a, recipe){
+  const g = (recipe && recipe.glitch || 0) / 100, dc = (recipe && recipe.decay || 0) / 100;
+  const s = {
+    vivid:    Math.min(1, 0.6 * a.saturation + 0.4 * a.colorfulness),
+    contrast: Math.min(1, a.contrast / 0.3),
+    maximal:  Math.min(1, a.detail / 0.25),
+    glitch:   Math.min(1, 0.6 * g + 0.8 * dc + 0.2 * Math.min(1, a.detail / 0.25)),
+    holo:     Math.min(1, a.colorfulness * (0.4 + 0.6 * a.brightness) + 0.2 * Math.min(1, a.contrast / 0.3)),
+    pink:     _pinkAffinity(a.palette),
+  };
+  let num = 0, den = 0;
+  for (const k in CURATE_WEIGHTS){ num += CURATE_WEIGHTS[k] * (s[k] || 0); den += CURATE_WEIGHTS[k]; }
+  return den ? num / den : 0;
+}
+
+async function curateGallery(){
+  const items = await gGetAll();
+  if (!items.length){ toast('Gallery empty - generate a series first'); return; }
+  toast('Scoring ' + items.length + ' editions...');
+  _scores = new Map();
+  for (const it of items){
+    let recipe = null, a = null;
+    try { recipe = decodeRecipe(it.code); } catch (_) {}
+    try { const { img, url } = await _imgFromBlob(it.blob); a = analyzeImage(img); URL.revokeObjectURL(url); } catch (_) {}
+    _scores.set(it.id, a ? scoreAesthetic(a, recipe) : 0);
+  }
+  _curated = true;
+  renderGallery();
+  toast('Ranked best-first for gay-avant NFT');
+}
+function uncurate(){ _curated = false; renderGallery(); }
+
+async function saveBestAsBoard(){
+  if (!_curated){ toast('Press "Rank" first'); return; }
+  const top = (await gGetAll()).sort((a, b) => (_scores.get(b.id) || 0) - (_scores.get(a.id) || 0)).slice(0, CURATE_TOP);
+  const lib = window.loadLibraryImages ? await loadLibraryImages() : [];
+  const libIds = new Set(lib.map(o => o.id));
+  const ids = new Set();
+  for (const it of top){ try { const r = decodeRecipe(it.code); (r.refs || r.pool || []).forEach(id => { if (libIds.has(id)) ids.add(id); }); } catch (_) {} }
+  if (!ids.size){ toast('Top picks have no source images still in the library'); return; }
+  if (typeof loadBoards !== 'function' || typeof saveBoards !== 'function'){ toast('Brain not loaded'); return; }
+  const boards = loadBoards();
+  boards.push({ id: Date.now(), name: 'Best of: Gay-Avant NFT (' + ids.size + ')', imageIds: [...ids], createdAt: Date.now(), aesthetic: null, prompt: '' });
+  saveBoards(boards);
+  toast('Saved "Best of" mood board - ' + ids.size + ' source images. Use it in the Source tab.');
+}
+
 //==================== ARCHIVE ====================
 async function archiveGeneration(items){
   if (!items || !items.length) return;
@@ -37,7 +107,29 @@ async function renderGallery(){
 
   if (!items.length){
     wrap.innerHTML = '';
+    _curated = false;
     if (stat) stat.textContent = 'Gallery empty - generate a series and it auto-archives here.';
+    return;
+  }
+
+  if (_curated){                            // curated view: flat, best-first, scored
+    const sorted = items.slice().sort((a, b) => (_scores.get(b.id) || 0) - (_scores.get(a.id) || 0));
+    if (stat) stat.textContent = items.length + ' editions ranked best-first (top ' + CURATE_TOP + ' marked)';
+    const grid = document.createElement('div'); grid.className = 'ggrid';
+    sorted.forEach((it, rank) => {
+      const url = URL.createObjectURL(it.blob); _galUrls.push(url);
+      const cell = document.createElement('div'); cell.className = 'gcell';
+      const sc = Math.round((_scores.get(it.id) || 0) * 100);
+      const top = rank < CURATE_TOP;
+      cell.innerHTML = '<img src="' + url + '" alt=""><span class="gscore' + (top ? ' gtop' : '') + '">' + (top ? '#' + (rank + 1) + ' ' : '') + sc + '%</span>';
+      cell.querySelector('img').addEventListener('click', () => openArchive(it));
+      const bar = document.createElement('div'); bar.className = 'gcell-bar';
+      const dl = document.createElement('button'); dl.className = 'ghost'; dl.textContent = 'Download'; dl.addEventListener('click', () => downloadGalleryFull(it.id));
+      const del = document.createElement('button'); del.className = 'danger'; del.textContent = 'x'; del.addEventListener('click', () => deleteGalleryItem(it.id));
+      bar.append(dl, del); cell.append(bar);
+      grid.appendChild(cell);
+    });
+    wrap.innerHTML = ''; wrap.appendChild(grid);
     return;
   }
 

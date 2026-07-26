@@ -96,6 +96,8 @@
   .ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:12px}
   .gcell{position:relative;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#000}
   .gcell img{width:100%;display:block;cursor:zoom-in}
+  .gscore{position:absolute;top:4px;right:4px;background:rgba(13,15,10,.82);color:var(--good);font-size:10px;padding:2px 6px;border-radius:10px;border:1px solid var(--line)}
+  .gscore.gtop{color:var(--bg);background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;font-weight:700}
   .gcell-bar{display:flex;gap:4px;padding:5px;background:#12140c}
   .gcell-bar button{flex:1;font-size:11px;padding:5px}
   .gcell-bar .danger{flex:0 0 auto;padding:5px 9px}
@@ -463,9 +465,12 @@
 <section class="panel" id="panel-gallery">
   <h3>Gallery / Archive</h3>
   <p class="muted">Every series you generate is auto-archived here (thumbnail + formula code). Download any edition full-resolution on demand, or a whole batch - reliable one-at-a-time, so browser bulk-download blocking can't lose your work. Stored locally in your browser (IndexedDB).</p>
-  <div class="row" style="margin-bottom:10px;align-items:center">
+  <div class="row" style="margin-bottom:10px;align-items:center;gap:8px">
     <span class="libstats" id="gallery_stat" style="margin:0">Gallery empty.</span>
     <span style="flex:1"></span>
+    <button class="act" onclick="curateGallery()">Rank: Gay-Avant NFT</button>
+    <button class="ghost" onclick="saveBestAsBoard()">Save Best -&gt; board</button>
+    <button class="ghost" onclick="uncurate()">Newest first</button>
     <button class="danger" onclick="clearGallery()">Clear Gallery</button>
   </div>
   <div id="gallery_archive"></div>
