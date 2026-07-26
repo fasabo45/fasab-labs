@@ -56,7 +56,7 @@ const VIBES = {
   cinematic: ['cinematic', 'anamorphic framing', 'filmic', 'widescreen', 'moody lighting', 'depth of field'],
   analog: ['35mm film', 'grainy', 'light leaks', 'faded emulsion', 'lo-fi analog', 'halation'],
   grunge: ['grungy', 'distressed textures', 'xerox photocopy', 'conspiracy dossier', 'redacted', 'CRT scanlines', 'NFT edition'],
-  avant:  ['schizocollage', 'trait-maxed maximalism', 'layered appropriation collage', 'obscured distorted subject', 'DADA photomontage', 'cubist collage of internet detritus', 'anime PFP reaction', 'ironic and transgressive', 'generative trait layers', 'lo-fi rendered assets'],
+  avant:  ['schizocollage', 'traitmaxxed maximalism', 'hyper-layered until illegible', 'obscured dissolving subject', 'neon text overload', '3D render fragments', 'anime eyes', 'pixel-art and memes piled on', 'MS Paint doodles', 'gaudy retro 3D', 'glitchy vaporwave seapunk', 'camp queer internet detritus', 'DADA photomontage', 'lo-fi amateur net art'],
   vapor:  ['vaporwave', 'retro 1980s', 'neon grid horizon', 'chromatic aberration', 'synthwave glow'],
   doc:    ['documentary', 'photojournalistic', 'candid', 'available light', 'reportage realism'],
 };

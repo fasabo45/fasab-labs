@@ -73,3 +73,39 @@ Note (correction): our first pass over-weighted vivid colour + holographic
 sheen. The article makes clear the genre is defined more by **maximal layered
 collage that disrupts a subject** than by colour intensity. Weights adjusted
 accordingly - tune in `CURATE_WEIGHTS` if Fasab's eye disagrees.
+
+---
+
+## Source 2 additions
+
+Source: "The Rise of the Avant Gay Art/Tech Movement on Solana" by Ryan
+Bethencourt, *Grey Area Labs*, 3 Sep 2025. Reinforces Source 1 and adds detail.
+
+**Framing:** a **Solana "punk rebellion"** - raw, chaotic, outsider art, a
+reaction against Ethereum's polished "fine art" ("glowing lines and tessellating
+shapes"). Descends from **net art, Tumblr-era, seapunk & vaporwave**. "Iteration,
+irony, and internet."
+
+**Traitmaxxing -> illegibility (key visual mechanic):** start from the PFP/avatar
+bust, then "go completely insane with it" - hundreds of traits compiled by code
+(Hashlips) into "hyper-layered, densely collaged images" so overloaded that the
+original avatar becomes **"completely illegible,"** dissolving into "pure chaos."
+(This is exactly our Subject + high Alter + high Fragments + Decay.)
+
+**Concrete collage ingredients (great for prompts):** neon text, 3D render
+fragments, anime eyes, pixels, memes - "all piled on." A deliberately
+**"ugly"/amateur/DIY** look: glitchy filters, MS Paint-style drawings, gaudy
+retro 3D renders. Neon-pink collages of anime eyes, pixelated horses, cryptic
+memes.
+
+**Sensibility:** camp, queer, gender-playful, homoerotic undertones; cute +
+transgression (Milady's "innocence and transgression"); dystopian-yet-playful;
+dreamy/surreal/cosmic. Non-human avatars count (even a toy car has a persona).
+AI + hand-drawn blend; "vibe coding" (describe it, let an AI generate it).
+
+**Spectrum reaffirmed:** not everything is maximal - some work is sketchy,
+nostalgic, pared-down. Maximal-illegible is the iconic pole, not the only one.
+
+**Still NOT pixel-scoreable:** the queer-punk community ethos, lore, personas,
+Solana/anti-fine-art politics, "no profit motive" vibe. Captured here as
+direction for prompts + project intent, not for the numeric scorer.
