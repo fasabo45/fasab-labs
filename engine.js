@@ -244,6 +244,10 @@ function buildLayout(recipe, pool, rng){
         alpha: 0.7 + rng() * 0.3, blend: rng() < 0.3 ? 'screen' : 'source-over', crop });
     }
   }
+  if (recipe.subject){                 // subject mode: overlays become semi-transparent alterations
+    const k = 0.18 + 0.0082 * (recipe.alter != null ? recipe.alter : 60);
+    for (const p of out) p.alpha *= k;
+  }
   return out;
 }
 
@@ -267,13 +271,18 @@ async function renderRecipe(recipe, canvas, lib){
   ctx.fillRect(0, 0, recipe.w, recipe.h);
 
   const pool = selectImages(recipe, lib, rng);
-  if (!pool.length){
+  const subj = recipe.subject ? lib.find(o => o.id === recipe.subject) : null;
+  if (!pool.length && !subj){
     ctx.fillStyle = '#8f9678';
     ctx.font = `${Math.round(recipe.w / 28)}px Segoe UI, sans-serif`;
     ctx.fillText('Library empty - import references first', recipe.w * 0.06, recipe.h / 2);
     return;
   }
-  for (const p of buildLayout(recipe, pool, rng)) drawPiece(ctx, p);
+  if (subj){                               // draw the subject as a full-canvas base layer
+    const cc = coverCrop(subj, recipe.w / recipe.h);
+    ctx.drawImage(subj.img, cc.sx, cc.sy, cc.sw, cc.sh, 0, 0, recipe.w, recipe.h);
+  }
+  if (pool.length) for (const p of buildLayout(recipe, pool, rng)) drawPiece(ctx, p);
   if (window.applyDegradation) applyDegradation(ctx, recipe, rng);
   applyGrade(ctx, recipe, rng);
   if (recipe.glitch > 0) applyGlitch(ctx, recipe, rng);
@@ -310,11 +319,18 @@ window.setSeriesPool = function(ids){
 };
 window.getSeriesPool = function(){ return _seriesPool; };
 
+let _subject = null, _alter = 60;   // a base image the series ALTERS, + alteration strength
+window.setSubject = function(id){ _subject = id || null; };
+window.getSubject = function(){ return _subject; };
+window.setAlter = function(v){ _alter = +v; };
+window.getAlter = function(){ return _alter; };
+
 // Recipe straight from the form, re-attaching any pinned refs from a loaded code.
 function currentRecipe(){
   const r = readRecipeFromForm();
   if (_pinnedRefs && _pinnedRefs.length) r.refs = _pinnedRefs.slice();
   if (_seriesPool && _seriesPool.length) r.pool = _seriesPool.slice();
+  if (_subject){ r.subject = _subject; r.alter = _alter; }
   return r;
 }
 
@@ -348,6 +364,8 @@ async function loadFormulaCode(){
     const r = decodeRecipe(code);
     _pinnedRefs = (r.refs && r.refs.length) ? r.refs.slice() : null;  // honor the pinned images
     _seriesPool = (r.pool && r.pool.length) ? r.pool.slice() : null;  // and the source pool
+    _subject = r.subject || null;
+    _alter = (r.alter != null) ? r.alter : 60;
     applyRecipeToForm(r);
     await previewOne();
     toast('Formula loaded');

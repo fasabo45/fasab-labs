@@ -10,11 +10,16 @@ let _srcGroupSel = new Set();   // selected group indices
 let _srcImages = new Set();     // individually selected image ids
 let _srcUrls = [];
 
-// Reflect the active pool in the Source count + the Series-tab note.
-window.onPoolChanged = function(pool){
+// Reflect the active pool + subject in the Series-tab note.
+function updateSeriesNote(){
+  const pool = window.getSeriesPool ? getSeriesPool() : null;
+  const subj = window.getSubject ? getSubject() : null;
   const note = document.getElementById('s_source_note');
-  if (note) note.textContent = pool && pool.length ? ('Source: ' + pool.length + ' selected images') : 'Source: whole library';
-};
+  let t = pool && pool.length ? ('Source: ' + pool.length + ' images') : 'Source: whole library';
+  if (subj) t += '  |  altering a chosen subject';
+  if (note) note.textContent = t;
+}
+window.onPoolChanged = updateSeriesNote;
 
 function unionIds(){
   const ids = new Set();
@@ -96,6 +101,37 @@ async function srcSelectAllImages(on){
   renderSourceImages(); applySource();
 }
 
+//==================== SUBJECT ====================
+async function renderSubjectPicker(){
+  const grid = document.getElementById('subj_grid'); if (!grid) return;
+  const lib = window.loadLibraryImages ? await loadLibraryImages() : [];
+  const cur = window.getSubject ? getSubject() : null;
+  grid.innerHTML = lib.length ? '' : '<p class="muted">Library empty - import references first.</p>';
+  for (const o of lib){
+    const d = document.createElement('div');
+    d.className = 'pick' + (cur === o.id ? ' sel' : '');
+    d.innerHTML = '<img src="' + o.img.src + '" alt=""><span class="tick"></span>';
+    d.addEventListener('click', () => {
+      if (window.setSubject) setSubject(cur === o.id ? null : o.id);
+      renderSubjectPicker(); updateSubjectDisplay(); updateSeriesNote();
+    });
+    grid.appendChild(d);
+  }
+  updateSubjectDisplay();
+}
+async function updateSubjectDisplay(){
+  const cur = window.getSubject ? getSubject() : null;
+  const note = document.getElementById('subj_note'), th = document.getElementById('subj_thumb');
+  if (!cur){ if (note) note.textContent = 'No subject set (pure collage).'; if (th) th.style.display = 'none'; return; }
+  const lib = await loadLibraryImages(); const o = lib.find(x => x.id === cur);
+  if (o && th){ th.src = o.img.src; th.style.display = 'block'; }
+  if (note) note.textContent = 'Subject set - the series will alter this image.';
+}
+function clearSubject(){
+  if (window.setSubject) setSubject(null);
+  renderSubjectPicker(); updateSubjectDisplay(); updateSeriesNote();
+}
+
 //==================== CLEAR ====================
 function clearSource(){
   _srcBoards.clear(); _srcGroupSel.clear(); _srcImages.clear();
@@ -107,8 +143,14 @@ function clearSource(){
 //==================== INIT ====================
 (function initSource(){
   const tab = document.querySelector('.tab[data-tab="source"]');
-  if (tab) tab.addEventListener('click', () => { renderSourceBoards(); renderSourceGroups(); renderSourceImages(); });
+  if (tab) tab.addEventListener('click', () => { renderSubjectPicker(); renderSourceBoards(); renderSourceGroups(); renderSourceImages(); });
   const k = document.getElementById('src_k'), kv = document.getElementById('src_k_v');
   if (k && kv) k.addEventListener('input', () => kv.textContent = k.value);
-  if (window.onPoolChanged) onPoolChanged(window.getSeriesPool ? getSeriesPool() : null);
+  const alt = document.getElementById('f_alter'), altv = document.getElementById('f_alter_v');
+  if (alt && altv){
+    altv.textContent = alt.value;
+    if (window.setAlter) setAlter(alt.value);
+    alt.addEventListener('input', () => { altv.textContent = alt.value; if (window.setAlter) setAlter(alt.value); });
+  }
+  updateSeriesNote();
 })();

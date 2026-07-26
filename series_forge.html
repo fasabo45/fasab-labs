@@ -417,6 +417,19 @@
 <section class="panel" id="panel-source">
   <h3>Series Source Pool</h3>
   <p class="muted">Choose what the next preview/series draws from: specific images, aesthetic groups, and/or mood boards. Selections <b>combine</b>. Leave everything unchecked to use the whole library. The engine still shuffles/reseeds <i>within</i> your pool, so Reseed still gives varied siblings.</p>
+  <details class="grp" open><summary>Subject (optional) - the image the series ALTERS</summary><div class="grpbody">
+    <p class="muted">Pick ONE image to keep as the base subject. The pool / mood-board fragments plus the formula effects (grade, grain, glitch, decay...) alter it, and Reseed/Decay vary the alteration. Leave unset for a pure collage.</p>
+    <div class="row" style="align-items:center;gap:10px;margin-bottom:8px">
+      <img id="subj_thumb" alt="subject" style="height:56px;border-radius:6px;border:1px solid var(--line);display:none">
+      <span id="subj_note" class="muted">No subject set (pure collage).</span>
+      <span style="flex:1"></span>
+      <label style="margin:0">Alter <span class="val" id="f_alter_v">60</span></label>
+      <input type="range" id="f_alter" min="0" max="100" value="60" style="width:130px">
+      <button class="ghost" onclick="clearSubject()">Clear</button>
+    </div>
+    <div class="libgrid" id="subj_grid" style="grid-template-columns:repeat(auto-fill,minmax(84px,1fr))"></div>
+  </div></details>
+
   <div class="row" style="align-items:center;margin-bottom:12px">
     <span class="libstats" id="src_count" style="margin:0">Source: whole library</span>
     <span style="flex:1"></span>
