@@ -279,13 +279,60 @@ function copyPrompt(){
   navigator.clipboard.writeText(txt).then(() => toast('Prompt copied'), () => toast('Copy failed'));
 }
 
-function forgeThisMood(){
-  const ids = [..._mbSelected];
-  if (!ids.length){ toast('Select a mood board first'); return; }
-  if (window.setPinnedRefs) setPinnedRefs(ids);
+//==================== AESTHETIC -> FORMULA ====================
+function clampv(v, lo, hi){ return v < lo ? lo : v > hi ? hi : v; }
+
+// Pick the single best-matching grade for an analyzed aesthetic.
+function pickGrade(a){
+  const wn = a.warmth + 0.5;
+  const top = (a.palette && a.palette[0]) || null;
+  const h = top ? _hue(top.r, top.g, top.b) : -1;
+  if (a.saturation < 0.14) return a.contrast > 0.2 ? 'noir' : 'mono';
+  if (h >= 80 && h <= 170 && a.brightness < 0.5 && a.saturation > 0.2) return 'nvg';
+  if (a.contrast > 0.24 && a.saturation < 0.35) return 'bleach';
+  if (wn > 0.6) return a.saturation < 0.4 ? 'sepia' : 'cod';
+  if (wn < 0.42) return a.saturation < 0.3 ? 'vhs' : 'cod';
+  if (a.colorfulness > 0.6 && a.brightness > 0.5) return 'none';
+  return 'cod';
+}
+
+// Translate an aesthetic into Formula look controls and write them to the form.
+function applyAestheticToFormula(a){
+  if (!a) return null;
+  const grade = pickGrade(a);
+  const gradeAmt = Math.round(clampv(40 + (1 - a.saturation) * 40 + a.contrast * 60, 20, 100));
+  const grain = Math.round(clampv(a.detail * 180 + (1 - a.brightness) * 20, 0, 100));
+  const vig = Math.round(clampv((1 - a.brightness) * 90 + a.contrast * 60, 0, 100));
+  const glitch = Math.round(clampv(a.detail * 60, 0, 40));
+  const scan = a.brightness < 0.4 || grade === 'vhs' || grade === 'nvg' || grade === 'noir';
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  set('f_grade', grade); set('f_gradeAmt', gradeAmt); set('f_grain', grain);
+  set('f_vig', vig); set('f_glitch', glitch);
+  const sc = document.getElementById('f_scan'); if (sc) sc.checked = scan;
+  if (window.refreshLabels) refreshLabels();
+  return { grade, gradeAmt, grain, vig, glitch };
+}
+
+// Apply the analyzed look to the Formula tab (analyzing first if needed).
+async function useAestheticInFormula(){
+  if (!_mbAesthetic) await analyzeCurrentBoard();
+  if (!_mbAesthetic) return;
+  const s = applyAestheticToFormula(_mbAesthetic);
   showTab('formula');
   if (window.previewOne) previewOne();
-  toast('Forging with these ' + ids.length + ' refs');
+  toast('Applied look: ' + s.grade + ' grade, grain ' + s.grain + ', vig ' + s.vig);
+}
+
+// Full send: pin the board's images AND apply its analyzed look, then preview.
+async function forgeThisMood(){
+  const ids = [..._mbSelected];
+  if (!ids.length){ toast('Select a mood board first'); return; }
+  if (!_mbAesthetic) await analyzeCurrentBoard();
+  if (window.setPinnedRefs) setPinnedRefs(ids);
+  if (_mbAesthetic) applyAestheticToFormula(_mbAesthetic);
+  showTab('formula');
+  if (window.previewOne) previewOne();
+  toast('Forging ' + ids.length + ' refs + aesthetic');
 }
 
 //==================== AUTO-GROUP BY AESTHETIC ====================
