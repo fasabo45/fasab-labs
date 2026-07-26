@@ -161,10 +161,27 @@ function selectImages(recipe, lib, rng){
   }
   const arr = pool.slice();
   for (let i = arr.length - 1; i > 0; i--){          // seeded Fisher-Yates
-    const j = Math.floor(rng() * (i + 1));
+    const j = Math.floor(rng() * (i + 1));            // (always run: keeps rng stream stable)
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
+  // Baked ref IDs win: pin the exact source images in their recorded order.
+  // Missing IDs are skipped; if none survive we fall back to the fresh shuffle.
+  if (recipe.refs && recipe.refs.length){
+    const byId = new Map(lib.map(o => [o.id, o]));
+    const locked = recipe.refs.map(id => byId.get(id)).filter(Boolean);
+    if (locked.length) return locked;
+    if (window.toast) toast('Baked refs not in this library - reshuffling');
+  }
   return arr;
+}
+
+// Compute & stamp the exact ref IDs onto a recipe (once) so its formula
+// code reproduces the same source images even after the library changes.
+function ensureRefs(recipe, lib){
+  if (recipe.refs && recipe.refs.length) return;
+  if (!lib || !lib.length) return;
+  const pool = selectImages(recipe, lib, makeRng(recipe.seed));
+  if (pool.length) recipe.refs = pool.map(o => o.id);
 }
 
 function coverCrop(src, targetAR){
@@ -359,10 +376,20 @@ function decodeRecipe(code){
 
 //==================== FORMULA TAB ACTIONS ====================
 let _lastRecipe = null;
+let _pinnedRefs = null;   // ref IDs carried over from a loaded code; null = pick fresh
+
+// Recipe straight from the form, re-attaching any pinned refs from a loaded code.
+function currentRecipe(){
+  const r = readRecipeFromForm();
+  if (_pinnedRefs && _pinnedRefs.length) r.refs = _pinnedRefs.slice();
+  return r;
+}
 
 async function previewOne(){
-  const r = readRecipeFromForm();
+  const r = currentRecipe();
   const lib = await loadLibraryImages();
+  ensureRefs(r, lib);                       // bake exact source IDs into the code
+  _pinnedRefs = r.refs || null;             // keep code + pin in sync
   await renderRecipe(r, document.getElementById('previewCanvas'), lib);
   document.getElementById('formulaCode').textContent = encodeRecipe(r);
   _lastRecipe = r;
@@ -371,6 +398,7 @@ async function previewOne(){
 function randomizeSeed(){
   const hex = Math.floor(Math.random() * 0xFFFFFF).toString(16).toUpperCase().padStart(6, '0');
   document.getElementById('f_seed').value = 'FORGE-' + hex;
+  _pinnedRefs = null;                       // new seed -> fresh image pick
 }
 
 function copyFormulaCode(){
@@ -385,6 +413,7 @@ async function loadFormulaCode(){
   if (!code.trim()){ toast('Paste a code first'); return; }
   try {
     const r = decodeRecipe(code);
+    _pinnedRefs = (r.refs && r.refs.length) ? r.refs.slice() : null;  // honor the pinned images
     applyRecipeToForm(r);
     await previewOne();
     toast('Formula loaded');
@@ -435,7 +464,7 @@ function makeGalleryCard(recipe, index){
 }
 
 async function generateSeries(){
-  const base = readRecipeFromForm();
+  const base = currentRecipe();
   const lib = await loadLibraryImages();
   if (!lib.length){ toast('Import references first'); showTab('library'); return; }
 
@@ -454,13 +483,15 @@ async function generateSeries(){
     r.ov._idx = i + 1; r.ov._total = count;   // real edition numbers in the NFT stamp
     if (mode === 'reseed'){
       r.seed = base.seed + '-' + (i + 1);
+      delete r.refs;                       // new seed -> its own fresh image pick
     } else {
       const param = document.getElementById('s_param').value;
       const from = +document.getElementById('s_from').value;
       const to = +document.getElementById('s_to').value;
       const val = count === 1 ? from : from + (to - from) * i / (count - 1);
-      applySweep(r, param, val);
+      applySweep(r, param, val);           // same seed -> keeps base's pinned refs
     }
+    ensureRefs(r, lib);                     // bake this sibling's exact source IDs
     const card = makeGalleryCard(r, i);
     gallery.appendChild(card.el);
     await renderRecipe(scaleRecipe(r, 420), card.canvas, lib);
@@ -533,6 +564,15 @@ function wireLabels(){
   refreshLabels();
 }
 
+// Manually editing the seed or tag means "give me a fresh pick", so drop any pin.
+function wireRefsReset(){
+  ['f_seed', 'f_tag'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => { _pinnedRefs = null; });
+  });
+}
+
 //==================== INIT ====================
 wireLabels();
+wireRefsReset();
 onSeriesMode();
