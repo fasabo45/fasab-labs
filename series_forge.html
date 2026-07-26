@@ -52,9 +52,17 @@
   .val{font-size:11px;color:var(--good)}
   .formwrap{display:flex;gap:24px;flex-wrap:wrap}
   .formcol{flex:1;min-width:260px;max-width:340px}
-  .previewwrap{flex:2;min-width:300px}
+  .previewwrap{flex:2;min-width:300px;position:sticky;top:0;align-self:flex-start}
   #previewCanvas{width:100%;max-width:560px;border:1px solid var(--line);border-radius:10px;background:#000;display:block}
   .field{margin-bottom:4px}
+  details.grp{border:1px solid var(--line);border-radius:10px;margin-bottom:10px;background:var(--panel2)}
+  details.grp>summary{cursor:pointer;padding:10px 12px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--accent2);font-weight:700;list-style:none;display:flex;align-items:center;gap:8px;user-select:none;border-radius:10px}
+  details.grp>summary::-webkit-details-marker{display:none}
+  details.grp>summary::before{content:'\25B8';color:var(--accent);font-size:11px;transition:transform .15s}
+  details.grp[open]>summary::before{transform:rotate(90deg)}
+  details.grp[open]>summary{border-bottom:1px solid var(--line);border-radius:10px 10px 0 0}
+  details.grp>summary:hover{color:var(--accent)}
+  .grpbody{padding:8px 12px 10px}
   .codebox{width:100%;background:#0d0f0a;border:1px solid var(--line);color:var(--accent2);border-radius:8px;padding:8px;font-family:monospace;font-size:11px;word-break:break-all;min-height:34px}
   .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:16px}
   .gcard{background:var(--panel2);border:1px solid var(--line);border-radius:10px;overflow:hidden}
@@ -107,6 +115,7 @@
   <h3>Formula</h3>
   <div class="formwrap">
     <div class="formcol">
+      <details class="grp" open><summary>Composition</summary><div class="grpbody">
       <div class="field"><label>Source tag filter (blank = all)</label>
         <input type="text" id="f_tag" placeholder="e.g. mw2, snow"></div>
       <div class="field"><label>Layout</label>
@@ -123,6 +132,9 @@
         <input type="range" id="f_scale" min="10" max="120" value="45"></div>
       <div class="field"><label>Rotation jitter <span class="val" id="f_rot_v">25</span></label>
         <input type="range" id="f_rot" min="0" max="180" value="25"></div>
+      </div></details>
+
+      <details class="grp" open><summary>Grade &amp; FX</summary><div class="grpbody">
       <div class="field"><label>Grade</label>
         <select id="f_grade">
           <option value="cod">CoD Nostalgic (khaki/green)</option>
@@ -144,7 +156,9 @@
       <div class="field"><label>Glitch / RGB split <span class="val" id="f_glitch_v">10</span></label>
         <input type="range" id="f_glitch" min="0" max="100" value="10"></div>
 
-      <h3 style="margin-top:18px">Degradation</h3>
+      </div></details>
+
+      <details class="grp"><summary>Degradation</summary><div class="grpbody">
       <div class="field"><label>Rust <span class="val" id="d_rust_v">0</span></label>
         <input type="range" id="d_rust" min="0" max="100" value="0"></div>
       <div class="field"><label>Burn / scorch <span class="val" id="d_burn_v">0</span></label>
@@ -158,7 +172,9 @@
       <div class="field"><label>Stains / water <span class="val" id="d_stain_v">0</span></label>
         <input type="range" id="d_stain" min="0" max="100" value="0"></div>
 
-      <h3 style="margin-top:18px">HUD Overlay</h3>
+      </div></details>
+
+      <details class="grp"><summary>HUD Overlay</summary><div class="grpbody">
       <div class="field"><label><input type="checkbox" id="h_on">Enable HUD</label></div>
       <div class="field"><label>HUD color</label>
         <select id="h_color">
@@ -173,7 +189,9 @@
       <div class="field"><label><input type="checkbox" id="h_compass">Compass</label></div>
       <div class="field"><label><input type="checkbox" id="h_low">Low-health red pulse</label></div>
 
-      <h3 style="margin-top:18px">Transmission // Overlays</h3>
+      </div></details>
+
+      <details class="grp"><summary>Transmission // Overlays</summary><div class="grpbody">
       <div class="field"><label><input type="checkbox" id="o_on">Enable overlays</label></div>
       <div class="field"><label><input type="checkbox" id="o_redact">Redacted + classified stamp</label></div>
       <div class="field"><label>Stamp text</label>
@@ -193,6 +211,9 @@
       <div class="field"><label><input type="checkbox" id="o_holo">Holographic sheen</label></div>
       <div class="field"><label><input type="checkbox" id="o_nft">NFT edition stamp</label></div>
 
+      </div></details>
+
+      <details class="grp" open><summary>Output</summary><div class="grpbody">
       <div class="field"><label>Canvas</label>
         <select id="f_size">
           <option value="1024x1024">1024 x 1024 (square)</option>
@@ -203,10 +224,11 @@
       <div class="field"><label>Seed</label>
         <div class="row"><input type="text" id="f_seed" style="flex:1" value="FORGE-001">
           <button class="ghost" onclick="randomizeSeed()">Roll</button></div></div>
-      <button class="act" style="width:100%;margin-top:14px" onclick="previewOne()">Preview One</button>
+      </div></details>
     </div>
     <div class="previewwrap">
-      <label>Preview</label>
+      <button class="act" style="width:100%" onclick="previewOne()">Preview One</button>
+      <label style="margin-top:12px">Preview</label>
       <canvas id="previewCanvas" width="512" height="512"></canvas>
       <label style="margin-top:12px">Formula code (paste to recreate)</label>
       <div class="codebox" id="formulaCode">- press Preview One -</div>
