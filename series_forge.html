@@ -99,6 +99,11 @@
   .gcell-bar{display:flex;gap:4px;padding:5px;background:#12140c}
   .gcell-bar button{flex:1;font-size:11px;padding:5px}
   .gcell-bar .danger{flex:0 0 auto;padding:5px 9px}
+  /* ---- Frame ---- */
+  .fr-src{display:flex;gap:6px;overflow-x:auto;padding:6px 0;min-height:44px;align-items:center}
+  .fr-srcthumb{height:64px;border-radius:6px;border:2px solid transparent;cursor:pointer;flex:0 0 auto}
+  .fr-srcthumb.sel{border-color:var(--accent)}
+  #fr_preview{width:100%;max-width:560px;border:1px solid var(--line);border-radius:10px;background:#000;display:block}
   .codebox{width:100%;background:#0d0f0a;border:1px solid var(--line);color:var(--accent2);border-radius:8px;padding:8px;font-family:monospace;font-size:11px;word-break:break-all;min-height:34px}
   .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:16px}
   .gcard{background:var(--panel2);border:1px solid var(--line);border-radius:10px;overflow:hidden}
@@ -128,6 +133,7 @@
   <div class="tab" data-tab="series" onclick="showTab('series')">Series</div>
   <div class="tab" data-tab="brain" onclick="showTab('brain')">Brain</div>
   <div class="tab" data-tab="gallery" onclick="showTab('gallery')">Gallery</div>
+  <div class="tab" data-tab="frame" onclick="showTab('frame')">Frame</div>
 </div>
 
 <!-- ==================== LIBRARY ==================== -->
@@ -413,6 +419,48 @@
   <div id="gallery_archive"></div>
 </section>
 
+<!-- ==================== FRAME ==================== -->
+<section class="panel" id="panel-frame">
+  <h3>Frame</h3>
+  <p class="muted">Drop a generated image into an ornate frame. Frames live in their own library (kept out of your collage refs). Output uses the frame's aspect ratio, art fills the opening (cover-crop), rendered at ~1600px. Works with transparent PNG frames and solid ones alike.</p>
+  <div class="formwrap">
+    <div class="formcol" style="max-width:420px">
+      <details class="grp" open><summary>Frame Library</summary><div class="grpbody">
+        <div class="row" style="margin-bottom:8px">
+          <button class="ghost" onclick="document.getElementById('frameFileInput').click()">+ Import Frames</button>
+          <button class="ghost" onclick="document.getElementById('frameFolderInput').click()">+ Import Folder</button>
+          <input type="file" id="frameFileInput" accept="image/*" multiple style="display:none">
+          <input type="file" id="frameFolderInput" webkitdirectory multiple style="display:none">
+        </div>
+        <div class="libgrid" id="fr_grid" style="grid-template-columns:repeat(auto-fill,minmax(90px,1fr))"></div>
+      </div></details>
+
+      <details class="grp" open><summary>Opening &amp; Mat</summary><div class="grpbody">
+        <div class="field"><label>Mat / background colour</label>
+          <input type="color" id="fr_mat" value="#000000" style="width:60px;height:34px;padding:2px;background:#0d0f0a"></div>
+        <div class="field"><label>Inset left <span class="val" id="fr_l_v">16%</span></label><input type="range" id="fr_l" min="0" max="45" value="16"></div>
+        <div class="field"><label>Inset top <span class="val" id="fr_t_v">16%</span></label><input type="range" id="fr_t" min="0" max="45" value="16"></div>
+        <div class="field"><label>Inset right <span class="val" id="fr_r_v">16%</span></label><input type="range" id="fr_r" min="0" max="45" value="16"></div>
+        <div class="field"><label>Inset bottom <span class="val" id="fr_b_v">16%</span></label><input type="range" id="fr_b" min="0" max="45" value="16"></div>
+        <div class="row"><button class="ghost" onclick="autoDetectActiveFrame()">Auto-detect opening</button></div>
+      </div></details>
+    </div>
+
+    <div class="previewwrap">
+      <div class="row" style="align-items:center;gap:8px">
+        <label style="margin:0">Source art</label>
+        <button class="ghost" onclick="useLatestPreview()">Use latest preview</button>
+      </div>
+      <div id="fr_src" class="fr-src"></div>
+      <label style="margin-top:12px">Framed preview</label>
+      <canvas id="fr_preview" width="400" height="300"></canvas>
+      <div class="row" style="margin-top:8px">
+        <button class="act" onclick="downloadFramed()">Download Framed PNG</button>
+      </div>
+    </div>
+  </div>
+</section>
+
 <div class="lightbox" id="lightbox" onclick="this.classList.remove('show')"><img id="lightboxImg" alt="enlarged edition"></div>
 <div class="toast" id="toast"></div>
 <script src="forge.js"></script>
@@ -426,5 +474,6 @@
 <script src="prompts.js"></script>
 <script src="brain.js"></script>
 <script src="gallery.js"></script>
+<script src="frames.js"></script>
 </body>
 </html>

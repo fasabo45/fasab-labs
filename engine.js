@@ -447,9 +447,10 @@ function downloadCanvas(canvas, name){
     setTimeout(() => URL.revokeObjectURL(url), 60000);   // revoke late so the download completes
   }, 'image/png');
 }
-window.renderFull = renderFull;              // used by gallery.js
+window.renderFull = renderFull;              // used by gallery.js / frames.js
 window.downloadCanvas = downloadCanvas;
 window.getSeriesRecipes = () => _seriesRecipes;
+window.getLastRecipe = () => _lastRecipe;    // used by frames.js 'Use latest preview'
 
 async function saveOne(recipe, index){
   try {

@@ -20,12 +20,13 @@ function showTab(name){
 const DB_NAME = 'seriesForge';
 const STORE = 'refs';
 const GALLERY_STORE = 'gallery';
+const FRAMES_STORE = 'frames';
 let _db = null;
 
 function openDB(){
   return new Promise((resolve, reject) => {
     if (_db) return resolve(_db);
-    const req = indexedDB.open(DB_NAME, 2);
+    const req = indexedDB.open(DB_NAME, 3);
     req.onupgradeneeded = e => {
       const db = e.target.result;
       if (!db.objectStoreNames.contains(STORE)){
@@ -33,6 +34,9 @@ function openDB(){
       }
       if (!db.objectStoreNames.contains(GALLERY_STORE)){
         db.createObjectStore(GALLERY_STORE, { keyPath: 'id', autoIncrement: true });
+      }
+      if (!db.objectStoreNames.contains(FRAMES_STORE)){
+        db.createObjectStore(FRAMES_STORE, { keyPath: 'id', autoIncrement: true });
       }
     };
     req.onsuccess = e => { _db = e.target.result; resolve(_db); };

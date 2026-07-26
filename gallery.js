@@ -14,6 +14,7 @@ function gGet(id){ return gStore('readonly').then(s => gReq(s, st => st.get(id))
 function gGetAll(){ return gStore('readonly').then(s => gReq(s, st => st.getAll())).then(r => r || []); }
 function gDelete(id){ return gStore('readwrite').then(s => gReq(s, st => st.delete(id))); }
 function gClear(){ return gStore('readwrite').then(s => gReq(s, st => st.clear())); }
+window.galleryAll = gGetAll;   // frames.js source picker
 
 //==================== ARCHIVE ====================
 async function archiveGeneration(items){
