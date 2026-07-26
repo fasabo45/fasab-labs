@@ -74,6 +74,7 @@ function readRecipeFromForm(){
     vig:      +document.getElementById('f_vig').value,
     scan:     document.getElementById('f_scan').checked,
     glitch:   +document.getElementById('f_glitch').value,
+    decay:    +(document.getElementById('f_decay') || { value: 0 }).value,
     deg: {
       rust:      +document.getElementById('d_rust').value,
       burn:      +document.getElementById('d_burn').value,
@@ -120,6 +121,7 @@ function applyRecipeToForm(r){
   document.getElementById('f_vig').value = r.vig;
   document.getElementById('f_scan').checked = !!r.scan;
   document.getElementById('f_glitch').value = r.glitch;
+  const _fd = document.getElementById('f_decay'); if (_fd) _fd.value = r.decay || 0;
   const dg = r.deg || {};
   document.getElementById('d_rust').value = dg.rust || 0;
   document.getElementById('d_burn').value = dg.burn || 0;
@@ -270,6 +272,7 @@ async function renderRecipe(recipe, canvas, lib){
   if (window.applyDegradation) applyDegradation(ctx, recipe, rng);
   applyGrade(ctx, recipe, rng);
   if (recipe.glitch > 0) applyGlitch(ctx, recipe, rng);
+  if (window.applyDecay && recipe.decay > 0) applyDecay(ctx, recipe, rng);
   if (window.applyHud) applyHud(ctx, recipe);
   if (window.applyOverlays) applyOverlays(ctx, recipe);
 }
@@ -349,6 +352,7 @@ function applySweep(r, param, val){
   else if (param === 'rot') r.rot = val;
   else if (param === 'grain') r.grain = val;
   else if (param === 'glitch') r.glitch = val;
+  else if (param === 'decay') r.decay = val;
   else if (param === 'gradeAmt') r.gradeAmt = val;
   else if (DEG_PARAMS[param]) r.deg[param] = val;
 }
@@ -399,6 +403,8 @@ async function generateSeries(){
     if (mode === 'reseed'){
       r.seed = base.seed + '-' + (i + 1);
       delete r.refs;                       // new seed -> its own fresh image pick
+    } else if (mode === 'decay'){
+      r.decay = count === 1 ? 100 : Math.round((i / (count - 1)) * 100);  // same composite, progressively destroyed
     } else {
       const param = document.getElementById('s_param').value;
       const from = +document.getElementById('s_from').value;
@@ -476,7 +482,7 @@ async function enlarge(recipe){
 const LABELS = [
   ['f_frag', 'f_frag_v', ''], ['f_scale', 'f_scale_v', '%'], ['f_rot', 'f_rot_v', ''],
   ['f_gradeAmt', 'f_gradeAmt_v', '%'], ['f_grain', 'f_grain_v', ''], ['f_vig', 'f_vig_v', ''],
-  ['f_glitch', 'f_glitch_v', ''], ['s_count', 's_count_v', ''],
+  ['f_glitch', 'f_glitch_v', ''], ['f_decay', 'f_decay_v', ''], ['s_count', 's_count_v', ''],
   ['d_rust', 'd_rust_v', ''], ['d_burn', 'd_burn_v', ''], ['d_cracks', 'd_cracks_v', ''],
   ['d_scratch', 'd_scratch_v', ''], ['d_dust', 'd_dust_v', ''], ['d_stain', 'd_stain_v', ''],
   ['v_frames', 'v_frames_v', ''],

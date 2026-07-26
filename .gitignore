@@ -12,6 +12,7 @@
 !engine.js
 !degrade.js
 !fx.js
+!decay.js
 !hud.js
 !overlays.js
 !video.js

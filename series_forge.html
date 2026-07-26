@@ -169,7 +169,7 @@
         <select id="f_layout">
           <option value="scatter">Scatter (gritty overlap)</option>
           <option value="grid">Grid (mosaic)</option>
-          <option value="stack">Stack (blended composite)</option>
+          <option value="stack" selected>Stack (blended composite)</option>
           <option value="strip">Strip (vertical bands)</option>
         </select></div>
       <div class="field"><label>Fragments <span class="val" id="f_frag_v">8</span></label>
@@ -202,6 +202,8 @@
       <div class="field"><label><input type="checkbox" id="f_scan" checked>Scanlines</label></div>
       <div class="field"><label>Glitch / RGB split <span class="val" id="f_glitch_v">10</span></label>
         <input type="range" id="f_glitch" min="0" max="100" value="10"></div>
+      <div class="field"><label>Break / Destruction <span class="val" id="f_decay_v">0</span></label>
+        <input type="range" id="f_decay" min="0" max="100" value="0"></div>
 
       </div></details>
 
@@ -297,6 +299,7 @@
       <select id="s_mode" onchange="onSeriesMode()">
         <option value="reseed">Reseed (unique siblings)</option>
         <option value="sweep">Sweep (evolving sequence)</option>
+        <option value="decay">Decay (progressive destruction)</option>
       </select></div>
     <div style="min-width:200px"><label>Count <span class="val" id="s_count_v">9</span></label>
       <input type="range" id="s_count" min="1" max="24" value="9"></div>
@@ -308,6 +311,7 @@
         <option value="rot">Rotation jitter</option>
         <option value="grain">Film grain</option>
         <option value="glitch">Glitch</option>
+        <option value="decay">Destruction / Decay</option>
         <option value="gradeAmt">Grade intensity</option>
         <option value="rust">Rust</option>
         <option value="burn">Burn / scorch</option>
@@ -414,6 +418,7 @@
 <script src="forge.js"></script>
 <script src="degrade.js"></script>
 <script src="fx.js"></script>
+<script src="decay.js"></script>
 <script src="engine.js"></script>
 <script src="hud.js"></script>
 <script src="overlays.js"></script>
