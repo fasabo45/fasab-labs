@@ -98,6 +98,7 @@
   .gcell img{width:100%;display:block;cursor:zoom-in}
   .gscore{position:absolute;top:4px;right:4px;background:rgba(13,15,10,.82);color:var(--good);font-size:10px;padding:2px 6px;border-radius:10px;border:1px solid var(--line)}
   .gscore.gtop{color:var(--bg);background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;font-weight:700}
+  button.ghost.liked{color:var(--accent);border-color:var(--accent);font-weight:700}
   .gcell-bar{display:flex;gap:4px;padding:5px;background:#12140c}
   .gcell-bar button{flex:1;font-size:11px;padding:5px}
   .gcell-bar .danger{flex:0 0 auto;padding:5px 9px}
@@ -290,6 +291,7 @@
     </div>
     <div class="previewwrap">
       <button class="act" style="width:100%" onclick="previewOne()">Preview One</button>
+      <button class="ghost" style="width:100%;margin-top:6px" onclick="avantPreset()">Avant preset (on-genre look)</button>
       <label style="margin-top:12px">Preview</label>
       <canvas id="previewCanvas" width="512" height="512"></canvas>
       <label style="margin-top:12px">Formula code (paste to recreate)</label>
@@ -474,6 +476,13 @@
     <button class="ghost" onclick="uncurate()">Newest first</button>
     <button class="danger" onclick="clearGallery()">Clear Gallery</button>
   </div>
+  <div class="row" style="margin-bottom:10px;align-items:center;gap:8px">
+    <span class="muted" id="vibe_status">Feedback loop: heart editions, then Learn.</span>
+    <span style="flex:1"></span>
+    <button class="ghost" onclick="learnVibe()">Learn my vibe</button>
+    <button class="ghost" onclick="rankByVibe()">Rank: My Vibe</button>
+    <button class="act" onclick="evolveTowardVibe()">Evolve -&gt;</button>
+  </div>
   <div id="gallery_archive"></div>
 </section>
 
@@ -534,5 +543,6 @@
 <script src="source.js"></script>
 <script src="gallery.js"></script>
 <script src="frames.js"></script>
+<script src="evolve.js"></script>
 </body>
 </html>

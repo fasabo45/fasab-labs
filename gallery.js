@@ -14,7 +14,8 @@ function gGet(id){ return gStore('readonly').then(s => gReq(s, st => st.get(id))
 function gGetAll(){ return gStore('readonly').then(s => gReq(s, st => st.getAll())).then(r => r || []); }
 function gDelete(id){ return gStore('readwrite').then(s => gReq(s, st => st.delete(id))); }
 function gClear(){ return gStore('readwrite').then(s => gReq(s, st => st.clear())); }
-window.galleryAll = gGetAll;   // frames.js source picker
+function gPut(rec){ return gStore('readwrite').then(s => gReq(s, st => st.put(rec))); }
+window.galleryAll = gGetAll;   // frames.js source picker + evolve.js
 
 //==================== CURATOR (Gay-Avant NFT scorer) ====================
 // Scores each edition on aesthetic INTENSITY (Fasab's picks: vivid colour,
@@ -34,6 +35,19 @@ function _imgFromBlob(blob){
     i.onerror = () => { URL.revokeObjectURL(u); rej(new Error('img')); };
     i.src = u;
   });
+}
+// Heart/Like toggle for the evolve.js feedback loop.
+function _likeBtn(it){
+  const b = document.createElement('button');
+  b.className = 'ghost' + (it.liked ? ' liked' : '');
+  b.textContent = it.liked ? 'Liked' : 'Like';
+  b.addEventListener('click', async e => {
+    e.stopPropagation();
+    it.liked = !it.liked; await gPut(it);
+    b.textContent = it.liked ? 'Liked' : 'Like'; b.classList.toggle('liked', it.liked);
+    if (window.onVibeLikesChanged) onVibeLikesChanged();
+  });
+  return b;
 }
 function scoreAesthetic(a, recipe){
   const g = (recipe && recipe.glitch || 0) / 100;
@@ -61,7 +75,9 @@ function scoreAesthetic(a, recipe){
   return den ? num / den : 0;
 }
 
-async function curateGallery(){
+// Generic ranker: scoreFn(analysis, recipe, item) -> number. Reused by the
+// avant Curator and evolve.js 'Rank: My Vibe'.
+async function rankGallery(scoreFn){
   const items = await gGetAll();
   if (!items.length){ toast('Gallery empty - generate a series first'); return; }
   toast('Scoring ' + items.length + ' editions...');
@@ -70,12 +86,13 @@ async function curateGallery(){
     let recipe = null, a = null;
     try { recipe = decodeRecipe(it.code); } catch (_) {}
     try { const { img, url } = await _imgFromBlob(it.blob); a = analyzeImage(img); URL.revokeObjectURL(url); } catch (_) {}
-    _scores.set(it.id, a ? scoreAesthetic(a, recipe) : 0);
+    _scores.set(it.id, a ? scoreFn(a, recipe, it) : 0);
   }
   _curated = true;
   renderGallery();
-  toast('Ranked best-first for gay-avant NFT');
 }
+window.rankGallery = rankGallery;
+function curateGallery(){ rankGallery((a, recipe) => scoreAesthetic(a, recipe)).then(() => toast('Ranked for gay-avant NFT')); }
 function uncurate(){ _curated = false; renderGallery(); }
 
 async function saveBestAsBoard(){
@@ -133,7 +150,7 @@ async function renderGallery(){
       const bar = document.createElement('div'); bar.className = 'gcell-bar';
       const dl = document.createElement('button'); dl.className = 'ghost'; dl.textContent = 'Download'; dl.addEventListener('click', () => downloadGalleryFull(it.id));
       const del = document.createElement('button'); del.className = 'danger'; del.textContent = 'x'; del.addEventListener('click', () => deleteGalleryItem(it.id));
-      bar.append(dl, del); cell.append(bar);
+      bar.append(_likeBtn(it), dl, del); cell.append(bar);
       grid.appendChild(cell);
     });
     wrap.innerHTML = ''; wrap.appendChild(grid);
@@ -170,7 +187,7 @@ async function renderGallery(){
       dl.addEventListener('click', () => downloadGalleryFull(it.id));
       const del = document.createElement('button'); del.className = 'danger'; del.textContent = 'x'; del.title = 'Delete';
       del.addEventListener('click', () => deleteGalleryItem(it.id));
-      bar.append(dl, del); cell.append(bar);
+      bar.append(_likeBtn(it), dl, del); cell.append(bar);
       grid.appendChild(cell);
     }
     sec.append(head, grid); wrap.appendChild(sec);
