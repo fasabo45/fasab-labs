@@ -40,6 +40,8 @@
 !forge_icon.ico
 !HOW_TO_RESTORE.txt
 !SERIES_FORGE_GUIDE.txt
+!docs/
+!docs/*
 
 # Ignore system files even if in checkpoints
 **/.DS_Store

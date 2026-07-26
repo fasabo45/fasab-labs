@@ -20,7 +20,9 @@ window.galleryAll = gGetAll;   // frames.js source picker
 // Scores each edition on aesthetic INTENSITY (Fasab's picks: vivid colour,
 // bold contrast, maximalist detail, glitch/decay, holographic sheen). Hue-
 // neutral (pink weight 0). Reuses analyzeImage + the recipe's glitch/decay.
-const CURATE_WEIGHTS = { vivid: 1, contrast: 1, maximal: 1, glitch: 1, holo: 1, pink: 0 };
+// Calibrated from docs/gay_avant_nft.md: the genre is defined by MAXIMAL layered
+// collage that DISRUPTS a subject, not by colour intensity.
+const CURATE_WEIGHTS = { maximal: 1.0, disrupt: 0.9, collage: 0.9, distort: 0.8, color: 0.4, contrast: 0.35 };
 const CURATE_TOP = 20;
 let _curated = false;
 let _scores = new Map();
@@ -33,21 +35,26 @@ function _imgFromBlob(blob){
     i.src = u;
   });
 }
-function _pinkAffinity(palette){
-  if (!palette || !palette.length) return 0;
-  let hit = 0;
-  palette.slice(0, 6).forEach(c => { const h = (typeof _hue === 'function') ? _hue(c.r, c.g, c.b) : 0; if (h >= 275 && h <= 345) hit++; });
-  return Math.min(1, hit / 3);
-}
 function scoreAesthetic(a, recipe){
-  const g = (recipe && recipe.glitch || 0) / 100, dc = (recipe && recipe.decay || 0) / 100;
+  const g = (recipe && recipe.glitch || 0) / 100;
+  const dc = (recipe && recipe.decay || 0) / 100;
+  const frags = recipe ? (recipe.fragments || 0) : 0;
+  const hasSubj = !!(recipe && recipe.subject);
+  const alter = hasSubj ? (recipe.alter != null ? recipe.alter : 60) / 100 : 0;
+  const layered = recipe && (recipe.layout === 'stack' || recipe.layout === 'scatter') ? 1 : 0.4;
+  const detail = Math.min(1, a.detail / 0.25);
   const s = {
-    vivid:    Math.min(1, 0.6 * a.saturation + 0.4 * a.colorfulness),
+    // schizocollage / trait-maxing / formal superabundance
+    maximal:  Math.min(1, 0.55 * detail + 0.45 * Math.min(1, frags / 24)),
+    // obscuring / distorting a central subject (the signature Mifella move)
+    disrupt:  (hasSubj ? 1 : 0.35) * Math.min(1, 0.5 * alter + 0.3 * dc + 0.2 * g),
+    // layered collage of disparate appropriated elements
+    collage:  Math.min(1, layered * (0.5 + 0.5 * Math.min(1, frags / 16))),
+    // distortion / glitch / digital decay ("distorted and abused")
+    distort:  Math.min(1, 0.6 * dc + 0.6 * g),
+    // colour energy - secondary (genre spans pastel Milady to lurid)
+    color:    Math.min(1, 0.5 * a.saturation + 0.5 * a.colorfulness),
     contrast: Math.min(1, a.contrast / 0.3),
-    maximal:  Math.min(1, a.detail / 0.25),
-    glitch:   Math.min(1, 0.6 * g + 0.8 * dc + 0.2 * Math.min(1, a.detail / 0.25)),
-    holo:     Math.min(1, a.colorfulness * (0.4 + 0.6 * a.brightness) + 0.2 * Math.min(1, a.contrast / 0.3)),
-    pink:     _pinkAffinity(a.palette),
   };
   let num = 0, den = 0;
   for (const k in CURATE_WEIGHTS){ num += CURATE_WEIGHTS[k] * (s[k] || 0); den += CURATE_WEIGHTS[k]; }
