@@ -104,6 +104,10 @@
   .fr-srcthumb{height:64px;border-radius:6px;border:2px solid transparent;cursor:pointer;flex:0 0 auto}
   .fr-srcthumb.sel{border-color:var(--accent)}
   #fr_preview{width:100%;max-width:560px;border:1px solid var(--line);border-radius:10px;background:#000;display:block}
+  /* ---- Source pool ---- */
+  .src-list{display:flex;flex-direction:column;gap:6px}
+  .src-row{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:4px 2px}
+  .src-row input{accent-color:var(--accent)}
   .codebox{width:100%;background:#0d0f0a;border:1px solid var(--line);color:var(--accent2);border-radius:8px;padding:8px;font-family:monospace;font-size:11px;word-break:break-all;min-height:34px}
   .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:16px}
   .gcard{background:var(--panel2);border:1px solid var(--line);border-radius:10px;overflow:hidden}
@@ -132,6 +136,7 @@
   <div class="tab" data-tab="formula" onclick="showTab('formula')">Formula</div>
   <div class="tab" data-tab="series" onclick="showTab('series')">Series</div>
   <div class="tab" data-tab="brain" onclick="showTab('brain')">Brain</div>
+  <div class="tab" data-tab="source" onclick="showTab('source')">Source</div>
   <div class="tab" data-tab="gallery" onclick="showTab('gallery')">Gallery</div>
   <div class="tab" data-tab="frame" onclick="showTab('frame')">Frame</div>
 </div>
@@ -336,6 +341,7 @@
     <button class="act" onclick="generateSeries()">Generate Series</button>
     <button class="ghost" onclick="saveAllSeries()">Save All PNG</button>
   </div>
+  <div class="muted" id="s_source_note" style="margin-top:6px">Source: whole library <span style="opacity:.7">(set a pool in the Source tab)</span></div>
 
   <h3 style="margin-top:20px">Animate Sweep -&gt; Video</h3>
   <p class="muted">Renders the sweep (or reseed) as smooth motion and exports a WebM. Uses the Sweep parameter / range above. Best with Mode = Sweep.</p>
@@ -407,6 +413,39 @@
   </div>
 </section>
 
+<!-- ==================== SOURCE ==================== -->
+<section class="panel" id="panel-source">
+  <h3>Series Source Pool</h3>
+  <p class="muted">Choose what the next preview/series draws from: specific images, aesthetic groups, and/or mood boards. Selections <b>combine</b>. Leave everything unchecked to use the whole library. The engine still shuffles/reseeds <i>within</i> your pool, so Reseed still gives varied siblings.</p>
+  <div class="row" style="align-items:center;margin-bottom:12px">
+    <span class="libstats" id="src_count" style="margin:0">Source: whole library</span>
+    <span style="flex:1"></span>
+    <button class="ghost" onclick="clearSource()">Clear selection</button>
+  </div>
+  <div class="formwrap">
+    <div class="formcol" style="max-width:460px">
+      <details class="grp" open><summary>Mood Boards</summary><div class="grpbody"><div id="src_boards" class="src-list"></div></div></details>
+      <details class="grp" open><summary>Aesthetic Groups</summary><div class="grpbody">
+        <div class="row" style="align-items:center;margin-bottom:8px">
+          <button class="ghost" onclick="computeSourceGroups()">Compute groups</button>
+          <label style="margin:0">Groups</label>
+          <input type="range" id="src_k" min="2" max="6" value="3" style="width:110px"><span class="val" id="src_k_v">3</span>
+        </div>
+        <div id="src_groups" class="src-list"></div>
+      </div></details>
+    </div>
+    <div class="previewwrap">
+      <details class="grp" open><summary>Individual Images</summary><div class="grpbody">
+        <div class="row" style="margin-bottom:8px">
+          <button class="ghost" onclick="srcSelectAllImages(true)">Select all</button>
+          <button class="ghost" onclick="srcSelectAllImages(false)">Clear images</button>
+        </div>
+        <div class="libgrid" id="src_images" style="grid-template-columns:repeat(auto-fill,minmax(84px,1fr))"></div>
+      </div></details>
+    </div>
+  </div>
+</section>
+
 <!-- ==================== GALLERY ==================== -->
 <section class="panel" id="panel-gallery">
   <h3>Gallery / Archive</h3>
@@ -473,6 +512,7 @@
 <script src="video.js"></script>
 <script src="prompts.js"></script>
 <script src="brain.js"></script>
+<script src="source.js"></script>
 <script src="gallery.js"></script>
 <script src="frames.js"></script>
 </body>

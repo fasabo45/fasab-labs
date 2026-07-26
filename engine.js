@@ -155,9 +155,14 @@ function applyRecipeToForm(r){
 //==================== IMAGE SELECTION ====================
 function selectImages(recipe, lib, rng){
   let pool = lib;
+  if (recipe.pool && recipe.pool.length){          // Source tab: restrict to chosen images
+    const set = new Set(recipe.pool);
+    const sub = pool.filter(o => set.has(o.id));
+    if (sub.length) pool = sub;
+  }
   if (recipe.tag){
     const wanted = recipe.tag.toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
-    const filtered = lib.filter(o => (o.tags || []).some(t => wanted.includes(t.toLowerCase())));
+    const filtered = pool.filter(o => (o.tags || []).some(t => wanted.includes(t.toLowerCase())));
     if (filtered.length) pool = filtered;
   }
   const arr = pool.slice();
@@ -295,10 +300,21 @@ let _pinnedRefs = null;   // ref IDs carried over from a loaded code; null = pic
 // Let the Brain tab pin a mood board's images as the exact source set.
 window.setPinnedRefs = function(ids){ _pinnedRefs = (ids && ids.length) ? ids.slice() : null; };
 
+let _seriesPool = null;   // allowed image IDs the engine may pick from; null = whole library
+// The Source tab constrains generation to a chosen pool (images/groups/boards).
+// Unlike pinned refs, the engine still shuffles/reseeds WITHIN the pool.
+window.setSeriesPool = function(ids){
+  _seriesPool = (ids && ids.length) ? ids.slice() : null;
+  _pinnedRefs = null;                       // new source -> re-pick from the pool
+  if (window.onPoolChanged) onPoolChanged(_seriesPool);
+};
+window.getSeriesPool = function(){ return _seriesPool; };
+
 // Recipe straight from the form, re-attaching any pinned refs from a loaded code.
 function currentRecipe(){
   const r = readRecipeFromForm();
   if (_pinnedRefs && _pinnedRefs.length) r.refs = _pinnedRefs.slice();
+  if (_seriesPool && _seriesPool.length) r.pool = _seriesPool.slice();
   return r;
 }
 
@@ -331,6 +347,7 @@ async function loadFormulaCode(){
   try {
     const r = decodeRecipe(code);
     _pinnedRefs = (r.refs && r.refs.length) ? r.refs.slice() : null;  // honor the pinned images
+    _seriesPool = (r.pool && r.pool.length) ? r.pool.slice() : null;  // and the source pool
     applyRecipeToForm(r);
     await previewOne();
     toast('Formula loaded');

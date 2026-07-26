@@ -397,10 +397,12 @@ function groupName(a){
   return [light, temp, tex].join(' / ');
 }
 
-async function autoGroupLibrary(){
+// Shared aesthetic clustering -> {lib, groups}. Reused by the Library auto-group
+// view and the Source tab pool builder (DRY).
+async function computeGroups(k){
   const lib = await loadLibraryImages();
-  if (lib.length < 2){ toast('Need at least 2 images to group'); return; }
-  const k = Math.min(+document.getElementById('ag_k').value, lib.length);
+  if (lib.length < 2) return { lib, groups: [] };
+  k = Math.min(k, lib.length);
   const analyses = lib.map(o => cachedAnalysis(o.id, o.img));
   const vecs = analyses.map(featureVector);
   const assign = kmeans(vecs, k, makeRng('autogroup-' + lib.length + '-' + k));
@@ -413,6 +415,15 @@ async function autoGroupLibrary(){
     groups.push({ name: groupName(aes), ids: idxs.map(i => lib[i].id), imgs: idxs.map(i => lib[i].img.src), aesthetic: aes });
   }
   groups.sort((a, b) => b.ids.length - a.ids.length);
+  return { lib, groups };
+}
+window.computeGroups = computeGroups;
+window.getMoodBoards = () => loadBoards();
+
+async function autoGroupLibrary(){
+  const k = +document.getElementById('ag_k').value;
+  const { lib, groups } = await computeGroups(k);
+  if (lib.length < 2){ toast('Need at least 2 images to group'); return; }
   _lastGroups = groups;
   renderAutoGroups(groups);
   toast('Grouped into ' + groups.length + ' aesthetics');
