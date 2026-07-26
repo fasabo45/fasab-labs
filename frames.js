@@ -153,6 +153,14 @@ async function autoDetectActiveFrame(){
   toast('Opening auto-detected');
 }
 
+async function rotateActiveFrame(){
+  if (!_activeFrame){ toast('Select a frame first'); return; }
+  _activeFrame.rotate = !_activeFrame.rotate;
+  await fPut(_activeFrame);
+  renderFramedPreview();
+  toast(_activeFrame.rotate ? 'Frame rotated 90 (landscape)' : 'Frame upright (portrait)');
+}
+
 //==================== SOURCE ART ====================
 async function useLatestPreview(){
   const r = window.getLastRecipe && getLastRecipe();
@@ -217,17 +225,22 @@ function coverDraw(ctx, src, x, y, w, h){
 }
 function composeFramed(longSide){
   const fr = _activeFrame, img = _frameImgs.get(fr.id);
+  const rot = fr.rotate ? 90 : 0;                 // rotate the frame 90 CW for landscape
   const fw = img.naturalWidth, fh = img.naturalHeight;
   const scale = longSide / Math.max(fw, fh);
-  const W = Math.round(fw * scale), H = Math.round(fh * scale);
+  const W = Math.round((rot ? fh : fw) * scale), H = Math.round((rot ? fw : fh) * scale);
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const ctx = c.getContext('2d');
   ctx.fillStyle = (document.getElementById('fr_mat') || { value: '#000000' }).value;
   ctx.fillRect(0, 0, W, H);
-  const o = fr.opening;
+  // rotate the opening insets to match a 90 CW frame turn
+  const o = rot ? { l: fr.opening.b, t: fr.opening.l, r: fr.opening.t, b: fr.opening.r } : fr.opening;
   const ox = o.l * W, oy = o.t * H, ow = Math.max(1, (1 - o.l - o.r) * W), oh = Math.max(1, (1 - o.t - o.b) * H);
   const drawArt = () => { if (_artCanvas) coverDraw(ctx, _artCanvas, ox, oy, ow, oh); };
-  const drawFrame = () => ctx.drawImage(img, 0, 0, W, H);
+  const drawFrame = () => {
+    if (!rot){ ctx.drawImage(img, 0, 0, W, H); return; }
+    ctx.save(); ctx.translate(W, 0); ctx.rotate(Math.PI / 2); ctx.drawImage(img, 0, 0, H, W); ctx.restore();
+  };
   if (fr.frameOnTop){ drawArt(); drawFrame(); } else { drawFrame(); drawArt(); }
   return c;
 }
