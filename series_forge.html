@@ -83,6 +83,12 @@
   .metric .fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2))}
   .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
   .chip{font-size:11px;padding:3px 9px;border-radius:20px;background:#2a3015;color:var(--good);border:1px solid var(--line)}
+  .agroup{border:1px solid var(--line);border-radius:10px;margin-bottom:12px;background:var(--panel2);overflow:hidden}
+  .aghead{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .agname{font-weight:700;color:var(--accent);letter-spacing:.5px;font-size:13px}
+  .agn{font-size:11px;color:var(--muted)}
+  .agthumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px;padding:10px}
+  .agthumb{width:100%;height:56px;object-fit:cover;border-radius:6px;display:block;background:#000}
   .codebox{width:100%;background:#0d0f0a;border:1px solid var(--line);color:var(--accent2);border-radius:8px;padding:8px;font-family:monospace;font-size:11px;word-break:break-all;min-height:34px}
   .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:16px}
   .gcard{background:var(--panel2);border:1px solid var(--line);border-radius:10px;overflow:hidden}
@@ -127,6 +133,13 @@
     <button class="ghost" onclick="exportLibraryManifest()">Export Manifest (JSON)</button>
     <button class="danger" onclick="clearLibrary()">Clear Entire Library</button>
   </div>
+  <div class="row" style="margin-bottom:12px;align-items:center;gap:8px">
+    <button class="act" onclick="autoGroupLibrary()">Auto-Group by Aesthetic</button>
+    <label style="margin:0">Groups</label>
+    <input type="range" id="ag_k" min="2" max="6" value="3" style="width:120px">
+    <span class="val" id="ag_k_v">3</span>
+  </div>
+  <div id="autogroups"></div>
   <div class="libstats" id="libstats">Library empty.</div>
   <div class="libgrid" id="libgrid"></div>
 </section>

@@ -288,10 +288,140 @@ function forgeThisMood(){
   toast('Forging with these ' + ids.length + ' refs');
 }
 
+//==================== AUTO-GROUP BY AESTHETIC ====================
+let _lastGroups = [];
+
+function _hue(r, g, b){
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+  if (!d) return 0;
+  let h; if (mx === r) h = ((g - b) / d) % 6; else if (mx === g) h = (b - r) / d + 2; else h = (r - g) / d + 4;
+  h *= 60; return h < 0 ? h + 360 : h;
+}
+
+// Build a normalised 8-D aesthetic vector (hue is weighted by saturation).
+function featureVector(a){
+  const wn = Math.min(1, Math.max(0, a.warmth + 0.5));
+  const top = topPalette(a.buckets, 1)[0] || { r: 0, g: 0, b: 0 };
+  const hr = _hue(top.r, top.g, top.b) * Math.PI / 180;
+  return [
+    a.brightness, Math.min(1, a.contrast * 2.5), a.saturation, wn,
+    Math.min(1, a.detail * 3), a.colorfulness,
+    0.6 * Math.cos(hr) * a.saturation, 0.6 * Math.sin(hr) * a.saturation,
+  ];
+}
+
+function _dist2(a, b){ let s = 0; for (let i = 0; i < a.length; i++){ const d = a[i] - b[i]; s += d * d; } return s; }
+
+// Seeded k-means++ so the same library groups the same way each run.
+function kmeans(vecs, k, rng){
+  const n = vecs.length; k = Math.min(k, n);
+  const cents = [vecs[Math.floor(rng() * n)].slice()];
+  while (cents.length < k){
+    const d = vecs.map(v => Math.min(...cents.map(c => _dist2(v, c))));
+    const sum = d.reduce((a, b) => a + b, 0) || 1;
+    let r = rng() * sum, idx = 0;
+    for (; idx < n; idx++){ r -= d[idx]; if (r <= 0) break; }
+    cents.push(vecs[Math.min(idx, n - 1)].slice());
+  }
+  const assign = new Array(n).fill(0);
+  for (let it = 0; it < 12; it++){
+    for (let i = 0; i < n; i++){
+      let best = 0, bd = Infinity;
+      for (let c = 0; c < k; c++){ const dd = _dist2(vecs[i], cents[c]); if (dd < bd){ bd = dd; best = c; } }
+      assign[i] = best;
+    }
+    const dim = vecs[0].length;
+    const sums = Array.from({ length: k }, () => new Array(dim).fill(0));
+    const cnt = new Array(k).fill(0);
+    for (let i = 0; i < n; i++){ const c = assign[i]; cnt[c]++; for (let j = 0; j < dim; j++) sums[c][j] += vecs[i][j]; }
+    for (let c = 0; c < k; c++){
+      if (cnt[c] === 0){ cents[c] = vecs[Math.floor(rng() * n)].slice(); continue; }
+      for (let j = 0; j < dim; j++) cents[c][j] = sums[c][j] / cnt[c];
+    }
+  }
+  return assign;
+}
+
+function groupName(a){
+  const wn = Math.min(1, Math.max(0, a.warmth + 0.5));
+  const light = _word(a.brightness, [0.3, 0.55, 0.75], ['Dark', 'Dim', 'Bright', 'Luminous']);
+  const temp  = _word(wn, [0.42, 0.5, 0.62], ['Cool', 'Neutral', 'Warm', 'Hot']);
+  const tex   = _word(a.detail, [0.08, 0.15, 0.25], ['Minimal', 'Clean', 'Textured', 'Busy']);
+  return [light, temp, tex].join(' / ');
+}
+
+async function autoGroupLibrary(){
+  const lib = await loadLibraryImages();
+  if (lib.length < 2){ toast('Need at least 2 images to group'); return; }
+  const k = Math.min(+document.getElementById('ag_k').value, lib.length);
+  const analyses = lib.map(o => cachedAnalysis(o.id, o.img));
+  const vecs = analyses.map(featureVector);
+  const assign = kmeans(vecs, k, makeRng('autogroup-' + lib.length + '-' + k));
+  const groups = [];
+  for (let c = 0; c < k; c++){
+    const idxs = [];
+    assign.forEach((a, i) => { if (a === c) idxs.push(i); });
+    if (!idxs.length) continue;
+    const aes = aggregate(idxs.map(i => analyses[i]));
+    groups.push({ name: groupName(aes), ids: idxs.map(i => lib[i].id), imgs: idxs.map(i => lib[i].img.src), aesthetic: aes });
+  }
+  groups.sort((a, b) => b.ids.length - a.ids.length);
+  _lastGroups = groups;
+  renderAutoGroups(groups);
+  toast('Grouped into ' + groups.length + ' aesthetics');
+}
+
+function renderAutoGroups(groups){
+  const wrap = document.getElementById('autogroups');
+  wrap.innerHTML = '';
+  groups.forEach((g, gi) => {
+    const sw = g.aesthetic.palette.slice(0, 5)
+      .map(c => '<span class="swatch" style="width:22px;height:22px;background:rgb(' + c.r + ',' + c.g + ',' + c.b + ')"></span>').join('');
+    const thumbs = g.imgs.map(src => '<img src="' + src + '" class="agthumb" alt="">').join('');
+    const el = document.createElement('div');
+    el.className = 'agroup';
+    el.innerHTML =
+      '<div class="aghead">' +
+        '<span class="agname">' + g.name + '</span>' +
+        '<span class="swatches" style="margin:0">' + sw + '</span>' +
+        '<span class="agn">' + g.ids.length + ' imgs</span>' +
+        '<span style="flex:1"></span>' +
+        '<button class="ghost" onclick="saveGroupAsBoard(' + gi + ')">Save as board</button>' +
+        '<button class="ghost" onclick="tagGroup(' + gi + ')">Tag</button>' +
+      '</div>' +
+      '<div class="agthumbs">' + thumbs + '</div>';
+    wrap.appendChild(el);
+  });
+}
+
+function saveGroupAsBoard(gi){
+  const g = _lastGroups[gi]; if (!g) return;
+  const boards = loadBoards();
+  const name = g.name + ' (' + g.ids.length + ')';
+  boards.push({ id: Date.now() + gi, name, imageIds: g.ids.slice(), createdAt: Date.now(), aesthetic: g.aesthetic, prompt: '' });
+  saveBoards(boards); renderBoardList();
+  toast('Saved board "' + name + '"');
+}
+
+async function tagGroup(gi){
+  const g = _lastGroups[gi]; if (!g) return;
+  const tag = g.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  for (const id of g.ids){
+    const rec = await dbGet(id); if (!rec) continue;
+    rec.tags = rec.tags || [];
+    if (!rec.tags.includes(tag)) rec.tags.push(tag);
+    await dbPut(rec);
+  }
+  toast('Tagged ' + g.ids.length + ' images "' + tag + '"');
+  if (window.renderLibrary) renderLibrary();
+}
+
 //==================== INIT ====================
 function initBrain(){
   const tab = document.querySelector('.tab[data-tab="brain"]');
   if (tab) tab.addEventListener('click', () => { renderPicker(); renderBoardList(); });
+  const agk = document.getElementById('ag_k'), agv = document.getElementById('ag_k_v');
+  if (agk && agv) agk.addEventListener('input', () => { agv.textContent = agk.value; });
   renderBoardList();
 }
 initBrain();
