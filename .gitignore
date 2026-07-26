@@ -28,6 +28,7 @@
 !create_art_shortcut.ps1
 !create_sound_shortcut.ps1
 !create_forge_shortcut.ps1
+!pin_import.bat
 !dnb_icon.ico
 !art_icon.ico
 !sound_icon.ico

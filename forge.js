@@ -231,25 +231,51 @@ async function exportLibraryManifest(){
 }
 
 //==================== WIRING ====================
+// Recursively gather image files from a drop, walking into any dropped folders.
+// webkitGetAsEntry MUST be called synchronously during the drop event.
+function filesFromDrop(dt){
+  const items = dt.items;
+  if (!items || !items.length || !items[0].webkitGetAsEntry) return Promise.resolve([...dt.files]);
+  const roots = [];
+  for (const it of items){ const e = it.webkitGetAsEntry(); if (e) roots.push(e); }
+  if (!roots.length) return Promise.resolve([...dt.files]);
+  const out = [];
+  const walk = entry => new Promise(res => {
+    if (entry.isFile){ entry.file(f => { out.push(f); res(); }, () => res()); }
+    else if (entry.isDirectory){
+      const reader = entry.createReader();
+      const readBatch = () => reader.readEntries(async ents => {
+        if (!ents.length){ res(); return; }        // readEntries returns in chunks
+        await Promise.all(ents.map(walk));
+        readBatch();
+      }, () => res());
+      readBatch();
+    } else res();
+  });
+  return Promise.all(roots.map(walk)).then(() => out);
+}
+
 function wireDropzone(){
   const dz = document.getElementById('dropzone');
   const input = document.getElementById('fileInput');
+  const folder = document.getElementById('folderInput');
 
   dz.addEventListener('click', () => input.click());
   input.addEventListener('change', () => { importFiles(input.files); input.value = ''; });
+  if (folder) folder.addEventListener('change', () => { importFiles(folder.files); folder.value = ''; });
 
   ['dragenter', 'dragover'].forEach(evt =>
     dz.addEventListener(evt, e => { e.preventDefault(); dz.classList.add('hot'); }));
   ['dragleave', 'drop'].forEach(evt =>
     dz.addEventListener(evt, e => { e.preventDefault(); dz.classList.remove('hot'); }));
-  dz.addEventListener('drop', e => importFiles(e.dataTransfer.files));
+  dz.addEventListener('drop', e => filesFromDrop(e.dataTransfer).then(importFiles));
 
   // allow dropping anywhere on the page too
   window.addEventListener('dragover', e => e.preventDefault());
   window.addEventListener('drop', e => {
     e.preventDefault();
     if (e.target.closest('#dropzone')) return; // already handled
-    if (e.dataTransfer.files.length) importFiles(e.dataTransfer.files);
+    filesFromDrop(e.dataTransfer).then(fs => { if (fs.length) importFiles(fs); });
   });
 }
 

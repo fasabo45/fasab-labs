@@ -124,12 +124,14 @@
   <h3>Reference Library</h3>
   <p class="muted">Drop your reference images here (screenshots, captures, textures). They're stored locally in your browser (IndexedDB) and survive refreshes. Tag them so the formula can pick by theme later.</p>
   <div id="dropzone">
-    <p><b>Drag &amp; drop images here</b></p>
+    <p><b>Drag &amp; drop images or a whole folder here</b></p>
     <p class="muted">or click to browse — JPG / PNG / WEBP / GIF</p>
     <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
   </div>
   <div class="row" style="margin-bottom:10px">
     <button class="ghost" onclick="document.getElementById('fileInput').click()">+ Import Images</button>
+    <button class="ghost" onclick="document.getElementById('folderInput').click()">+ Import Folder</button>
+    <input type="file" id="folderInput" webkitdirectory multiple style="display:none">
     <button class="ghost" onclick="exportLibraryManifest()">Export Manifest (JSON)</button>
     <button class="danger" onclick="clearLibrary()">Clear Entire Library</button>
   </div>
