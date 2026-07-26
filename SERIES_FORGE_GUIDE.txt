@@ -1,6 +1,7 @@
 ================================================================================
                           SERIES  FORGE  -  USER  GUIDE
         Generative editions from your own reference library (offline)
+             Built to forge "gay-avant NFT" art - and learn your vibe
 ================================================================================
 
   Author : Fasab  (with Brodie the code puppy)
@@ -15,310 +16,305 @@
 --------------------------------------------------------------------------------
 
 Series Forge turns a library of reference images into generative "editions" -
-gritty collages / composites with film grades, degradation, HUD overlays,
-progressive destruction, and framing. It can analyze the aesthetic of your
-images, group them, generate matching prompts, and reproduce any result exactly
-from a short "formula code".
+maximal, layered, glitchy collages that can dissolve a chosen subject into
+chaos. It analyzes the aesthetic of your images, groups them, generates
+matching prompts, frames the results, archives everything, and - crucially -
+LEARNS which outputs you like and evolves toward that vibe.
 
-The whole thing is one HTML file plus companion .js files. Just open
-series_forge.html (double-click, or use the "Series Forge" desktop shortcut).
+It's one HTML file plus companion .js files. Just open series_forge.html
+(double-click, or the "Series Forge" desktop shortcut).
 
 
 --------------------------------------------------------------------------------
-  1.  THE TABS (top of the window)
+  1.  THE TABS  (top of the window)
 --------------------------------------------------------------------------------
 
   LIBRARY  - import reference images; tag them; auto-group by aesthetic
-  FORMULA  - design the look of a single piece; get/lock a formula code
+  FORMULA  - design the look of a single piece; Avant preset; formula codes
   SERIES   - forge a batch (reseed / sweep / decay) + export a video
   BRAIN    - mood boards, aesthetic analysis, prompt generator
-  SOURCE   - pick exactly which images/groups/boards a series draws from
-  GALLERY  - every generation is auto-archived here; download any edition
+  SOURCE   - pick the SUBJECT + the pool (images / groups / boards) for a series
+  GALLERY  - archive of every generation; Curator + the Like/Learn/Evolve loop
   FRAME    - drop a finished image into an ornate picture frame
 
-A typical flow reads left-ish to right: Library -> Brain/Source -> Formula ->
-Series -> Gallery -> Frame.
+Rough flow: Library -> Brain/Source -> Formula -> Series -> Gallery -> Frame,
+then loop back via the Gallery's feedback tools.
 
 
 --------------------------------------------------------------------------------
   2.  LIBRARY  -  get images in
 --------------------------------------------------------------------------------
 
-Ways to import:
+Import:
   * Drag & drop images (or a whole FOLDER) onto the drop zone.
   * "+ Import Images"  - pick individual files.
   * "+ Import Folder"  - pick a folder; every image inside is imported.
 
-Images are stored locally in your browser (IndexedDB) and survive refreshes.
+Stored locally (IndexedDB); survives refreshes.
 
 Tagging:
-  * Each card has a "tags" box. Type comma-separated tags (e.g. "snow, mw2").
-  * Tags can later be used as a filter in Formula, and are woven into prompts.
+  * Each card has a "tags" box (comma-separated, e.g. "anime, meme, 3d").
+  * Tags feed the Formula tag filter and the prompt generator.
 
 Auto-Group by Aesthetic:
-  * Set "Groups" (2-6) and press "Auto-Group by Aesthetic".
-  * The brain clusters your library into aesthetic families (e.g.
-    "Dark / Warm / Textured") with a palette + thumbnails.
-  * Per group you can "Save as board" (creates a mood board) or "Tag" (writes
-    the group name as a tag onto those images).
+  * Set "Groups" (2-6), press "Auto-Group by Aesthetic".
+  * Clusters the library into families (e.g. "Dark / Warm / Textured") with a
+    palette + thumbnails. Per group: "Save as board" or "Tag".
 
-Other buttons:
-  * "Export Manifest (JSON)" - saves a list of your library (names/tags/sizes).
-  * "Clear Entire Library"   - wipes all references (asks first).
+Also: "Export Manifest (JSON)", "Clear Entire Library".
 
 
 --------------------------------------------------------------------------------
-  3.  IMPORTING FROM PINTEREST  (bulk, no manual saving)
+  3.  IMPORTING FROM PINTEREST  (bulk)
 --------------------------------------------------------------------------------
 
-Series Forge itself can't scrape Pinterest (browser security), but you can bulk-
-download a board to a folder, then Import Folder.
+Series Forge can't scrape Pinterest, but gallery-dl (already installed) can
+bulk-download a board to a folder that you then Import Folder.
 
-One-time tool: gallery-dl (already installed on this machine via `uv tool`).
-
-To download a board:
-  * Double-click  pin_import.bat  (in the repo folder), paste a board URL like
+  * Double-click  pin_import.bat , paste a board URL:
         https://www.pinterest.com/<user>/<board>/
-    It downloads full-res images to:
+    Downloads full-res images to:
         %USERPROFILE%\series_forge_refs\pinterest\<user>\<board>\
   * URL tricks:
-        .../<user>/<board>/         one board
-        .../<user>/                 ALL of that user's boards
-        .../<user>/<board>/<sec>/   a board section
-
-Then: Library tab -> "+ Import Folder" -> pick that board folder. Done.
+        .../<user>/<board>/     one board
+        .../<user>/             ALL of that user's boards
+  * Then: Library -> "+ Import Folder" -> pick that board folder.
 
 
 --------------------------------------------------------------------------------
   4.  BRAIN  -  mood boards, analysis, prompts
 --------------------------------------------------------------------------------
 
-A "mood board" is a named group of library images that defines an aesthetic.
+A "mood board" is a named group of library images defining an aesthetic.
 
-Build / Edit Mood Board:
-  * Type a name, click images in the picker to select them, press "Save".
-  * "+ New" starts a fresh board; "Select all" / "Clear" help selection.
-  * Saved boards appear in the list - click one to load/edit it.
+Build / Edit: name it, click images to select, "Save". "+ New", "Select all",
+"Clear" help. Saved boards list - click to load/edit.
 
-Aesthetic Readout (press "Analyze"):
-  The brain reads your selected images and reports:
-    - a dominant color PALETTE (swatches)
-    - metric bars: Brightness, Contrast, Saturation, Warmth, Detail/texture,
-      Colorfulness
-    - descriptor chips (e.g. dark, muted, high-contrast, warm, textured)
-    - your aggregated tags
-  Everything runs offline via canvas pixel math - no AI service, no keys.
+Analyze (button): reports a color PALETTE, metric bars (Brightness, Contrast,
+Saturation, Warmth, Detail/texture, Colorfulness) and descriptor chips + tags.
+All offline canvas math - no AI service, no keys.
 
-Apply Aesthetic to Formula:
-  * Translates the analyzed vibe into Formula controls (grade, grade intensity,
-    grain, vignette, glitch, scanlines), jumps to Formula, and previews.
+Apply Aesthetic to Formula: translates the analyzed vibe into Formula controls
+(grade, intensity, grain, vignette, glitch, scanlines), jumps to Formula.
 
-Prompt Generator:
-  * (Optional) type a Subject, choose a Style lean (Auto / Cinematic / Analog /
-    NFT grunge / Vaporwave / Documentary).
-  * "Generate Prompt" builds a descriptive prompt from the aesthetic + palette
-    color names + your tags. "Reroll" for variety. "Copy Prompt" to grab it.
+Prompt Generator: optional Subject text + Style lean (incl. "Avant / Gay NFT"),
+"Generate Prompt", "Reroll", "Copy Prompt".
 
-Forge this mood ->:
-  * Pins the board's exact images AND applies its analyzed look, then previews
-    in Formula. One click = "make it look like this AND use these pictures."
+Forge this mood ->: pins the board's EXACT images AND applies its look, then
+previews. (For "draw from these but vary", use the Source tab pool instead.)
 
 
 --------------------------------------------------------------------------------
-  5.  SOURCE  -  choose what a series draws from
+  5.  SOURCE  -  the SUBJECT + what a series draws from
 --------------------------------------------------------------------------------
 
-By default a series can pull from your WHOLE library. The Source tab lets you
-narrow that "pool". Three sections, and they COMBINE (union):
+This is where you decide the INPUT to a series.
 
-  * Mood Boards      - check any saved boards.
-  * Aesthetic Groups - press "Compute groups", then check any clusters.
-  * Individual Images- click specific thumbnails ("Select all" / "Clear images").
+SUBJECT (optional) - the image the series ALTERS:
+  * Pick ONE image as the base "subject". It is drawn full-canvas, and the pool
+    fragments + formula effects (grade, grain, glitch, DECAY...) layer over it,
+    partially obscuring/dissolving it. "Alter" controls how much.
+  * This is the signature gay-avant move (the Mifella "dissolving figure").
+  * Leave unset for a pure collage. "Clear" removes it.
 
-The running count shows "Source pool: N images". The Series tab shows a matching
-note. "Clear selection" returns to the whole library.
+SOURCE POOL - what the collage/overlays are built from (they COMBINE):
+  * Mood Boards      - check saved boards.
+  * Aesthetic Groups - "Compute groups", then check clusters.
+  * Individual Images- click specific thumbnails.
+  * Running count = "Source pool: N images". Empty = whole library.
 
-IMPORTANT - pool vs exact:
-  * SOURCE POOL = "draw from these, but still vary." The engine shuffles and
-    reseeds WITHIN your pool, so Reseed mode still gives varied siblings.
-  * "Forge this mood" (Brain tab) = EXACT images, reproduced precisely.
-  Use the pool to constrain generation; use Forge-this-mood to reproduce.
-  (Setting a Source pool clears any exact pin so the pool takes effect.)
+POOL vs EXACT (important):
+  * SOURCE POOL = "draw from these, but still vary" - the engine shuffles/reseeds
+    WITHIN your pool, so Reseed still gives varied siblings.
+  * "Forge this mood" (Brain) = EXACT images, reproduced precisely.
+  Setting a Source pool clears any exact pin so the pool takes effect.
 
 
 --------------------------------------------------------------------------------
   6.  FORMULA  -  design the look
 --------------------------------------------------------------------------------
 
-Sections are collapsible. Press "Preview One" (top-right) any time; the preview
-column stays pinned while you scroll.
+Collapsible sections. "Preview One" (top-right) renders; the preview column
+stays pinned while you scroll. "Avant preset (on-genre look)" sets an instant
+gay-avant starting point (Stack, heavy fragments, VHS grade, grain, glitch,
+decay, dust/scratches, Avant prompt style) - then set a Subject + Alter.
 
-  COMPOSITION
-    - Source tag filter : blank = all; or type tags to draw only those images.
-    - Layout           : Stack (blended composite - the default vibe),
-                         Scatter, Grid, Strip.
-    - Fragments        : how many image pieces are placed.
-    - Torn fragments   : crop ragged sub-rectangles instead of whole images.
-    - Fragment scale   : size of scattered fragments.
-    - Rotation jitter  : random rotation amount.
+  COMPOSITION : tag filter, Layout (Stack=default blended vibe / Scatter / Grid /
+                Strip), Fragments, Torn fragments, Fragment scale, Rotation.
+  GRADE & FX  : Grade (CoD / Bleach / VHS / Sepia / Noir / Mono / Night Vision /
+                None), Grade intensity, Film grain, Vignette, Scanlines,
+                Glitch / RGB split, and BREAK / DESTRUCTION (see Series > Decay).
+  DEGRADATION : Rust, Burn, Cracks, Scratches, Dust, Stains.
+  HUD OVERLAY : crosshair, ammo, minimap, killfeed, compass, low-health pulse.
+  TRANSMISSION// OVERLAYS : redacted + CLASSIFIED stamps, timecode, UFO,
+                conspiracy coords, holo sheen, NFT edition stamp.
+  OUTPUT      : Canvas size, Seed (+ "Roll").
 
-  GRADE & FX
-    - Grade    : CoD Nostalgic, Bleach Bypass, Faded VHS, Sepia, Noir,
-                 Gritty Mono, Night Vision, or None.
-    - Grade intensity, Film grain, Vignette, Scanlines, Glitch / RGB split.
-    - Break / Destruction : progressive damage (see Series > Decay). At higher
-                 values: warp, channel shatter, datamosh, pixel-sort, melt.
-
-  DEGRADATION : Rust, Burn/scorch, Cracks, Scratches, Dust/grime, Stains/water.
-
-  HUD OVERLAY : fake game HUD - crosshair, ammo, minimap, killfeed, compass,
-                low-health pulse, in green/amber/white.
-
-  TRANSMISSION // OVERLAYS : redacted bars + CLASSIFIED stamps, surveillance
-                timecode, UFO + tractor beam, conspiracy coords, holo sheen,
-                NFT edition stamp.
-
-  OUTPUT
-    - Canvas : 1024x1024, 1280x720, 1080x1350, 720x900.
-    - Seed   : text that determines the randomness. "Roll" for a new one.
-
-  FORMULA CODE (reproducibility)
-    - After Preview, a "formula code" appears. It captures ALL settings, the
-      seed, the exact images used (baked IDs), and any Source pool - so it
-      recreates the piece exactly, even on another day.
-    - "Copy Code" to save it. Paste a code into the box and press "Load" to
-      restore that exact look.
+  FORMULA CODE : after Preview, a code appears capturing ALL settings, the seed,
+  the exact images used, the source pool, and the subject/alter - so it recreates
+  the piece exactly. "Copy Code"; paste a code + "Load" to restore a look.
 
 
 --------------------------------------------------------------------------------
   7.  SERIES  -  forge a batch
 --------------------------------------------------------------------------------
 
-Set your look in Formula first, then come here.
+Set your look in Formula, then:
 
   Mode:
-    - Reseed  : unique siblings (same look, different seed each = varied images
-                from your pool).
-    - Sweep   : one parameter evolves From -> To across the batch (choose the
-                parameter + range).
-    - Decay   : PROGRESSIVE DESTRUCTION. Keeps the same seed/images and ramps
-                "Break" 0 -> 100 across the batch, so ONE composite disintegrates
-                step by step - subtle cracks early, total glitch chaos at the end.
+    - Reseed : unique siblings (same look, varied images/layout each seed;
+               stays within your Source pool).
+    - Sweep  : one parameter evolves From -> To across the batch.
+    - Decay  : PROGRESSIVE DESTRUCTION - same seed/images, ramps "Break" 0 -> 100
+               so ONE composite disintegrates step by step (row jitter -> warp ->
+               channel shatter -> datamosh -> melt -> pixel-sort -> slice-scramble
+               -> chaos). Perfect for the "dissolving subject" look.
 
-  Count      : how many editions (1-24).
-  Generate Series : renders the batch as thumbnails.
-  Save All PNG    : downloads full-res PNGs (see note below).
+  Count, "Generate Series", "Save All PNG".
+  A source note shows what the batch draws from.
+  EVERY generation is AUTO-ARCHIVED to the Gallery.
 
-  Every generation is AUTO-ARCHIVED to the Gallery tab.
-
-  ANIMATE SWEEP -> VIDEO
-    - Renders the sweep (or decay) as smooth motion and exports a .webm.
-    - Set Video frames + FPS, choose Mode = Sweep with parameter = Decay for an
-      animated destruction clip. Then "Export Sweep Video (WebM)".
+  ANIMATE SWEEP -> VIDEO: renders a sweep/decay as motion and exports .webm.
+  Tip: Mode=Sweep, parameter=Destruction/Decay for an animated destruction clip.
 
 
 --------------------------------------------------------------------------------
-  8.  GALLERY  -  your archive
+  8.  GALLERY  -  archive, Curator, and the FEEDBACK LOOP
 --------------------------------------------------------------------------------
 
-Every series you generate lands here automatically (thumbnail + formula code),
-grouped by generation (timestamp). It persists across sessions.
+Every series lands here automatically (thumbnail + formula code), grouped by
+generation. Persists across sessions.
 
-  * Click a thumbnail  : enlarge (re-rendered full-res).
-  * "Download"         : re-renders that edition at FULL resolution and saves it.
-  * "Download all"     : whole batch, one at a time (reliable).
-  * "Delete" / "Clear Gallery" : housekeeping.
+Per edition:
+  * Click a thumbnail : enlarge (full-res).
+  * "Like"            : heart it (feeds the learning loop - see below).
+  * "Download"        : re-renders that edition FULL resolution and saves it.
+  * "Download all" / "Delete" / "Clear Gallery".
 
-Why this exists: browsers block bulk downloads, so "Save All" can drop files.
-The Gallery is the safe copy - grab editions from here one click at a time.
+CURATOR (article-based ranking):
+  * "Rank: Gay-Avant NFT" scores every edition on the genre's visual core -
+    maximal schizocollage + subject disruption + collage layering + distortion -
+    sorts best-first with score % badges, marks the TOP 20.
+  * "Save Best -> board" collects the top 20 editions' SOURCE images into a
+    "Best of" mood board (use it back in the Source tab to make more like them).
+  * "Newest first" returns to the normal view.
+
+THE FEEDBACK LOOP (learns YOUR taste):
+  1. HEART the editions that nail your vibe (Like button).
+  2. "Learn my vibe" - averages the aesthetics AND recipe params of everything
+     you liked into a personal profile (needs >= 2 likes).
+  3. "Evolve ->" - applies that profile WITH mutation, pulls from your liked
+     source images, switches to Series (reseed) and generates a fresh batch
+     that explores around your taste.
+  4. "Rank: My Vibe" - sorts the gallery by closeness to YOUR learned profile.
+  5. Heart the new keepers -> Learn again -> Evolve again. It converges.
+  Status line: "Vibe learned from N likes | M liked now".
 
 
 --------------------------------------------------------------------------------
   9.  FRAME  -  put art in a frame
 --------------------------------------------------------------------------------
 
-Frames live in their OWN library (they never get used as collage fragments).
+Frames live in their OWN library (never used as collage fragments).
 
-  1. "+ Import Frames" or "+ Import Folder" (e.g. your Pinterest frames folder).
-  2. Click a frame to make it active. Its opening is auto-detected.
-  3. Pick the SOURCE art: click a Gallery thumbnail, or "Use latest preview".
-  4. Adjust if needed:
-       - Mat / background colour (default black; fills gaps + transparent areas).
-       - Inset sliders (left/top/right/bottom) nudge the opening.
-       - "Auto-detect opening" re-finds the hole.
-  5. "Download Framed PNG" saves it (~1600px, using the frame's aspect ratio;
-     the art fills the opening, cover-cropped).
+  1. "+ Import Frames" / "+ Import Folder".
+  2. Click a frame to activate it (opening auto-detected).
+  3. Pick SOURCE art: a Gallery thumbnail, or "Use latest preview".
+  4. Adjust: Mat / background colour; Inset sliders (L/T/R/B); "Auto-detect
+     opening".
+  5. "Download Framed PNG" (~1600px, frame's aspect, art cover-cropped).
 
-Works with transparent PNG frames (frame drawn over art) and solid frames alike.
+Handles transparent PNG frames and solid frames alike.
 
 
 --------------------------------------------------------------------------------
-  10.  SUGGESTED WORKFLOW  (end to end)
+  10.  THE AVANT-GAY NFT WORKFLOW  (the whole point)
 --------------------------------------------------------------------------------
 
-  1. LIBRARY : import a bunch of references (or a Pinterest board via
-     pin_import.bat -> Import Folder). Tag a few if you like.
-  2. LIBRARY : Auto-Group by Aesthetic to see the families in your collection.
-  3. BRAIN   : build a mood board (or Save a group as a board). Analyze it.
-     Optionally generate a prompt or "Apply Aesthetic to Formula".
-  4. SOURCE  : (optional) check the board/group/images you want this run to use.
-  5. FORMULA : tweak the look. Layout = Stack for the blended vibe. Preview One.
-     Copy the formula code if you love it.
-  6. SERIES  : choose Reseed for variety, or Decay for a destruction sequence.
-     Set Count, Generate. (Auto-archived to Gallery.)
-  7. GALLERY : download the keepers full-res.
-  8. FRAME   : drop a favorite into an ornate frame and export.
+A repeatable recipe toward the genre:
 
+  1. LIBRARY : import an appropriated grab-bag (anime, memes, 3D renders, pixel
+     art, retro graphics) - a Pinterest board via pin_import.bat is ideal.
+  2. SOURCE  : pick a SUBJECT (the figure to dissolve). Set the pool to a mood
+     board / aesthetic group of your source material.
+  3. FORMULA : hit "Avant preset". Bump Fragments (traitmaxxing density). Set a
+     high Alter in Source so the subject gets obscured. Preview.
+  4. SERIES  : Reseed for variety, or Decay to disintegrate the subject into
+     chaos. Generate. (Auto-archived.)
+  5. GALLERY : "Rank: Gay-Avant NFT" to see the strongest. HEART your favorites.
+  6. LEARN + EVOLVE : "Learn my vibe" -> "Evolve ->". Heart the best of the new
+     batch. Repeat. Each loop sharpens toward your vision.
+  7. FRAME the keepers and export.
 
---------------------------------------------------------------------------------
-  11.  REPRODUCIBILITY  (formula codes explained)
---------------------------------------------------------------------------------
-
-A formula code (starts with "FRG1.") encodes everything needed to recreate a
-piece: all sliders/toggles, the seed, the exact image IDs it used, and any
-Source pool. Save codes in a text file to rebuild pieces later or share settings.
-
-Notes:
-  * Image IDs are specific to THIS browser's library. A code reproduces exactly
-    as long as those images still exist here.
-  * Change the seed or tags by hand and the pinned images reset (fresh pick).
+The genre's signature = a MAXIMAL layered collage that DISSOLVES a central
+subject into illegible chaos. In this app that is:
+  Subject + high Alter + Stack + high Fragments + Decay/Glitch, from an
+  appropriated pool.
 
 
 --------------------------------------------------------------------------------
-  12.  TROUBLESHOOTING / FAQ
+  11.  WHAT IS "GAY / AVANT NFT" ART?  (short version)
 --------------------------------------------------------------------------------
 
-Q: "Save All PNG" only saved one file (or none)?
-   A: Browsers block bulk downloads. Use the GALLERY tab and download editions
-      individually - it's the reliable path.
+A grassroots, internet-native, Solana-centered art movement - a "punk rebellion"
+against polished Ethereum "fine art". Defined by a conceptual approach and
+community more than one style, guided by humor, irony, and the absurd. Visually:
+"traitmaxxing" hundreds of layers into hyper-collaged images until the avatar is
+completely illegible; appropriation of art history, video games, fashion, memes,
+and prior NFTs; deliberately "ugly"/amateur/retro (glitch, MS Paint, gaudy 3D,
+neon); camp/queer sensibility; AI + hand editing.
 
-Q: A framed image shows white where art should be, or the art overflows?
-   A: Use the Frame tab's inset sliders to move the opening, or press
-      "Auto-detect opening" again. Very ornate frames sometimes need a nudge.
+Full distilled definition (from two source articles) lives in the repo at:
+  docs/gay_avant_nft.md
+This is what the Curator's scoring is calibrated against.
 
-Q: My Source pool seems ignored?
-   A: Make sure something is actually checked (count > 0). Note that "Forge this
-      mood" uses EXACT images and overrides the pool; setting a Source pool
-      clears that exact pin.
+
+--------------------------------------------------------------------------------
+  12.  REPRODUCIBILITY  (formula codes)
+--------------------------------------------------------------------------------
+
+A formula code ("FRG1....") encodes everything: settings, seed, the exact image
+IDs used, the source pool, and the subject/alter. Save codes in a text file to
+rebuild or share pieces. Image IDs are specific to THIS browser's library, so a
+code reproduces exactly as long as those images still exist here.
+
+
+--------------------------------------------------------------------------------
+  13.  TROUBLESHOOTING / FAQ
+--------------------------------------------------------------------------------
+
+Q: "Save All PNG" only saved one file?
+   A: Browsers block bulk downloads. Use the GALLERY - download editions
+      individually (reliable), or "Download all" (staggered).
+
+Q: "Evolve" or "Learn my vibe" says nothing happens?
+   A: You need at least 2 HEARTED editions in the Gallery first.
+
+Q: The Curator's top picks don't match my taste?
+   A: Use the FEEDBACK LOOP instead (Like -> Learn -> Rank: My Vibe / Evolve) -
+      that learns YOUR taste, not the generic profile.
+
+Q: My Source pool / Subject seems ignored?
+   A: Check the count > 0 and the subject thumbnail is set. Note "Forge this
+      mood" (Brain) uses EXACT images and overrides a pool.
+
+Q: A framed image shows white where art should be?
+   A: Nudge the Frame inset sliders or press "Auto-detect opening" again.
 
 Q: Nothing renders / "Library empty"?
    A: Import references in the Library tab first.
 
-Q: Where are my downloads?
-   A: Your browser's default Downloads folder.
-
-Q: Is anything uploaded to the internet?
-   A: No. Everything is local. (The only network tool is gallery-dl, which you
-      run yourself to fetch Pinterest boards.)
+Q: Is anything uploaded?
+   A: No. All local. (gallery-dl, run by you, is the only network tool.)
 
 
 --------------------------------------------------------------------------------
-  13.  FILES  (for the curious / developers)
+  14.  FILES  (for the curious / developers)
 --------------------------------------------------------------------------------
 
-  series_forge.html  - the app shell + all UI
+  series_forge.html  - app shell + all UI
   forge.js           - library import + IndexedDB (refs / gallery / frames)
-  engine.js          - recipe -> collage renderer, series, formula codes
+  engine.js          - recipe -> collage renderer, subject, series, formula codes
   fx.js              - colour grade + glitch pixel effects
   decay.js           - progressive destruction pipeline
   degrade.js         - rust / burn / cracks / scratches / dust / stains
@@ -326,14 +322,16 @@ Q: Is anything uploaded to the internet?
   overlays.js        - transmission / conspiracy / NFT overlays
   video.js           - sweep -> WebM export
   brain.js           - aesthetic analysis, mood boards, auto-grouping
-  prompts.js         - aesthetic -> text prompt generator
-  gallery.js         - generation archive
+  prompts.js         - aesthetic -> text prompt generator (incl. Avant lean)
+  source.js          - Subject picker + series source pool builder
+  gallery.js         - generation archive + Curator ranking + Like buttons
   frames.js          - frame library + framing/compositing
-  source.js          - series source pool builder
+  evolve.js          - Avant preset + Like/Learn/Evolve vibe feedback loop
   pin_import.bat     - Pinterest board downloader (gallery-dl)
+  docs/gay_avant_nft.md - distilled genre definition (Curator calibration)
 
-  Everything is vanilla JavaScript - no build step, no dependencies.
+  Vanilla JavaScript - no build step, no dependencies.
 
 ================================================================================
-  Happy forging.  - Brodie
+  Happy forging.  Heart the good ones and let it learn.  - Brodie
 ================================================================================
