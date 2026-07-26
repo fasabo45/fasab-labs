@@ -1,0 +1,339 @@
+================================================================================
+                          SERIES  FORGE  -  USER  GUIDE
+        Generative editions from your own reference library (offline)
+================================================================================
+
+  Author : Fasab  (with Brodie the code puppy)
+  App    : series_forge.html  (open it in a modern browser - no install/server)
+  Repo   : github.com/fasabo45/fasab-labs
+  Privacy: 100% offline. Nothing is uploaded. Everything lives in your browser
+           (IndexedDB / localStorage) and on your disk.
+
+
+--------------------------------------------------------------------------------
+  0.  WHAT IS THIS?
+--------------------------------------------------------------------------------
+
+Series Forge turns a library of reference images into generative "editions" -
+gritty collages / composites with film grades, degradation, HUD overlays,
+progressive destruction, and framing. It can analyze the aesthetic of your
+images, group them, generate matching prompts, and reproduce any result exactly
+from a short "formula code".
+
+The whole thing is one HTML file plus companion .js files. Just open
+series_forge.html (double-click, or use the "Series Forge" desktop shortcut).
+
+
+--------------------------------------------------------------------------------
+  1.  THE TABS (top of the window)
+--------------------------------------------------------------------------------
+
+  LIBRARY  - import reference images; tag them; auto-group by aesthetic
+  FORMULA  - design the look of a single piece; get/lock a formula code
+  SERIES   - forge a batch (reseed / sweep / decay) + export a video
+  BRAIN    - mood boards, aesthetic analysis, prompt generator
+  SOURCE   - pick exactly which images/groups/boards a series draws from
+  GALLERY  - every generation is auto-archived here; download any edition
+  FRAME    - drop a finished image into an ornate picture frame
+
+A typical flow reads left-ish to right: Library -> Brain/Source -> Formula ->
+Series -> Gallery -> Frame.
+
+
+--------------------------------------------------------------------------------
+  2.  LIBRARY  -  get images in
+--------------------------------------------------------------------------------
+
+Ways to import:
+  * Drag & drop images (or a whole FOLDER) onto the drop zone.
+  * "+ Import Images"  - pick individual files.
+  * "+ Import Folder"  - pick a folder; every image inside is imported.
+
+Images are stored locally in your browser (IndexedDB) and survive refreshes.
+
+Tagging:
+  * Each card has a "tags" box. Type comma-separated tags (e.g. "snow, mw2").
+  * Tags can later be used as a filter in Formula, and are woven into prompts.
+
+Auto-Group by Aesthetic:
+  * Set "Groups" (2-6) and press "Auto-Group by Aesthetic".
+  * The brain clusters your library into aesthetic families (e.g.
+    "Dark / Warm / Textured") with a palette + thumbnails.
+  * Per group you can "Save as board" (creates a mood board) or "Tag" (writes
+    the group name as a tag onto those images).
+
+Other buttons:
+  * "Export Manifest (JSON)" - saves a list of your library (names/tags/sizes).
+  * "Clear Entire Library"   - wipes all references (asks first).
+
+
+--------------------------------------------------------------------------------
+  3.  IMPORTING FROM PINTEREST  (bulk, no manual saving)
+--------------------------------------------------------------------------------
+
+Series Forge itself can't scrape Pinterest (browser security), but you can bulk-
+download a board to a folder, then Import Folder.
+
+One-time tool: gallery-dl (already installed on this machine via `uv tool`).
+
+To download a board:
+  * Double-click  pin_import.bat  (in the repo folder), paste a board URL like
+        https://www.pinterest.com/<user>/<board>/
+    It downloads full-res images to:
+        %USERPROFILE%\series_forge_refs\pinterest\<user>\<board>\
+  * URL tricks:
+        .../<user>/<board>/         one board
+        .../<user>/                 ALL of that user's boards
+        .../<user>/<board>/<sec>/   a board section
+
+Then: Library tab -> "+ Import Folder" -> pick that board folder. Done.
+
+
+--------------------------------------------------------------------------------
+  4.  BRAIN  -  mood boards, analysis, prompts
+--------------------------------------------------------------------------------
+
+A "mood board" is a named group of library images that defines an aesthetic.
+
+Build / Edit Mood Board:
+  * Type a name, click images in the picker to select them, press "Save".
+  * "+ New" starts a fresh board; "Select all" / "Clear" help selection.
+  * Saved boards appear in the list - click one to load/edit it.
+
+Aesthetic Readout (press "Analyze"):
+  The brain reads your selected images and reports:
+    - a dominant color PALETTE (swatches)
+    - metric bars: Brightness, Contrast, Saturation, Warmth, Detail/texture,
+      Colorfulness
+    - descriptor chips (e.g. dark, muted, high-contrast, warm, textured)
+    - your aggregated tags
+  Everything runs offline via canvas pixel math - no AI service, no keys.
+
+Apply Aesthetic to Formula:
+  * Translates the analyzed vibe into Formula controls (grade, grade intensity,
+    grain, vignette, glitch, scanlines), jumps to Formula, and previews.
+
+Prompt Generator:
+  * (Optional) type a Subject, choose a Style lean (Auto / Cinematic / Analog /
+    NFT grunge / Vaporwave / Documentary).
+  * "Generate Prompt" builds a descriptive prompt from the aesthetic + palette
+    color names + your tags. "Reroll" for variety. "Copy Prompt" to grab it.
+
+Forge this mood ->:
+  * Pins the board's exact images AND applies its analyzed look, then previews
+    in Formula. One click = "make it look like this AND use these pictures."
+
+
+--------------------------------------------------------------------------------
+  5.  SOURCE  -  choose what a series draws from
+--------------------------------------------------------------------------------
+
+By default a series can pull from your WHOLE library. The Source tab lets you
+narrow that "pool". Three sections, and they COMBINE (union):
+
+  * Mood Boards      - check any saved boards.
+  * Aesthetic Groups - press "Compute groups", then check any clusters.
+  * Individual Images- click specific thumbnails ("Select all" / "Clear images").
+
+The running count shows "Source pool: N images". The Series tab shows a matching
+note. "Clear selection" returns to the whole library.
+
+IMPORTANT - pool vs exact:
+  * SOURCE POOL = "draw from these, but still vary." The engine shuffles and
+    reseeds WITHIN your pool, so Reseed mode still gives varied siblings.
+  * "Forge this mood" (Brain tab) = EXACT images, reproduced precisely.
+  Use the pool to constrain generation; use Forge-this-mood to reproduce.
+  (Setting a Source pool clears any exact pin so the pool takes effect.)
+
+
+--------------------------------------------------------------------------------
+  6.  FORMULA  -  design the look
+--------------------------------------------------------------------------------
+
+Sections are collapsible. Press "Preview One" (top-right) any time; the preview
+column stays pinned while you scroll.
+
+  COMPOSITION
+    - Source tag filter : blank = all; or type tags to draw only those images.
+    - Layout           : Stack (blended composite - the default vibe),
+                         Scatter, Grid, Strip.
+    - Fragments        : how many image pieces are placed.
+    - Torn fragments   : crop ragged sub-rectangles instead of whole images.
+    - Fragment scale   : size of scattered fragments.
+    - Rotation jitter  : random rotation amount.
+
+  GRADE & FX
+    - Grade    : CoD Nostalgic, Bleach Bypass, Faded VHS, Sepia, Noir,
+                 Gritty Mono, Night Vision, or None.
+    - Grade intensity, Film grain, Vignette, Scanlines, Glitch / RGB split.
+    - Break / Destruction : progressive damage (see Series > Decay). At higher
+                 values: warp, channel shatter, datamosh, pixel-sort, melt.
+
+  DEGRADATION : Rust, Burn/scorch, Cracks, Scratches, Dust/grime, Stains/water.
+
+  HUD OVERLAY : fake game HUD - crosshair, ammo, minimap, killfeed, compass,
+                low-health pulse, in green/amber/white.
+
+  TRANSMISSION // OVERLAYS : redacted bars + CLASSIFIED stamps, surveillance
+                timecode, UFO + tractor beam, conspiracy coords, holo sheen,
+                NFT edition stamp.
+
+  OUTPUT
+    - Canvas : 1024x1024, 1280x720, 1080x1350, 720x900.
+    - Seed   : text that determines the randomness. "Roll" for a new one.
+
+  FORMULA CODE (reproducibility)
+    - After Preview, a "formula code" appears. It captures ALL settings, the
+      seed, the exact images used (baked IDs), and any Source pool - so it
+      recreates the piece exactly, even on another day.
+    - "Copy Code" to save it. Paste a code into the box and press "Load" to
+      restore that exact look.
+
+
+--------------------------------------------------------------------------------
+  7.  SERIES  -  forge a batch
+--------------------------------------------------------------------------------
+
+Set your look in Formula first, then come here.
+
+  Mode:
+    - Reseed  : unique siblings (same look, different seed each = varied images
+                from your pool).
+    - Sweep   : one parameter evolves From -> To across the batch (choose the
+                parameter + range).
+    - Decay   : PROGRESSIVE DESTRUCTION. Keeps the same seed/images and ramps
+                "Break" 0 -> 100 across the batch, so ONE composite disintegrates
+                step by step - subtle cracks early, total glitch chaos at the end.
+
+  Count      : how many editions (1-24).
+  Generate Series : renders the batch as thumbnails.
+  Save All PNG    : downloads full-res PNGs (see note below).
+
+  Every generation is AUTO-ARCHIVED to the Gallery tab.
+
+  ANIMATE SWEEP -> VIDEO
+    - Renders the sweep (or decay) as smooth motion and exports a .webm.
+    - Set Video frames + FPS, choose Mode = Sweep with parameter = Decay for an
+      animated destruction clip. Then "Export Sweep Video (WebM)".
+
+
+--------------------------------------------------------------------------------
+  8.  GALLERY  -  your archive
+--------------------------------------------------------------------------------
+
+Every series you generate lands here automatically (thumbnail + formula code),
+grouped by generation (timestamp). It persists across sessions.
+
+  * Click a thumbnail  : enlarge (re-rendered full-res).
+  * "Download"         : re-renders that edition at FULL resolution and saves it.
+  * "Download all"     : whole batch, one at a time (reliable).
+  * "Delete" / "Clear Gallery" : housekeeping.
+
+Why this exists: browsers block bulk downloads, so "Save All" can drop files.
+The Gallery is the safe copy - grab editions from here one click at a time.
+
+
+--------------------------------------------------------------------------------
+  9.  FRAME  -  put art in a frame
+--------------------------------------------------------------------------------
+
+Frames live in their OWN library (they never get used as collage fragments).
+
+  1. "+ Import Frames" or "+ Import Folder" (e.g. your Pinterest frames folder).
+  2. Click a frame to make it active. Its opening is auto-detected.
+  3. Pick the SOURCE art: click a Gallery thumbnail, or "Use latest preview".
+  4. Adjust if needed:
+       - Mat / background colour (default black; fills gaps + transparent areas).
+       - Inset sliders (left/top/right/bottom) nudge the opening.
+       - "Auto-detect opening" re-finds the hole.
+  5. "Download Framed PNG" saves it (~1600px, using the frame's aspect ratio;
+     the art fills the opening, cover-cropped).
+
+Works with transparent PNG frames (frame drawn over art) and solid frames alike.
+
+
+--------------------------------------------------------------------------------
+  10.  SUGGESTED WORKFLOW  (end to end)
+--------------------------------------------------------------------------------
+
+  1. LIBRARY : import a bunch of references (or a Pinterest board via
+     pin_import.bat -> Import Folder). Tag a few if you like.
+  2. LIBRARY : Auto-Group by Aesthetic to see the families in your collection.
+  3. BRAIN   : build a mood board (or Save a group as a board). Analyze it.
+     Optionally generate a prompt or "Apply Aesthetic to Formula".
+  4. SOURCE  : (optional) check the board/group/images you want this run to use.
+  5. FORMULA : tweak the look. Layout = Stack for the blended vibe. Preview One.
+     Copy the formula code if you love it.
+  6. SERIES  : choose Reseed for variety, or Decay for a destruction sequence.
+     Set Count, Generate. (Auto-archived to Gallery.)
+  7. GALLERY : download the keepers full-res.
+  8. FRAME   : drop a favorite into an ornate frame and export.
+
+
+--------------------------------------------------------------------------------
+  11.  REPRODUCIBILITY  (formula codes explained)
+--------------------------------------------------------------------------------
+
+A formula code (starts with "FRG1.") encodes everything needed to recreate a
+piece: all sliders/toggles, the seed, the exact image IDs it used, and any
+Source pool. Save codes in a text file to rebuild pieces later or share settings.
+
+Notes:
+  * Image IDs are specific to THIS browser's library. A code reproduces exactly
+    as long as those images still exist here.
+  * Change the seed or tags by hand and the pinned images reset (fresh pick).
+
+
+--------------------------------------------------------------------------------
+  12.  TROUBLESHOOTING / FAQ
+--------------------------------------------------------------------------------
+
+Q: "Save All PNG" only saved one file (or none)?
+   A: Browsers block bulk downloads. Use the GALLERY tab and download editions
+      individually - it's the reliable path.
+
+Q: A framed image shows white where art should be, or the art overflows?
+   A: Use the Frame tab's inset sliders to move the opening, or press
+      "Auto-detect opening" again. Very ornate frames sometimes need a nudge.
+
+Q: My Source pool seems ignored?
+   A: Make sure something is actually checked (count > 0). Note that "Forge this
+      mood" uses EXACT images and overrides the pool; setting a Source pool
+      clears that exact pin.
+
+Q: Nothing renders / "Library empty"?
+   A: Import references in the Library tab first.
+
+Q: Where are my downloads?
+   A: Your browser's default Downloads folder.
+
+Q: Is anything uploaded to the internet?
+   A: No. Everything is local. (The only network tool is gallery-dl, which you
+      run yourself to fetch Pinterest boards.)
+
+
+--------------------------------------------------------------------------------
+  13.  FILES  (for the curious / developers)
+--------------------------------------------------------------------------------
+
+  series_forge.html  - the app shell + all UI
+  forge.js           - library import + IndexedDB (refs / gallery / frames)
+  engine.js          - recipe -> collage renderer, series, formula codes
+  fx.js              - colour grade + glitch pixel effects
+  decay.js           - progressive destruction pipeline
+  degrade.js         - rust / burn / cracks / scratches / dust / stains
+  hud.js             - game HUD overlay
+  overlays.js        - transmission / conspiracy / NFT overlays
+  video.js           - sweep -> WebM export
+  brain.js           - aesthetic analysis, mood boards, auto-grouping
+  prompts.js         - aesthetic -> text prompt generator
+  gallery.js         - generation archive
+  frames.js          - frame library + framing/compositing
+  source.js          - series source pool builder
+  pin_import.bat     - Pinterest board downloader (gallery-dl)
+
+  Everything is vanilla JavaScript - no build step, no dependencies.
+
+================================================================================
+  Happy forging.  - Brodie
+================================================================================
