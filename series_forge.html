@@ -89,6 +89,16 @@
   .agn{font-size:11px;color:var(--muted)}
   .agthumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px;padding:10px}
   .agthumb{width:100%;height:56px;object-fit:cover;border-radius:6px;display:block;background:#000}
+  /* ---- Gallery / Archive ---- */
+  .gbatch{border:1px solid var(--line);border-radius:10px;margin-bottom:14px;background:var(--panel2);overflow:hidden}
+  .gbatch-head{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .gbatch-title{font-weight:700;color:var(--accent2);font-size:13px}
+  .ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:12px}
+  .gcell{position:relative;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#000}
+  .gcell img{width:100%;display:block;cursor:zoom-in}
+  .gcell-bar{display:flex;gap:4px;padding:5px;background:#12140c}
+  .gcell-bar button{flex:1;font-size:11px;padding:5px}
+  .gcell-bar .danger{flex:0 0 auto;padding:5px 9px}
   .codebox{width:100%;background:#0d0f0a;border:1px solid var(--line);color:var(--accent2);border-radius:8px;padding:8px;font-family:monospace;font-size:11px;word-break:break-all;min-height:34px}
   .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:16px}
   .gcard{background:var(--panel2);border:1px solid var(--line);border-radius:10px;overflow:hidden}
@@ -117,6 +127,7 @@
   <div class="tab" data-tab="formula" onclick="showTab('formula')">Formula</div>
   <div class="tab" data-tab="series" onclick="showTab('series')">Series</div>
   <div class="tab" data-tab="brain" onclick="showTab('brain')">Brain</div>
+  <div class="tab" data-tab="gallery" onclick="showTab('gallery')">Gallery</div>
 </div>
 
 <!-- ==================== LIBRARY ==================== -->
@@ -383,6 +394,18 @@
   </div>
 </section>
 
+<!-- ==================== GALLERY ==================== -->
+<section class="panel" id="panel-gallery">
+  <h3>Gallery / Archive</h3>
+  <p class="muted">Every series you generate is auto-archived here (thumbnail + formula code). Download any edition full-resolution on demand, or a whole batch - reliable one-at-a-time, so browser bulk-download blocking can't lose your work. Stored locally in your browser (IndexedDB).</p>
+  <div class="row" style="margin-bottom:10px;align-items:center">
+    <span class="libstats" id="gallery_stat" style="margin:0">Gallery empty.</span>
+    <span style="flex:1"></span>
+    <button class="danger" onclick="clearGallery()">Clear Gallery</button>
+  </div>
+  <div id="gallery_archive"></div>
+</section>
+
 <div class="lightbox" id="lightbox" onclick="this.classList.remove('show')"><img id="lightboxImg" alt="enlarged edition"></div>
 <div class="toast" id="toast"></div>
 <script src="forge.js"></script>
@@ -393,5 +416,6 @@
 <script src="video.js"></script>
 <script src="prompts.js"></script>
 <script src="brain.js"></script>
+<script src="gallery.js"></script>
 </body>
 </html>

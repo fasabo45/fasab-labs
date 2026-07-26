@@ -475,6 +475,7 @@ async function generateSeries(){
   const gallery = document.getElementById('gallery');
   gallery.innerHTML = '';
   _seriesRecipes = [];
+  const archiveItems = [];
   toast('Forging ' + count + ' editions...');
 
   for (let i = 0; i < count; i++){
@@ -498,9 +499,14 @@ async function generateSeries(){
     gallery.appendChild(card.el);
     await renderRecipe(scaleRecipe(r, 420), card.canvas, lib);
     _seriesRecipes.push(r);
+    const thumb = await new Promise(res => card.canvas.toBlob(res, 'image/png'));
+    if (thumb) archiveItems.push({ seed: r.seed, index: i + 1, code: encodeRecipe(r), w: r.w, h: r.h, blob: thumb });
     await new Promise(res => setTimeout(res, 0));  // let the UI breathe
   }
   toast('Forged ' + count + ' editions');
+  if (window.archiveGeneration && archiveItems.length){
+    try { await archiveGeneration(archiveItems); } catch (e){ console.warn('gallery archive failed', e); }
+  }
 }
 
 async function renderFull(recipe){
@@ -512,29 +518,40 @@ async function renderFull(recipe){
 
 function downloadCanvas(canvas, name){
   canvas.toBlob(blob => {
+    if (!blob){ toast('Save failed - could not encode PNG (canvas too large or blocked)'); return; }
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
+    a.href = url;
     a.download = name;
+    document.body.appendChild(a);     // some browsers (Firefox) require it in the DOM
     a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);   // revoke late so the download completes
   }, 'image/png');
 }
+window.renderFull = renderFull;              // used by gallery.js
+window.downloadCanvas = downloadCanvas;
+window.getSeriesRecipes = () => _seriesRecipes;
 
 async function saveOne(recipe, index){
-  const c = await renderFull(recipe);
-  downloadCanvas(c, 'forge_' + recipe.seed + '_' + (index + 1) + '.png');
-  toast('Saved edition ' + (index + 1));
+  try {
+    const c = await renderFull(recipe);
+    downloadCanvas(c, 'forge_' + recipe.seed + '_' + (index + 1) + '.png');
+    toast('Saved edition ' + (index + 1));
+  } catch (e){ console.error(e); toast('Save failed: ' + e.message); }
 }
 
 async function saveAllSeries(){
   if (!_seriesRecipes.length){ toast('Generate a series first'); return; }
   toast('Saving ' + _seriesRecipes.length + ' full-res PNGs...');
   for (let i = 0; i < _seriesRecipes.length; i++){
-    const c = await renderFull(_seriesRecipes[i]);
-    downloadCanvas(c, 'forge_' + _seriesRecipes[i].seed + '_' + (i + 1) + '.png');
-    await new Promise(res => setTimeout(res, 250));  // stagger downloads
+    try {
+      const c = await renderFull(_seriesRecipes[i]);
+      downloadCanvas(c, 'forge_' + _seriesRecipes[i].seed + '_' + (i + 1) + '.png');
+    } catch (e){ console.error(e); toast('Edition ' + (i + 1) + ' failed'); }
+    await new Promise(res => setTimeout(res, 400));  // stagger so browsers don't block
   }
-  toast('All editions saved');
+  toast('Saved. If your browser blocked some, grab them from the Gallery tab.');
 }
 
 async function enlarge(recipe){

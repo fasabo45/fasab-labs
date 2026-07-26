@@ -19,22 +19,27 @@ function showTab(name){
 //==================== INDEXEDDB ====================
 const DB_NAME = 'seriesForge';
 const STORE = 'refs';
+const GALLERY_STORE = 'gallery';
 let _db = null;
 
 function openDB(){
   return new Promise((resolve, reject) => {
     if (_db) return resolve(_db);
-    const req = indexedDB.open(DB_NAME, 1);
+    const req = indexedDB.open(DB_NAME, 2);
     req.onupgradeneeded = e => {
       const db = e.target.result;
       if (!db.objectStoreNames.contains(STORE)){
         db.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true });
+      }
+      if (!db.objectStoreNames.contains(GALLERY_STORE)){
+        db.createObjectStore(GALLERY_STORE, { keyPath: 'id', autoIncrement: true });
       }
     };
     req.onsuccess = e => { _db = e.target.result; resolve(_db); };
     req.onerror = e => reject(e.target.error);
   });
 }
+window.openDB = openDB;   // gallery.js opens the 'gallery' store via this
 
 function dbTx(mode){
   return openDB().then(db => db.transaction(STORE, mode).objectStore(STORE));
