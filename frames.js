@@ -14,6 +14,7 @@ function fPut(rec){ return fTx('readwrite').then(s => fReq(s, st => st.put(rec))
 function fDelete(id){ return fTx('readwrite').then(s => fReq(s, st => st.delete(id))); }
 
 let _frames = [], _frameImgs = new Map(), _activeFrame = null, _artCanvas = null, _frameUrls = [];
+let _srcMode = 'gallery';   // 'gallery' | 'library' - what the source picker shows
 
 function loadImgFromBlob(blob){
   return new Promise((res, rej) => {
@@ -160,13 +161,38 @@ async function useLatestPreview(){
   _artCanvas = await renderFull(r);
   renderFramedPreview();
 }
+function frSrcMode(mode){ _srcMode = mode; renderSourcePicker(); }
+
+// Frame ANY image file from disk.
+function _loadArtFile(file){
+  loadImgFromBlob(file).then(({ img, url }) => {
+    const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+    c.getContext('2d').drawImage(img, 0, 0); URL.revokeObjectURL(url);
+    _artCanvas = c; renderFramedPreview(); toast('Loaded image to frame');
+  }).catch(() => toast('Could not load that image'));
+}
+
 async function renderSourcePicker(){
   const strip = document.getElementById('fr_src'); if (!strip) return;
   strip.innerHTML = '';
+  if (_srcMode === 'library'){
+    const lib = window.loadLibraryImages ? await loadLibraryImages() : [];
+    if (!lib.length){ strip.innerHTML = '<span class="muted">Library empty - import references first.</span>'; return; }
+    for (const o of lib){
+      const im = document.createElement('img'); im.src = o.img.src; im.className = 'fr-srcthumb'; im.title = (o.tags || []).join(', ');
+      im.addEventListener('click', () => {
+        _artCanvas = o.img;
+        strip.querySelectorAll('img').forEach(i => i.classList.remove('sel')); im.classList.add('sel');
+        renderFramedPreview();
+      });
+      strip.appendChild(im);
+    }
+    return;
+  }
   const items = window.galleryAll ? await galleryAll() : [];
-  if (!items.length){ strip.innerHTML = '<span class="muted">No gallery images yet - generate a series, or use the latest preview.</span>'; return; }
+  if (!items.length){ strip.innerHTML = '<span class="muted">No gallery images yet - generate a series, upload, or pick from Library.</span>'; return; }
   items.sort((a, b) => b.batch - a.batch);
-  for (const it of items.slice(0, 30)){
+  for (const it of items.slice(0, 60)){
     const url = URL.createObjectURL(it.blob); _frameUrls.push(url);
     const im = document.createElement('img'); im.src = url; im.className = 'fr-srcthumb'; im.title = 'edition ' + it.index;
     im.addEventListener('click', async () => {
@@ -232,4 +258,6 @@ async function downloadFramed(){
   const fd = document.getElementById('frameFolderInput'); if (fd) fd.addEventListener('change', () => { importFrameFiles(fd.files); fd.value = ''; });
   ['fr_l', 'fr_t', 'fr_r', 'fr_b'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('input', onOpeningChange); });
   const mat = document.getElementById('fr_mat'); if (mat) mat.addEventListener('input', renderFramedPreview);
+  const fa = document.getElementById('frameArtInput');
+  if (fa) fa.addEventListener('change', () => { if (fa.files[0]) _loadArtFile(fa.files[0]); fa.value = ''; });
 })();
