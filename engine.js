@@ -377,6 +377,8 @@ function decodeRecipe(code){
 //==================== FORMULA TAB ACTIONS ====================
 let _lastRecipe = null;
 let _pinnedRefs = null;   // ref IDs carried over from a loaded code; null = pick fresh
+// Let the Brain tab pin a mood board's images as the exact source set.
+window.setPinnedRefs = function(ids){ _pinnedRefs = (ids && ids.length) ? ids.slice() : null; };
 
 // Recipe straight from the form, re-attaching any pinned refs from a loaded code.
 function currentRecipe(){
